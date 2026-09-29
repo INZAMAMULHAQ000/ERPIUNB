@@ -1,0 +1,1 @@
+<?php $_GET["screen"] = "view"; require __DIR__ . "/index.php"; 

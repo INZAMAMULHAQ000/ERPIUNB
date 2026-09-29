@@ -1,0 +1,1 @@
+<?php $_GET["screen"] = "comparison"; require __DIR__ . "/index.php"; 

@@ -1,0 +1,8 @@
+{
+    "name": "erp/leave-management",
+    "description": "ERP Leave Management",
+    "type": "project",
+    "require": {
+        "dompdf/dompdf": "^3.1"
+    }
+}

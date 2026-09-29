@@ -1,0 +1,34 @@
+Test F8 before asking me for F9
+
+Run these minimum tests:
+
+5% exclusive
+Net: AED 1,000
+Tax: AED 50
+Total: AED 1,050
+5% inclusive
+Total: AED 1,050
+Tax portion: AED 50
+Net: AED 1,000
+Invoice
+Verify AR + Revenue + Output Tax posting.
+Vendor bill
+Verify Expense/Asset + Input Tax + AP posting.
+Zero-rated
+Tax = AED 0 while transaction remains taxable.
+Exempt
+Verify exemption reason/code is retained.
+Historical rate
+Create a transaction at 5%.
+Change the current rate.
+Confirm the old transaction still shows 5%.
+Credit note
+Verify the original tax treatment is properly reversed/adjusted.
+Closed period
+Close a tax period.
+Attempt to modify a normal tax transaction.
+It must be blocked.
+Ledger reconciliation
+Tax report totals must reconcile with the corresponding Input/Output Tax GL accounts.
+
+Don't move to F9 until those pass. The next phase should be Fixed Assets & Depreciation, which will connect your Asset module to Finance and start accounting for depreciation, asset acquisition, disposal, and gain/loss.

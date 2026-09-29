@@ -1,0 +1,680 @@
+
+[data-theme="light"] .erp-navbar .text-lg { font-size: 0.9375rem !important; font-weight: 600 !important; color: #201F1E !important; }
+
+/* Navbar ghost icon buttons (hamburger, theme, sign out) */
+[data-theme="light"] .navbar-toggle-btn {
+    color: #605E5C !important;
+    border-radius: 4px !important;
+}
+[data-theme="light"] .navbar-toggle-btn:hover {
+    background: #F3F2F1 !important;
+    color: #201F1E !important;
+}
+[data-theme="light"] .erp-navbar .text-slate-500 { color: #605E5C !important; }
+[data-theme="light"] .erp-navbar .hover\:text-yellow-500:hover { color: #323130 !important; }
+[data-theme="light"] .erp-navbar .hover\:bg-yellow-50:hover { background: #F3F2F1 !important; }
+[data-theme="light"] .erp-navbar .hover\:text-red-600:hover { color: #D13438 !important; }
+[data-theme="light"] .erp-navbar .hover\:bg-red-50:hover { background: #F3F2F1 !important; }
+
+/* Avatar → Fluent blue circle with white initials */
+[data-theme="light"] .erp-navbar .bg-indigo-100 { background-color: #0F6CBD !important; }
+[data-theme="light"] .erp-navbar .text-indigo-700 { color: #FFFFFF !important; }
+
+/* Currency dropdown */
+[data-theme="light"] .erp-navbar .rounded-xl { border-radius: 8px !important; }
+
+/* Sidebar → white nav pane */
+[data-theme="light"] #sidebar {
+    background-color: #FFFFFF !important;
+    border-right: 1px solid #EDEBE9;
+}
+[data-theme="light"] #sidebar a {
+    color: #605E5C;
+    border-radius: 4px;
+    margin-right: 0.75rem;
+}
+[data-theme="light"] #sidebar a:hover {
+    background: #F3F2F1 !important;
+    color: #201F1E !important;
+    border-left-color: transparent !important;
+    box-shadow: none !important;
+}
+[data-theme="light"] #sidebar a.active {
+    background: #EFF6FC !important;
+    color: #201F1E !important;
+    border-left-color: transparent !important;
+    border-left-width: 0 !important;
+    box-shadow: none !important;
+}
+/* Fluent selection indicator — pill + 3px blue bar */
+[data-theme="light"] #sidebar a.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 50%;
+    background: #0F6CBD;
+    border-radius: 3px;
+}
+[data-theme="light"] #sidebar a.active i:first-child { color: #0F6CBD !important; }
+[data-theme="light"] #sidebar a i:first-child { color: #605E5C; }
+[data-theme="light"] #sidebar a.active i:first-child { color: #0F6CBD; }
+
+/* Sidebar section headers */
+[data-theme="light"] #sidebar .section-title { color: #605E5C; }
+[data-theme="light"] #sidebar .section-title.has-active { color: #201F1E; }
+[data-theme="light"] #sidebar .section-title.has-active i { color: #0F6CBD; }
+
+/* Dropdown sub-items + connector line */
+[data-theme="light"] #sidebar .dropdown-items a:hover {
+    background: #F3F2F1 !important;
+    color: #201F1E !important;
+    border-left-color: transparent !important;
+    box-shadow: none !important;
+}
+[data-theme="light"] #sidebar .dropdown-items a.active {
+    background: #EFF6FC !important;
+    color: #201F1E !important;
+    border-left-color: transparent !important;
+    box-shadow: none !important;
+}
+[data-theme="light"] #sidebar .dropdown-items a::before { background: #EDEBE9 !important; }
+[data-theme="light"] #sidebar .dropdown-items a.active i:first-child { color: #0F6CBD !important; }
+
+/* Collapsed rail hover tint */
+[data-theme="light"] #sidebar.collapsed .sidebar-content a:hover { background: #F3F2F1 !important; }
+
+/* ─────────────────────────────────────────────
+   4. BUTTONS  — Fluent flat controls
+   ───────────────────────────────────────────── */
+/* Primary blue family */
+[data-theme="light"] .bg-indigo-600, [data-theme="light"] .bg-indigo-700,
+[data-theme="light"] .bg-blue-600, [data-theme="light"] .bg-blue-700,
+[data-theme="light"] .bg-sky-600, [data-theme="light"] .bg-sky-700,
+[data-theme="light"] .bg-blue-500 {
+    background-color: #0F6CBD !important;
+}
+[data-theme="light"] .hover\:bg-indigo-700:hover, [data-theme="light"] .hover\:bg-indigo-600:hover,
+[data-theme="light"] .hover\:bg-blue-700:hover, [data-theme="light"] .hover\:bg-blue-600:hover,
+[data-theme="light"] .hover\:bg-sky-700:hover {
+    background-color: #115EA3 !important;
+}
+/* Success / danger */
+[data-theme="light"] .bg-green-600, [data-theme="light"] .bg-green-700,
+[data-theme="light"] .bg-emerald-600 { background-color: #107C10 !important; }
+[data-theme="light"] .hover\:bg-green-700:hover, [data-theme="light"] .hover\:bg-green-600:hover,
+[data-theme="light"] .hover\:bg-emerald-700:hover { background-color: #0F7B0F !important; }
+[data-theme="light"] .bg-red-600, [data-theme="light"] .bg-red-700 { background-color: #C50F1F !important; }
+[data-theme="light"] .hover\:bg-red-700:hover, [data-theme="light"] .hover\:bg-red-600:hover { background-color: #A4262C !important; }
+/* Neutral solid buttons */
+[data-theme="light"] .bg-gray-600 { background-color: #605E5C !important; }
+[data-theme="light"] .hover\:bg-gray-700:hover { background-color: #4A4846 !important; }
+[data-theme="light"] .bg-gray-700 { background-color: #4A4846 !important; }
+[data-theme="light"] .bg-gray-800 { background-color: #323130 !important; }
+[data-theme="light"] .bg-gray-900 { background-color: #1B1A19 !important; }
+[data-theme="light"] .bg-gray-300 { background-color: #D2D0CE !important; }
+[data-theme="light"] .hover\:bg-gray-300:hover { background-color: #C8C6C4 !important; }
+
+/* Flat geometry for every control-shaped link or button */
+[data-theme="light"] .erp-main button,
+[data-theme="light"] .erp-main a[class*="px-"][class*="py-"] {
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+[data-theme="light"] .erp-main button,
+[data-theme="light"] .erp-main a[class*="bg-indigo"], [data-theme="light"] .erp-main a[class*="bg-blue"],
+[data-theme="light"] .erp-main a[class*="bg-green"], [data-theme="light"] .erp-main a[class*="bg-red"] {
+    font-weight: 600 !important;
+}
+/* Kill any indigo glow shadows left on buttons */
+[data-theme="light"] .shadow-indigo-500\/30, [data-theme="light"] .shadow-indigo-500\/25,
+[data-theme="light"] .shadow-indigo-600\/30 { box-shadow: none !important; }
+
+/* ─────────────────────────────────────────────
+   5. FORMS  — Fluent fields
+   ───────────────────────────────────────────── */
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+    background-color: #FFFFFF !important;
+    color: #201F1E !important;
+    border-color: #8A8886 !important;
+    border-radius: 4px !important;
+}
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+    outline: none !important;
+    border-color: #0F6CBD !important;
+    box-shadow: 0 0 0 1px rgba(15, 108, 189, 0.4) !important;
+}
+[data-theme="light"] input::placeholder, [data-theme="light"] textarea::placeholder {
+    color: #605E5C !important;
+    opacity: 1 !important;
+}
+[data-theme="light"] input[type="checkbox"], [data-theme="light"] input[type="radio"] {
+    accent-color: #0F6CBD !important;
+}
+/* Tailwind indigo focus rings → M365 blue */
+[data-theme="light"] .focus\:ring-indigo-500\/20:focus,
+[data-theme="light"] .focus\:ring-indigo-500\/30:focus,
+[data-theme="light"] .focus\:ring-blue-500\/20:focus { --tw-ring-color: rgba(15, 108, 189, 0.20) !important; }
+[data-theme="light"] .focus\:border-indigo-500:focus,
+[data-theme="light"] .focus\:border-blue-500:focus { border-color: #0F6CBD !important; }
+
+/* ─────────────────────────────────────────────
+   6. SURFACES  — cards, shadows, radii
+   ───────────────────────────────────────────── */
+[data-theme="light"] .rounded { border-radius: 4px !important; }
+[data-theme="light"] .rounded-sm { border-radius: 2px !important; }
+[data-theme="light"] .rounded-lg { border-radius: 4px !important; }
+[data-theme="light"] .rounded-xl { border-radius: 4px !important; }
+[data-theme="light"] .rounded-2xl { border-radius: 6px !important; }
+[data-theme="light"] .rounded-3xl { border-radius: 8px !important; }
+
+[data-theme="light"] .shadow-sm { box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132), 0 0.3px 0.9px 0 rgba(0,0,0,0.108) !important; }
+[data-theme="light"] .shadow { box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132), 0 0.3px 0.9px 0 rgba(0,0,0,0.108) !important; }
+[data-theme="light"] .shadow-md { box-shadow: 0 3.2px 7.2px 0 rgba(0,0,0,0.132), 0 0.6px 1.8px 0 rgba(0,0,0,0.108) !important; }
+[data-theme="light"] .shadow-lg { box-shadow: 0 6.4px 14.4px 0 rgba(0,0,0,0.132), 0 1.2px 3.6px 0 rgba(0,0,0,0.108) !important; }
+[data-theme="light"] .shadow-xl { box-shadow: 0 12.8px 28.8px 0 rgba(0,0,0,0.132), 0 0.6px 1.8px 0 rgba(0,0,0,0.108) !important; }
+[data-theme="light"] .shadow-2xl { box-shadow: 0 12.8px 28.8px 0 rgba(0,0,0,0.132), 0 0.6px 1.8px 0 rgba(0,0,0,0.108) !important; }
+
+/* Modals stay a touch rounder */
+[data-theme="light"] .bg-white.rounded-lg.shadow-xl { border-radius: 8px !important; }
+
+/* Borders / dividers */
+[data-theme="light"] .border-gray-100, [data-theme="light"] .border-slate-100 { border-color: #EDEBE9 !important; }
+[data-theme="light"] .border-gray-200, [data-theme="light"] .border-slate-200,
+[data-theme="light"] .border-gray-300, [data-theme="light"] .border-slate-300 { border-color: #D2D0CE !important; }
+[data-theme="light"] .border-gray-400, [data-theme="light"] .border-slate-400 { border-color: #8A8886 !important; }
+[data-theme="light"] .divide-y > :not([hidden]) ~ :not([hidden]) { border-color: #EDEBE9 !important; }
+
+/* Neutral fills */
+[data-theme="light"] .bg-gray-50, [data-theme="light"] .bg-slate-50 { background-color: #FAF9F8 !important; }
+[data-theme="light"] .bg-gray-100, [data-theme="light"] .bg-slate-100 { background-color: #F3F2F1 !important; }
+[data-theme="light"] .bg-gray-200, [data-theme="light"] .bg-slate-200 { background-color: #EDEBE9 !important; }
+[data-theme="light"] .bg-gray-500 { background-color: #A19F9D !important; }
+[data-theme="light"] .hover\:bg-gray-50:hover, [data-theme="light"] .hover\:bg-slate-50:hover { background-color: #F3F2F1 !important; }
+[data-theme="light"] .hover\:bg-gray-100:hover, [data-theme="light"] .hover\:bg-slate-100:hover { background-color: #EDEBE9 !important; }
+[data-theme="light"] .hover\:bg-gray-200:hover { background-color: #E1DFDD !important; }
+
+/* ─────────────────────────────────────────────
+   7. TEXT  — neutral scale + Fluent semantics
+   ───────────────────────────────────────────── */
+[data-theme="light"] .text-gray-900, [data-theme="light"] .text-slate-900 { color: #1B1A19 !important; }
+[data-theme="light"] .text-gray-800, [data-theme="light"] .text-slate-800 { color: #201F1E !important; }
+[data-theme="light"] .text-gray-700, [data-theme="light"] .text-slate-700 { color: #323130 !important; }
+[data-theme="light"] .text-gray-600, [data-theme="light"] .text-slate-600,
+[data-theme="light"] .text-gray-500, [data-theme="light"] .text-slate-500 { color: #605E5C !important; }
+[data-theme="light"] .text-gray-400, [data-theme="light"] .text-slate-400 { color: #8A8886 !important; }
+[data-theme="light"] .text-gray-300, [data-theme="light"] .text-slate-300 { color: #A19F9D !important; }
+
+/* Blue / indigo → M365 blue */
+[data-theme="light"] .text-blue-800, [data-theme="light"] .text-sky-800, [data-theme="light"] .text-cyan-800 { color: #005FB8 !important; }
+[data-theme="light"] .text-blue-700, [data-theme="light"] .text-sky-700 { color: #005FB8 !important; }
+[data-theme="light"] .text-blue-600, [data-theme="light"] .text-sky-600, [data-theme="light"] .text-blue-500 { color: #0F6CBD !important; }
+[data-theme="light"] .text-indigo-800, [data-theme="light"] .text-indigo-700,
+[data-theme="light"] .text-indigo-600, [data-theme="light"] .text-indigo-500 { color: #0F6CBD !important; }
+[data-theme="light"] .text-indigo-400, [data-theme="light"] .text-indigo-300 { color: #5B93C9 !important; }
+
+/* Green / emerald / teal */
+[data-theme="light"] .text-green-800, [data-theme="light"] .text-emerald-800 { color: #0F7B0F !important; }
+[data-theme="light"] .text-green-700, [data-theme="light"] .text-green-600,
+[data-theme="light"] .text-emerald-700, [data-theme="light"] .text-emerald-600,
+[data-theme="light"] .text-green-500, [data-theme="light"] .text-emerald-500 { color: #0F7B0F !important; }
+[data-theme="light"] .text-teal-700, [data-theme="light"] .text-teal-600 { color: #038387 !important; }
+
+/* Red / rose / orange */
+[data-theme="light"] .text-red-800, [data-theme="light"] .text-rose-800 { color: #A4262C !important; }
+[data-theme="light"] .text-red-700, [data-theme="light"] .text-red-600, [data-theme="light"] .text-red-500,
+[data-theme="light"] .text-rose-600, [data-theme="light"] .text-rose-500 { color: #A4262C !important; }
+[data-theme="light"] .text-orange-800, [data-theme="light"] .text-orange-700,
+[data-theme="light"] .text-orange-600, [data-theme="light"] .text-orange-500 { color: #CA5010 !important; }
+
+/* Yellow / amber */
+[data-theme="light"] .text-yellow-800, [data-theme="light"] .text-amber-800 { color: #986F0B !important; }
+[data-theme="light"] .text-yellow-700, [data-theme="light"] .text-yellow-600,
+[data-theme="light"] .text-amber-700, [data-theme="light"] .text-amber-600,
+[data-theme="light"] .text-yellow-500 { color: #986F0B !important; }
+
+/* Purple / violet / fuchsia */
+[data-theme="light"] .text-purple-800, [data-theme="light"] .text-violet-800, [data-theme="light"] .text-fuchsia-800 { color: #5C2E91 !important; }
+[data-theme="light"] .text-purple-700, [data-theme="light"] .text-purple-600,
+[data-theme="light"] .text-violet-700, [data-theme="light"] .text-violet-600,
+[data-theme="light"] .text-purple-500 { color: #5C2E91 !important; }
+
+/* Link hovers */
+[data-theme="light"] .hover\:text-blue-700:hover, [data-theme="light"] .hover\:text-blue-600:hover,
+[data-theme="light"] .hover\:text-indigo-700:hover, [data-theme="light"] .hover\:text-indigo-600:hover { color: #115EA3 !important; }
+[data-theme="light"] .hover\:text-red-600:hover, [data-theme="light"] .hover\:text-red-700:hover { color: #A4262C !important; }
+[data-theme="light"] .hover\:text-gray-900:hover, [data-theme="light"] .hover\:text-slate-900:hover { color: #1B1A19 !important; }
+[data-theme="light"] .hover\:text-gray-700:hover, [data-theme="light"] .hover\:text-slate-700:hover { color: #323130 !important; }
+[data-theme="light"] .hover\:text-slate-500:hover { color: #605E5C !important; }
+
+/* ─────────────────────────────────────────────
+   8. TINTS & BADGES  — Fluent semantic fills
+   ───────────────────────────────────────────── */
+[data-theme="light"] .bg-blue-50, [data-theme="light"] .bg-sky-50,
+[data-theme="light"] .bg-blue-100, [data-theme="light"] .bg-sky-100 { background-color: #F0F6FF !important; }
+[data-theme="light"] .bg-indigo-50, [data-theme="light"] .bg-indigo-100 { background-color: #EFF6FC !important; }
+[data-theme="light"] .hover\:bg-indigo-50:hover { background-color: #EFF6FC !important; }
+[data-theme="light"] .bg-green-50, [data-theme="light"] .bg-emerald-50,
+[data-theme="light"] .bg-green-100, [data-theme="light"] .bg-emerald-100 { background-color: #DFF6DD !important; }
+[data-theme="light"] .bg-red-50, [data-theme="light"] .bg-rose-50,
+[data-theme="light"] .bg-red-100, [data-theme="light"] .bg-rose-100 { background-color: #FDEDED !important; }
+[data-theme="light"] .bg-yellow-50, [data-theme="light"] .bg-amber-50,
+[data-theme="light"] .bg-yellow-100, [data-theme="light"] .bg-amber-100 { background-color: #FFF8E7 !important; }
+[data-theme="light"] .bg-orange-50, [data-theme="light"] .bg-orange-100 { background-color: #FDF6F3 !important; }
+[data-theme="light"] .bg-purple-50, [data-theme="light"] .bg-violet-50,
+[data-theme="light"] .bg-purple-100, [data-theme="light"] .bg-violet-100 { background-color: #F4F0FA !important; }
+[data-theme="light"] .bg-teal-50, [data-theme="light"] .bg-cyan-50, [data-theme="light"] .bg-teal-100 { background-color: #E6F2F2 !important; }
+
+/* Solid accent fills (chart chips, progress, icons) */
+[data-theme="light"] .bg-indigo-500 { background-color: #0F6CBD !important; }
+[data-theme="light"] .bg-green-500 { background-color: #107C10 !important; }
+[data-theme="light"] .bg-red-500 { background-color: #C50F1F !important; }
+[data-theme="light"] .bg-orange-500 { background-color: #CA5010 !important; }
+[data-theme="light"] .bg-yellow-500 { background-color: #F2C811 !important; }
+[data-theme="light"] .bg-purple-500 { background-color: #5C2E91 !important; }
+[data-theme="light"] .bg-teal-500 { background-color: #038387 !important; }
+
+/* Semantic borders (MessageBar accents, stat-card edges) */
+[data-theme="light"] .border-blue-400 { border-color: #005FB8 !important; }
+[data-theme="light"] .border-blue-500, [data-theme="light"] .border-blue-600,
+[data-theme="light"] .border-sky-500, [data-theme="light"] .border-indigo-500 { border-color: #0F6CBD !important; }
+[data-theme="light"] .border-green-400, [data-theme="light"] .border-green-500,
+[data-theme="light"] .border-green-600, [data-theme="light"] .border-emerald-500 { border-color: #0F7B0F !important; }
+[data-theme="light"] .border-red-400, [data-theme="light"] .border-red-500,
+[data-theme="light"] .border-red-600 { border-color: #A4262C !important; }
+[data-theme="light"] .border-yellow-400, [data-theme="light"] .border-yellow-500,
+[data-theme="light"] .border-amber-400 { border-color: #986F0B !important; }
+[data-theme="light"] .border-orange-500 { border-color: #CA5010 !important; }
+
+/* Tailwind ring color → M365 blue (e.g. active theme card) */
+[data-theme="light"] .ring-indigo-500, [data-theme="light"] .ring-blue-500,
+[data-theme="light"] .ring-indigo-600 { --tw-ring-color: #0F6CBD !important; }
+
+/* ─────────────────────────────────────────────
+   9. TABLES  — Fluent list headers + row hover
+   ───────────────────────────────────────────── */
+[data-theme="light"] .erp-main thead th {
+    color: #605E5C !important;
+    font-weight: 600 !important;
+}
+[data-theme="light"] .erp-main tbody tr:hover td { background-color: #F3F2F1 !important; }
+[data-theme="light"] .erp-main tbody tr.hover\:bg-gray-50:hover td { background-color: #F3F2F1 !important; }
+
+/* ─────────────────────────────────────────────
+   10. ALERTS  — Fluent MessageBar accent
+   ───────────────────────────────────────────── */
+[data-theme="light"] .erp-main .bg-green-100.border,
+[data-theme="light"] .erp-main .bg-red-100.border,
+[data-theme="light"] .erp-main .bg-blue-100.border,
+[data-theme="light"] .erp-main .bg-yellow-100.border,
+[data-theme="light"] .erp-main .bg-gray-100.border { border-left-width: 4px !important; }
+
+/* ─────────────────────────────────────────────
+   11. FINANCE WATER-CARDS  — flatten to M365 tiles
+   ───────────────────────────────────────────── */
+[data-theme="light"] .water-card {
+    background: #FFFFFF !important;
+    border: 1px solid #EDEBE9 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132), 0 0.3px 0.9px 0 rgba(0,0,0,0.108) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease !important;
+}
+[data-theme="light"] .water-card::before,
+[data-theme="light"] .water-card::after { display: none !important; }
+[data-theme="light"] .water-card:hover {
+    transform: translateY(-2px) !important;
+    border-color: #D2D0CE !important;
+    box-shadow: 0 3.2px 7.2px 0 rgba(0,0,0,0.132), 0 0.6px 1.8px 0 rgba(0,0,0,0.108) !important;
+}
+[data-theme="light"] .water-card:active { transform: translateY(0) !important; }
+[data-theme="light"] .water-card-icon {
+    background: #EFF6FC !important;
+    color: #0F6CBD !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    border-radius: 6px !important;
+}
+[data-theme="light"] .water-card-content h3 { color: #201F1E !important; text-shadow: none !important; }
+[data-theme="light"] .water-card-content p { color: #605E5C !important; }
+[data-theme="light"] .finance-hero-icon {
+    background: #0F6CBD !important;
+    border-radius: 6px !important;
+    box-shadow: 0 3.2px 7.2px 0 rgba(15, 108, 189, 0.25) !important;
+}
+[data-theme="light"] .finance-hero-icon::after { display: none !important; }
+[data-theme="light"] .finance-hero-text h1 { color: #201F1E !important; }
+[data-theme="light"] .finance-hero-text p { color: #605E5C !important; }
+/* M365 section headers are plain text — drop the gradient accent bars */
+[data-theme="light"] .finance-section-header .bar { display: none !important; }
+[data-theme="light"] .finance-section-header h2 { color: #201F1E !important; }
+/* Summary cards lose the coloured left edge */
+[data-theme="light"] .bg-white.border-l-4 { border-left-width: 0 !important; }
+
+/* ─────────────────────────────────────────────
+   12. DASHBOARD WIDGETS  — Fluent cards
+   ───────────────────────────────────────────── */
+[data-theme="light"] .dashboard-widget {
+    background: #FFFFFF !important;
+    border: 1px solid #EDEBE9 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132), 0 0.3px 0.9px 0 rgba(0,0,0,0.108) !important;
+}
+[data-theme="light"] .dashboard-widget .widget-header { border-bottom: 1px solid #EDEBE9 !important; }
+[data-theme="light"] .dash-btn-primary { background: #0F6CBD !important; border-color: #0F6CBD !important; }
+[data-theme="light"] .dash-btn-primary:hover { background: #115EA3 !important; }
+[data-theme="light"] .dash-btn-ghost { color: #323130 !important; background: #FFFFFF !important; border-color: #D2D0CE !important; }
+[data-theme="light"] .dash-btn-ghost:hover { background: #F3F2F1 !important; border-color: #8A8886 !important; }
+[data-theme="light"] .kpi-value {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Segoe UI Web', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    color: #1B1A19 !important;
+}
+[data-theme="light"] .kpi-label { color: #605E5C !important; opacity: 1 !important; }
+[data-theme="light"] .widget-remove-btn:hover { background: #FDEDED !important; }
+
+/* ─────────────────────────────────────────────
+   13. TASK BOARD  — M365 kanban
+   ───────────────────────────────────────────── */
+[data-theme="light"] .task-col-body { background: #F3F2F1 !important; }
+[data-theme="light"] .task-card {
+    border-radius: 4px !important;
+    border-color: #EDEBE9 !important;
+}
+[data-theme="light"] .task-card:hover { box-shadow: 0 3.2px 7.2px 0 rgba(0,0,0,0.132), 0 0.6px 1.8px 0 rgba(0,0,0,0.108) !important; }
+[data-theme="light"] .view-tab { color: #605E5C !important; border-radius: 999px !important; }
+[data-theme="light"] .view-tab:hover { background: #F3F2F1 !important; color: #201F1E !important; }
+[data-theme="light"] .view-tab.active { background: #0F6CBD !important; color: #FFFFFF !important; }
+[data-theme="light"] .task-list-table th { color: #605E5C !important; font-weight: 600 !important; }
+[data-theme="light"] .task-list-table .task-title-cell:hover { color: #0F6CBD !important; }
+
+/* ─────────────────────────────────────────────
+   14. ADMIN CENTER RESEMBLANCE — Segoe UI, crisp corners, M365 canvas
+   ───────────────────────────────────────────── */
+
+/* Segoe UI system font for the whole app (Windows-native, like M365).
+   Overrides the Inter import from style.css for the light theme only. */
+body[data-theme="light"],
+[data-theme="light"] button,
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea,
+[data-theme="light"] th,
+[data-theme="light"] td {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Segoe UI Web',
+        'Segoe UI Web (West European)', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* M365 admin canvas — warm neutral content background behind white cards */
+[data-theme="light"] .erp-main { background-color: #F3F2F1 !important; }
+
+/* Hairline divider under the top bar, as in the admin center */
+[data-theme="light"] .erp-navbar { border-bottom-color: #EDEBE9 !important; }
+
+/* Page titles — semibold like M365 (not the heavier Tailwind 700) */
+[data-theme="light"] .erp-main h1 {
+    font-weight: 600 !important;
+    letter-spacing: -0.011em !important;
+    color: #1B1A19 !important;
+}
+[data-theme="light"] .erp-main h2,
+[data-theme="light"] .erp-main h3 {
+    font-weight: 600 !important;
+    color: #201F1E !important;
+}
+
+/* Dropdowns / popovers — crisp Fluent 4px */
+[data-theme="light"] .bg-white.rounded-xl.shadow-xl { border-radius: 4px !important; }
+
+/* ─────────────────────────────────────────────
+   15. FLUENT CONTROLS — buttons, selects, dropdowns
+   ───────────────────────────────────────────── */
+
+/* Complete the sharp corner scale (Tailwind "md" → Fluent 4px) */
+[data-theme="light"] .rounded-md { border-radius: 4px !important; }
+
+/* --- Uniform control geometry: 32px tall, 4px corners, Segoe UI --- */
+[data-theme="light"] .erp-main button[class*="py-2"],
+[data-theme="light"] .erp-main button[class*="py-1.5"],
+[data-theme="light"] .erp-main input[type="submit"],
+[data-theme="light"] .erp-main input[type="button"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Segoe UI Web',
+        'Segoe UI Web (West European)', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+/* Button-shaped anchors (colored "button" links + pagination) share the height */
+[data-theme="light"] .erp-main a[class*="bg-"][class*="px-"][class*="py-"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+/* --- Fluent secondary buttons: white fill, 1px stroke, hover fill --- */
+[data-theme="light"] .erp-main button[class*="border-gray"],
+[data-theme="light"] .erp-main button[class*="border-slate"] {
+    background-color: #FFFFFF !important;
+    color: #201F1E !important;
+    border: 1px solid #8A8886 !important;
+}
+[data-theme="light"] .erp-main button[class*="border-gray"]:hover,
+[data-theme="light"] .erp-main button[class*="border-slate"]:hover {
+    background-color: #F3F2F1 !important;
+    border-color: #605E5C !important;
+}
+[data-theme="light"] .erp-main button[class*="border-gray"]:active,
+[data-theme="light"] .erp-main button[class*="border-slate"]:active {
+    background-color: #E1DFDD !important;
+}
+
+/* --- Fluent pressed states for solid buttons (win over :hover) --- */
+[data-theme="light"] .erp-main button[class*="bg-blue"]:active,
+[data-theme="light"] .erp-main button[class*="bg-indigo"]:active,
+[data-theme="light"] .erp-main button[class*="bg-sky"]:active {
+    background-color: #0C5485 !important;
+}
+[data-theme="light"] .erp-main button[class*="bg-green"]:active,
+[data-theme="light"] .erp-main button[class*="bg-emerald"]:active {
+    background-color: #0B690B !important;
+}
+[data-theme="light"] .erp-main button[class*="bg-red"]:active,
+[data-theme="light"] .erp-main button[class*="bg-rose"]:active {
+    background-color: #8F0A15 !important;
+}
+[data-theme="light"] .erp-main button[class*="bg-gray"]:active {
+    background-color: #3B3938 !important;
+}
+
+/* --- Fluent <select>: native arrow removed, M365 chevron, 32px --- */
+[data-theme="light"] select {
+    height: 32px !important;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 30px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23605E5C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M3 4.5L6 7.5L9 4.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 12px 12px;
+    cursor: pointer;
+}
+[data-theme="light"] select:hover { border-color: #605E5C !important; }
+
+/* --- Text inputs: 32px to sit in the same field grid --- */
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]) {
+    height: 32px !important;
+}
+
+/* --- Navbar currency dropdown → Fluent popover --- */
+[data-theme="light"] .erp-navbar .bg-white.rounded-xl.shadow-xl {
+    border-color: #EDEBE9 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 6.4px 14.4px 0 rgba(0,0,0,0.132), 0 1.2px 3.6px 0 rgba(0,0,0,0.108) !important;
+    padding: 4px !important;
+}
+[data-theme="light"] .erp-navbar .bg-white.rounded-xl.shadow-xl a { border-radius: 4px !important; }
+
+/* --- Fluent focus ring --- */
+[data-theme="light"] .erp-main button:focus-visible,
+[data-theme="light"] .erp-main a:focus-visible {
+    outline: 1px solid #0F6CBD !important;
+    outline-offset: 1px !important;
+}
+
+/* ─────────────────────────────────────────────
+   16. FLUENT DROPDOWN COMPONENT
+   Native <select> upgraded by assets/js/fluent-dropdown.js
+   into a Microsoft 365 trigger + callout listbox.
+   Base styles are the light M365 look; dark/kito themes get
+   a dark-surface override at the bottom. Candy (warm light)
+   keeps the default light look.
+   ───────────────────────────────────────────── */
+
+/* Wrapper — matches the original select's width */
+.fluent-dd { position: relative; display: inline-block; vertical-align: middle; }
+.fluent-dd.fluent-dd-block { display: block; width: 100%; }
+.fluent-dd.fluent-dd-auto { min-width: 180px; }
+
+/* Hidden native select: still in the DOM for form submission and
+   required validation, but invisible and non-interactive. */
+.fluent-dd .fluent-dd-native {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    margin: 0; padding: 0; border: 0;
+    opacity: 0; pointer-events: none; z-index: 1;
+}
+
+/* Trigger — Fluent combo box */
+.fluent-dd-trigger {
+    display: flex; align-items: center;
+    width: 100%; height: 32px;
+    padding: 0 30px 0 12px;
+    background: #FFFFFF;
+    border: 1px solid #8A8886;
+    border-radius: 4px;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Segoe UI Web',
+        'Segoe UI Web (West European)', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    color: #201F1E;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    outline: none;
+}
+.fluent-dd-trigger:hover { border-color: #605E5C; }
+.fluent-dd-trigger:focus-visible {
+    border-color: #0F6CBD;
+    box-shadow: 0 0 0 1px rgba(15, 108, 189, 0.4);
+}
+
+.fluent-dd-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fluent-dd-value.is-placeholder { color: #605E5C; }
+
+.fluent-dd-caret {
+    position: absolute; right: 10px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px; color: #605E5C;
+    pointer-events: none;
+    transition: transform 0.1s ease;
+}
+.fluent-dd.is-open .fluent-dd-caret { transform: translateY(-50%) rotate(180deg); }
+
+.fluent-dd.is-disabled .fluent-dd-trigger {
+    background: #F3F2F1; border-color: #EDEBE9;
+    color: #A19F9D; cursor: default;
+}
+.fluent-dd.is-disabled .fluent-dd-caret { color: #A19F9D; }
+
+/* Callout listbox */
+.fluent-dd-menu {
+    display: none;
+    position: absolute; left: 0;
+    min-width: 100%;
+    max-height: 280px;
+    overflow-y: auto;
+    background: #FFFFFF;
+    border: 1px solid #EDEBE9;
+    border-radius: 4px;
+    box-shadow: 0 6.4px 14.4px 0 rgba(0,0,0,0.132), 0 1.2px 3.6px 0 rgba(0,0,0,0.108);
+    padding: 4px;
+    z-index: 100;
+}
+.fluent-dd-menu.is-open { display: block; animation: fluent-dd-in 0.1s ease-out; }
+@keyframes fluent-dd-in {
+    from { opacity: 0; transform: translateY(-2px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Option rows — 32px, hover fill, blue checkmark on the selected item */
+.fluent-dd-option {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; height: 32px;
+    padding: 0 12px;
+    background: transparent; border: none; border-radius: 4px;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Segoe UI Web',
+        'Segoe UI Web (West European)', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px; color: #201F1E;
+    text-align: left; cursor: pointer;
+}
+.fluent-dd-option:hover,
+.fluent-dd-option.is-active { background: #F3F2F1; }
+.fluent-dd-option.is-selected {
+    background: #EFF6FC; color: #0F6CBD; font-weight: 600;
+}
+.fluent-dd-option.is-selected::after {
+    content: '\f00c';               /* Font Awesome 6 solid check */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 12px;
+    color: #0F6CBD;
+    margin-left: auto;
+}
+.fluent-dd-option.is-disabled { color: #A19F9D; cursor: default; }
+.fluent-dd-option.is-disabled:hover,
+.fluent-dd-option.is-disabled.is-active { background: transparent; }
+
+/* Slim Fluent scrollbar for the open list */
+.fluent-dd-menu::-webkit-scrollbar { width: 6px; }
+.fluent-dd-menu::-webkit-scrollbar-track { background: transparent; }
+.fluent-dd-menu::-webkit-scrollbar-thumb { background: #C8C6C4; border-radius: 999px; }
+.fluent-dd-menu::-webkit-scrollbar-thumb:hover { background: #A19F9D; }
+
+/* Dark / KITO — keep the component readable on dark surfaces */
+[data-theme="dark"] .fluent-dd-trigger,
+[data-theme="kito"] .fluent-dd-trigger { background: #1A2332; border-color: #334155; color: #F1F5F9; }
+[data-theme="dark"] .fluent-dd-menu,
+[data-theme="kito"] .fluent-dd-menu { background: #1A2332; border-color: #1E293B; }
+[data-theme="dark"] .fluent-dd-option,
+[data-theme="kito"] .fluent-dd-option { color: #F1F5F9; }
+[data-theme="dark"] .fluent-dd-option:hover,
+[data-theme="dark"] .fluent-dd-option.is-active,
+[data-theme="kito"] .fluent-dd-option:hover,
+[data-theme="kito"] .fluent-dd-option.is-active { background: #1E293B; }
+[data-theme="dark"] .fluent-dd-option.is-selected,
+[data-theme="kito"] .fluent-dd-option.is-selected { background: rgba(15, 108, 189, 0.25); color: #93C5FD; }
+[data-theme="dark"] .fluent-dd-caret,
+[data-theme="kito"] .fluent-dd-caret { color: #94A3B8; }
+[data-theme="dark"] .fluent-dd-value.is-placeholder,
+[data-theme="kito"] .fluent-dd-value.is-placeholder { color: #94A3B8; }
+[data-theme="dark"] .fluent-dd.is-disabled .fluent-dd-trigger,
+[data-theme="kito"] .fluent-dd.is-disabled .fluent-dd-trigger { background: #0F172A; border-color: #1E293B; color: #475569; }
+
+
+
+

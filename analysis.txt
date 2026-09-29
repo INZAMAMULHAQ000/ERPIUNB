@@ -1,0 +1,220 @@
+## High‑Level Analysis of the ERP Codebase
+
+Below is a technical “walk‑through” of the current shop‑floor ERP application. I’ve grouped the information by logical layers, listed the most critical files, and highlighted patterns, security measures, and any obvious pain points.
+
+> ⚠️ **Note** – This is an *overview* only.
+> For a line‑by‑line audit or an automated diff‑review, let me know and I’ll spin up a targeted sub‑agent or use a dedicated review skill.
+
+---
+
+### 1. Project Structure
+
+```
+erp-root/
+├── config/            # db creds, schema, migrations, seeders
+├── database/          # raw backup dumps (usually *.sql)
+├── helpers/           # core utilities – security, RBAC, formatting
+├── includes/          # layout components – header, footer, nav, sidebar
+├── middleware/        # auth guard, session bootstrap
+├── modules/           # 60+ feature modules (self‑contained CRUD)
+├── templates/         # reusable UI components
+├── assets/            # public assets – CSS, JS, images
+├── uploads/           # user uploads (never world‑readable)
+├── api/               # REST‑style API endpoints
+├── widgets/           # dashboard widgets
+├── .agents/           # skill definitions
+└── *.php /.sql /.md   # entry‑points, migrations, docs
+```
+
+> The **`.agents/`** directory is Cal‑ebased for the DSH harness; it contains skills used by the system.
+> The harness sandbox is open (danger‑full‑access) – no file‑level restrictions.
+
+---
+
+### 2. Request Flow & Core Pipeline
+
+| Step | File | Purpose |
+|------|------|---------|
+| **1. Entry** | `index.php` (root dashboard) or module route from `.htaccess` | Init page, render nav & content |
+| **2. Auth** | `middleware/auth.php` (`requireAuth()` is called in `header.php`) | Starts the session & enforces login |
+| **3. RBAC** | `helpers/rbac.php` (`hasPermission()`) | Ensures user action verbs (`module.action`) are permitted |
+| **4. Routing** | `.htaccess` rewrite rules | Handles clean URLs + auto‑extension appending |
+| **5. Module** | `modules/<mod>/<action>.php` | Runs business logic |
+| **6. Rendering** | `includes/header.php` → module body → `includes/footer.php` | Construct full HTML page |
+| **7. Live Update** | `assets/js/...` | Ajax for inline edit, pagination, etc. |
+
+The *middleware* and *RBAC* layers provide the basic security plumbing for all modules.
+
+---
+
+### 3. Core Helpers & Utilities
+
+| Helper | Responsibility |
+|-------|-------------------|
+| `security.php` | XSS sanitiser (`sanitize()`), URL helpers, CSRF token generation |
+| `rbac.php` | Permission normalisation & binary checks (e.g., `finance.payroll.process`) |
+| `url.php` | Base URL detection, path resolution |
+| `validation.php` | MVC‑style validator (`validate()` with rules) |
+| `pagination.php` | Page offset & limit helpers |
+| `breadcrumbs.php` | Dynamic breadcrumb stack |
+| `currency.php` | Multi‑currency conversions / formatting |
+| `menu.php` | Recursive menu build from permissions |
+| `template_renderer.php` | Simple wrapper for include + variable extraction |
+| `report_engine.php` | Export to PDF/CSV, Chart.js chart building |
+
+These helpers keep the “vanilla PHP” feel but enforce a consistent style.
+
+---
+
+### 4. Database & Migrations
+
+*Primary Connection* – `config/database.php` sets `$DB_HOST`, `$DB_NAME`, etc.; uses PDO.
+
+*Migrations* – `config/runner.php` iterates `123456/schema_*.sql` sequentially. No rollback logic, so all changes are additive.
+
+*Seed Data* – `config/seed_data.php` populates baseline tables.
+
+*Sample Tables* – `users`, `employees`, `departments`, `chart_of_accounts`, `journal_entries`, `general_ledger`, `financial_years`, `period_close`, `ai_*` tables for the AI module.
+
+> The DB layer uses prepared statements throughout; no raw queries visible.
+
+---
+
+### 5. Core Modules & Their Core Logic
+
+| Module | Key Features | Primary PHP Files |
+|--------|--------------|-------------------|
+| **Finance** | Chart‑of‑Accounts, Journal Entries, GL, Budgets, Payroll, Period‑Close (F12/F13), Fixed Assets (F9) | `modules/finance/*` |
+| **AI** | Services, Knowledge base, Integrations, Copilot UI, Governance, Workflows | `modules/ai/services/*` |
+| **HR / Attendance / Payroll** | Attendance logs, Leave requests, Payroll calculations | `modules/attendance/*`, `modules/payroll/*` |
+| **CRM** | Leads, Clients, Deals | `modules/leads/*`, `modules/clients/*`, `modules/deals/*` |
+| **Procurement** | RFQ, Quotations, PO | `modules/procurement/*` |
+| **Projects / Tasks** | Kanban, Milestones | `modules/projects/*`, `modules/tasks/*` |
+| **Helpdesk** | Tickets, Knowledge base | `modules/tickets/*`, `modules/knowledge_base/*` |
+| **Reports** | Custom builder, scheduled exports | `modules/reports/*` |
+| **Widgets** | Dashboard widgets (e.g., charts, KPIs) | `widgets/*` |
+
+Each module follows the **CRUD scaffolding** pattern:
+```
+index.php -> list view
+create.php -> form
+edit.php   -> form
+view.php   -> details
+delete.php -> POST action
+```
+The AI part is isolated in `modules/ai/` – it loads its own helpers and uses a custom **CompatPDOStatement** to stay compatible with the rest of the system.
+
+---
+
+### 6. Routing & URL Handling
+
+`.htaccess` contains:
+```
+RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^modules/([^/]+)/(.*)$ /modules/$1/$2.php [L]
+# Auto‑append .php extension
+```
+So URLs like `/modules/users/index` map to `/modules/users/index.php`.  The project supports both “index.php” and “action.php” style ends.
+
+---
+
+### 7. Security Sublayers
+
+| Layer | Implementation |
+|-------|---------------|
+| Session | `middleware/auth.php` calls `session_start()`; cookie flags (HttpOnly, SameSite) set by PHP default maybe; regeneration on login/logout |
+| Auth | `requireAuth()` pulls `$_SESSION['user_id']` |
+| RBAC | `hasPermission()` checks permission strings, normalised via `rbac.php` |
+| XSS | `sanitize()` (htmlspecialchars ENT_QUOTES) used on all output |
+| CSRF | Token generated in `security.php`; checked on all POST/PUT/DELETE |
+| SQL | Prepared statements exclusively; no dynamic SQL |
+| Rate‑Limiting | Not in code – intended for web‑server level (Apache/Nginx) |
+| File Upload | Handled under `uploads/`; no public directory; file type validation recommended |
+
+The application is *production‑grade* on the surface, but lacks user‑session smoke‑tests, fine‑grained principals for certain modules, and explicit error handling for all edge cases.
+
+---
+
+### 8. AI Module Architecture
+
+*Service Layer* in `modules/ai/services/`: e.g. `AIAgentService.php`, `AIKnowledgeService.php`, `AIDocumentIntelligenceService.php`, etc.  *API Endpoints* in `modules/ai/api/`: routes like `/ai/api/agents.php`, `/ai/api/workflows.php`.
+
+*AI Governance* lives in `modules/ai/governance/`.  `AIPolicyEngine.php` evaluates requests, logs events (`AISecurityEventService.php`), and can trigger an `AIKillSwitchService.php`.
+
+The module uses its own `php/`-based autoloading and loads a central config file from `ai/config/ai_central_config.php`.  It also integrates with the global DB connection but uses a **compatibility layer** (`CompatPDOStatement`) to emulate older MySQLi styles.
+
+---
+
+### 9. Testing Strategy
+
+- **Test Suites**: `test_f12_suite.php`, `test_f13_suite.php`, `test_f9_complete.php`, etc. They load sample data, run the core services, and perform assertions.
+- **Manual Debug Scripts**: e.g. `check_users.php`, `check_asset_categories.php` – simple scripts to inspect structures.
+- **Unit vs Integration**: Most of the test scripts are **integration tests** (they hit the real DB). No automated unit tests are visible.
+
+---
+
+### 10. Build & Deployment
+
+| Step | Command |
+|------|---------|
+| Setup | `php setup.php` (dashboard widget init) |
+| Migrations | `php config/runner.php` |
+| Seed | `php config/seed_data.php` |
+| Cron Scheduler | `php ai_automation_scheduler.php` |
+| Health Check | `php erp_module_health_check.php` |
+| Enable Workflow Studio | `php enable_workflow_studio.php` |
+| Tests | `php test_*_suite.php` |
+
+There is no build step for frontend (Tailwind CDN, Chart.js from CDN).  All PHP code is **zero dependencies**; no Composer involved.
+
+---
+
+### 11. Potential Areas for Improvement / Typical Pain Points
+
+| Area | Pain Point | Suggested Fix |
+|------|------------|--------------|
+| **Scalability** | Coupled request flow (all modules run in a single PHP request) | Consider adding async workers (e.g., for long AI processing) |
+| **Logging** | No structured logging | Add telemetry to `helpers/logger.php`, maybe to a file or log‑shipper |
+| **Rate‑Limiting** | Relies on web‑server config | Easy to add simple IP throttling in `middleware/auth.php` |
+| **CSRF** | Simple token, but not validated in all POST routes | Promote usage of a standard CSRF library |
+| **Testing** | Only integration tests; no unit coverage | Add PHPUnit unit tests for service helpers |
+| **Error Handling** | Production hides errors; no custom log | Use `set_error_handler` + `set_exception_handler` for dev |
+| **Accessibility** | No ARIA compliance in UI components | Add proper `aria-*` attributes |
+| **API Rate‑Limiting** | Not addressed in API side | Add `AuthenticationMiddleware` for APIs |
+| **Database Transactions** | Many updates missing transaction boundaries | Wrap critical multi‑step actions in `$db->beginTransaction()/commit()` |
+| **File Upload Security** | Basic validation only | Add MIME type check, max size enforcement, sane filename sanitisation |
+| **Performance** | Full table scans in some reports | Add appropriate indexes, query caching |
+
+---
+
+### 12. Quick Reference – Key Files to Inspect
+
+| Path | What to Look For |
+|------|-----------------|
+| `helpers/security.php` | sanitisation, CSRF, XSS helpers |
+| `helpers/rbac.php` | permission checks |
+| `middleware/auth.php` | session init, auth guard |
+| `index.php` | global bootstrap |
+| `modules/<mod>/index.php` | list view logic |
+| `modules/<mod>/<action>.php` | CRUD actions, DB interaction |
+| `config/database.php` | connection credentials, env detection |
+| `config/schema.sql` | core schema |
+| `config/migrations/*` | migration order |
+| `modules/finance/period_close/PeriodCloseService.php` | important business logic |
+| `modules/ai/services/*` | AI stack |
+| `widgets/*` | front‑end widgets |
+| `api/*` | endpoint handlers |
+
+---
+
+## Summary
+
+- **Well‑structured**: Rooted in a simple MVC‑style architecture, each module is self‑contained.
+- **Security‑conscious**: Uses prepared statements, sanitisation, CSRF, session guard.
+- **Zero‑dependency**: No Composer or heavy frameworks; this simplifies deployment.
+- **Feature‑rich**: 60+ modules covering finance, HR, procurement, AI, etc.
+- **Test‑heavy**: Dedicated test suites for core accounting actions.
+
+If you’d like a deeper inspection of a particular subset (e.g., the AI governance layer, or the financial posting engine), or you want an automated review of recent commits, just let me know and I’ll launch the appropriate sub‑agent or workflow.

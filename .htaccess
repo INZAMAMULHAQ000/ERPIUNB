@@ -1,0 +1,52 @@
+Options +FollowSymLinks -Indexes
+RewriteEngine On
+
+# ——— RewriteBase for subdomain / root installs ———
+# When hosted at a subdomain root (e.g. application.kmsdigitechs.com),
+# the app lives at / so RewriteBase must be /
+# If you ever move the app into a subfolder, change this to that folder path.
+RewriteBase /
+
+# ——— PHP Extension Auto-append (optional clean URLs) ———
+# If the request is not for an existing file or directory, add .php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)$ $1.php [L,QSA]
+
+# ——— Security: Deny access to sensitive directories ———
+RewriteRule ^config/ - [F,L]
+RewriteRule ^helpers/ - [F,L]
+RewriteRule ^middleware/ - [F,L]
+RewriteRule ^templates/ - [F,L]
+
+# ——— Security: Deny access to sensitive file types ———
+RewriteRule \.sql$ - [F,L]
+RewriteRule \.md$ - [F,L]
+RewriteRule \.env$ - [F,L]
+RewriteRule \.jsonl$ - [F,L]
+RewriteRule ^seed_data\.php$ - [F,L]
+RewriteRule ^_debug - [F,L]
+
+# ——— Security Headers ———
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ——— PHP settings ———
+<IfModule mod_php.c>
+    php_value default_charset "UTF-8"
+</IfModule>
+
+# ——— File Access: deny dotfiles ———
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "(^#.*#|\.(bak|config|dist|fla|inc|ini|log|psd|sh|swp|sql|md|jsonl)|~)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

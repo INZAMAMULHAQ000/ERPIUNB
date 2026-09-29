@@ -1,0 +1,962 @@
+You are a Senior ERP Finance Architect, Chartered Accountant (CA), Tax Consultant, and Senior Core PHP Developer.
+
+Finance Foundation (F1), General Ledger (F2), Banking & Cash (F3), Accounts Receivable (F4), Accounts Payable (F5), Expense Management (F6), and Budget Management (F7) are completed and verified.
+
+Now build the complete TAX MANAGEMENT ENGINE.
+
+==================================================
+TECH STACK
+==================================================
+
+- Core PHP
+- MySQL
+- HTML
+- Tailwind CSS
+- Vanilla JavaScript only where required
+
+STRICTLY FORBIDDEN:
+
+- Laravel
+- CodeIgniter
+- Symfony
+- React
+- Vue
+- Angular
+- Next.js
+- Any frontend framework
+- Any SPA architecture
+- Any ORM
+
+Use PDO and the existing ERP architecture.
+
+==================================================
+IMPORTANT ARCHITECTURAL RULE
+==================================================
+
+Do NOT build tax logic separately inside:
+
+- Invoices
+- Vendor Bills
+- Expenses
+- Payments
+- Reports
+
+Create ONE centralized Tax Engine.
+
+Future modules must be able to call the Tax Engine.
+
+Example:
+
+Invoice
+   ↓
+Tax Engine
+   ↓
+Calculate Tax
+   ↓
+Invoice Total
+   ↓
+Posting Engine
+   ↓
+General Ledger
+
+The same Tax Engine must work for:
+
+Customer invoices
+Vendor bills
+Expenses
+Credit notes
+Debit notes
+Other taxable transactions
+
+==================================================
+OBJECTIVE
+==================================================
+
+Build a reusable enterprise Tax Management system capable of:
+
+- Multiple tax types
+- Multiple tax rates
+- Tax-inclusive pricing
+- Tax-exclusive pricing
+- Tax exemptions
+- Zero-rated transactions
+- Taxable transactions
+- Multiple taxes on one transaction
+- Tax registration details
+- Tax periods
+- Tax reporting
+- Tax transaction history
+
+The system must be configurable rather than hard-coded for one country.
+
+==================================================
+MODULES
+==================================================
+
+1. Tax Dashboard
+
+2. Tax Configuration
+
+3. Tax Types
+
+4. Tax Rates
+
+5. Tax Groups
+
+6. Tax Exemptions
+
+7. Tax Registration
+
+8. Tax Periods
+
+9. Tax Transactions
+
+10. Tax Adjustments
+
+11. Tax Reports
+
+12. Tax Audit History
+
+==================================================
+STEP 1
+==================================================
+
+Create folders:
+
+modules/
+
+finance/
+
+tax/
+
+    dashboard/
+
+    settings/
+
+    tax_types/
+
+    tax_rates/
+
+    tax_groups/
+
+    exemptions/
+
+    registrations/
+
+    periods/
+
+    transactions/
+
+    adjustments/
+
+    reports/
+
+==================================================
+STEP 2
+==================================================
+
+Create database tables.
+
+tax_types
+
+Fields:
+
+id
+name
+code
+description
+status
+created_at
+updated_at
+
+Examples:
+
+VAT
+GST
+Sales Tax
+Withholding Tax
+Custom Tax
+
+Do NOT hard-code these into business logic.
+
+==================================================
+
+tax_rates
+
+Fields:
+
+id
+tax_type_id
+rate_name
+rate_percentage
+effective_from
+effective_to
+is_default
+status
+created_at
+updated_at
+
+Support historical rates.
+
+Never overwrite historical tax rates.
+
+==================================================
+
+tax_groups
+
+Fields:
+
+id
+group_name
+description
+status
+created_at
+updated_at
+
+A tax group may contain multiple tax rates.
+
+Example:
+
+Standard VAT
+
+VAT 5%
+
+==================================================
+
+tax_group_lines
+
+Fields:
+
+id
+tax_group_id
+tax_rate_id
+sequence
+created_at
+
+==================================================
+
+tax_exemptions
+
+Fields:
+
+id
+exemption_code
+name
+description
+reason
+status
+created_at
+updated_at
+
+==================================================
+
+tax_registrations
+
+Fields:
+
+id
+company_name
+tax_number
+tax_type_id
+country
+registration_date
+effective_from
+effective_to
+status
+created_at
+updated_at
+
+Support multiple registrations.
+
+==================================================
+
+tax_periods
+
+Fields:
+
+id
+tax_type_id
+period_name
+start_date
+end_date
+status
+closed_by
+closed_at
+created_at
+
+Statuses:
+
+Open
+Submitted
+Closed
+
+==================================================
+STEP 3
+==================================================
+
+Tax Configuration
+
+Create settings for:
+
+Default Tax Type
+
+Default Tax Rate
+
+Tax Inclusive Pricing
+
+Tax Exclusive Pricing
+
+Tax Rounding Method
+
+Decimal Precision
+
+Tax Registration Number
+
+Tax Invoice Prefix
+
+Tax Credit Note Prefix
+
+==================================================
+STEP 4
+==================================================
+
+Tax Rate Management
+
+Build complete CRUD.
+
+Support:
+
+5%
+
+0%
+
+Custom rates
+
+Effective dates
+
+Historical rates
+
+Active/inactive status
+
+IMPORTANT:
+
+Do NOT allow a historical tax rate to be silently changed.
+
+If the rate changes:
+
+Create a new rate with a new effective date.
+
+==================================================
+STEP 5
+==================================================
+
+Build the CENTRAL TAX ENGINE.
+
+Create a reusable service such as:
+
+TaxService
+
+or
+
+TaxCalculationService
+
+The exact class/file naming should follow the existing project architecture.
+
+It must support:
+
+calculateTax()
+
+calculateLineTax()
+
+calculateDocumentTax()
+
+getApplicableTaxRate()
+
+getApplicableTaxGroup()
+
+isTaxable()
+
+isExempt()
+
+==================================================
+STEP 6
+==================================================
+
+Tax Calculation
+
+Support tax-exclusive pricing.
+
+Example:
+
+Subtotal = AED 1,000
+
+VAT = 5%
+
+Tax = AED 50
+
+Total = AED 1,050
+
+--------------------------------------------------
+
+Support tax-inclusive pricing.
+
+Example:
+
+Total = AED 1,050
+
+VAT = 5%
+
+Tax portion = AED 50
+
+Net amount = AED 1,000
+
+==================================================
+STEP 7
+==================================================
+
+Line-Level Tax
+
+Each invoice/bill/expense line must be able to store:
+
+tax_type_id
+
+tax_rate_id
+
+tax_group_id
+
+tax_percentage
+
+taxable_amount
+
+tax_amount
+
+tax_exemption_id
+
+This is important.
+
+DO NOT calculate historical transactions using today's tax rate.
+
+The transaction must preserve the actual tax rate used when it was created.
+
+==================================================
+STEP 8
+==================================================
+
+Tax Exemptions
+
+Support:
+
+Taxable
+
+Zero Rated
+
+Exempt
+
+Out of Scope
+
+Allow exemption reason.
+
+Allow exemption code.
+
+Require appropriate permissions to override normal tax treatment.
+
+==================================================
+STEP 9
+==================================================
+
+Tax Transactions
+
+Create:
+
+tax_transactions
+
+Fields:
+
+id
+tax_type_id
+tax_period_id
+source_module
+source_record_id
+source_document_no
+transaction_date
+taxable_amount
+tax_amount
+tax_direction
+tax_rate
+status
+created_at
+
+Tax direction:
+
+Output Tax
+
+Input Tax
+
+Adjustment
+
+==================================================
+STEP 10
+==================================================
+
+Tax Accounting Integration
+
+Customer Invoice:
+
+Debit
+Accounts Receivable
+
+Credit
+Revenue
+
+Credit
+Output Tax
+
+--------------------------------------------------
+
+Vendor Bill:
+
+Debit
+Expense / Inventory / Asset
+
+Debit
+Input Tax
+
+Credit
+Accounts Payable
+
+--------------------------------------------------
+
+Credit Note:
+
+Reverse the applicable tax treatment.
+
+--------------------------------------------------
+
+IMPORTANT:
+
+Tax postings MUST go through the existing Posting Engine.
+
+Never directly insert accounting entries.
+
+==================================================
+STEP 11
+==================================================
+
+Tax Adjustments
+
+Allow authorized finance users to create adjustments.
+
+Examples:
+
+Rounding adjustment
+
+Tax correction
+
+Manual tax adjustment
+
+Previous-period correction
+
+Every adjustment requires:
+
+Reason
+
+Amount
+
+Tax Type
+
+Tax Period
+
+Reference
+
+Approval
+
+Audit log
+
+==================================================
+STEP 12
+==================================================
+
+Tax Period Management
+
+Create tax periods.
+
+Example:
+
+January 2026
+
+February 2026
+
+March 2026
+
+Allow:
+
+Open
+
+Submit
+
+Close
+
+Once closed:
+
+No normal tax transaction modification is allowed.
+
+Corrections must use adjustment/reversal mechanisms.
+
+==================================================
+STEP 13
+==================================================
+
+Tax Reports
+
+Build:
+
+1. Tax Summary
+
+2. Output Tax Report
+
+3. Input Tax Report
+
+4. Net Tax Payable
+
+5. Tax Transaction Detail
+
+6. Tax Rate Summary
+
+7. Tax Exemption Report
+
+8. Tax Period Report
+
+==================================================
+STEP 14
+==================================================
+
+Tax Return Summary
+
+Build a configurable tax return summary.
+
+Show:
+
+Output Tax
+
+Input Tax
+
+Adjustments
+
+Net Tax Payable
+
+Taxable Sales
+
+Taxable Purchases
+
+Zero Rated Sales
+
+Exempt Sales
+
+Do NOT hard-code a specific government's filing form.
+
+Make the reporting engine configurable.
+
+==================================================
+STEP 15
+==================================================
+
+Tax Dashboard
+
+Cards:
+
+Output Tax
+
+Input Tax
+
+Net Tax Payable
+
+Taxable Sales
+
+Taxable Purchases
+
+Current Tax Period
+
+Pending Tax Periods
+
+Recent Tax Transactions
+
+Charts:
+
+Monthly Output Tax
+
+Monthly Input Tax
+
+Net Tax Trend
+
+==================================================
+STEP 16
+==================================================
+
+Search & Filters
+
+Support:
+
+Tax Type
+
+Tax Rate
+
+Tax Period
+
+Date Range
+
+Source Module
+
+Customer
+
+Vendor
+
+Status
+
+Tax Direction
+
+==================================================
+STEP 17
+==================================================
+
+RBAC
+
+Permissions:
+
+tax.view
+
+tax.create
+
+tax.edit
+
+tax.configure
+
+tax.adjust
+
+tax.period.manage
+
+tax.period.close
+
+tax.report
+
+tax.export
+
+==================================================
+STEP 18
+==================================================
+
+Audit Logging
+
+Track:
+
+Tax type created
+
+Tax rate created
+
+Tax rate changed
+
+Tax configuration changed
+
+Tax exemption created
+
+Tax transaction created
+
+Tax adjustment created
+
+Tax period closed
+
+Tax report generated
+
+==================================================
+STEP 19
+==================================================
+
+Validation
+
+Implement:
+
+Rate cannot be negative.
+
+Tax percentage must be valid.
+
+Effective dates cannot create ambiguous active rates.
+
+Closed tax periods cannot receive normal modifications.
+
+Tax adjustment requires reason.
+
+Tax exemption requires appropriate authorization.
+
+Tax transaction must reference a valid source transaction.
+
+Historical tax transactions must preserve their original rate.
+
+==================================================
+STEP 20
+==================================================
+
+UI
+
+Build professional ERP Tax UI using Tailwind CSS.
+
+Pages:
+
+Tax Dashboard
+
+Tax Types
+
+Tax Rates
+
+Tax Groups
+
+Tax Exemptions
+
+Tax Registrations
+
+Tax Periods
+
+Tax Transactions
+
+Tax Adjustments
+
+Tax Reports
+
+==================================================
+STEP 21
+==================================================
+
+Integration Requirements
+
+Update existing:
+
+Customer Invoice
+
+Vendor Bill
+
+Expense
+
+Credit Note
+
+Debit Note
+
+so they use the centralized Tax Engine.
+
+DO NOT duplicate tax calculation code inside those modules.
+
+==================================================
+STEP 22
+==================================================
+
+Testing / Integrity
+
+Create automated or repeatable test cases for:
+
+Tax-exclusive calculation
+
+Tax-inclusive calculation
+
+Zero-rated transaction
+
+Exempt transaction
+
+Historical tax rate
+
+Multiple tax lines
+
+Credit note reversal
+
+Vendor input tax
+
+Customer output tax
+
+Tax period closing
+
+Tax adjustment
+
+==================================================
+OUTPUT
+==================================================
+
+Generate:
+
+1. Database migrations/schema
+
+2. Tax Types
+
+3. Tax Rates
+
+4. Tax Groups
+
+5. Tax Exemptions
+
+6. Tax Registration
+
+7. Tax Periods
+
+8. Central Tax Engine
+
+9. Tax Transactions
+
+10. Tax Adjustments
+
+11. Tax Reports
+
+12. Tax Dashboard
+
+13. Invoice integration
+
+14. Vendor Bill integration
+
+15. Expense integration
+
+16. Credit/Debit Note integration
+
+17. RBAC
+
+18. Audit Logging
+
+19. Validation
+
+20. Tailwind UI
+
+21. Seed data
+
+==================================================
+CRITICAL REQUIREMENT
+==================================================
+
+The Tax Engine must be reusable.
+
+A future module should be able to perform something conceptually like:
+
+TaxService::calculate(...)
+
+and receive:
+
+taxable_amount
+tax_rate
+tax_amount
+total_amount
+tax_type
+tax_status
+
+without implementing its own tax logic.
+
+==================================================
+DO NOT BUILD
+==================================================
+
+❌ Payroll
+
+❌ Fixed Asset Depreciation
+
+❌ Financial Consolidation
+
+❌ Year-End Closing
+
+❌ Tax Filing API
+
+❌ Government API integration
+
+Those belong to later phases.
+
+Build this as a configurable enterprise Tax Engine that can support UAE VAT and other taxation models without hard-coding the entire ERP around one country's tax rules.

@@ -1,0 +1,512 @@
+You are a Senior ERP Finance Architect, Chartered Accountant (CA), Financial Planning & Analysis (FP&A) Consultant, and Senior Core PHP Developer.
+
+Finance Foundation (F1), General Ledger (F2), Banking (F3), Accounts Receivable (F4), Accounts Payable (F5), and Expense Management (F6) are completed.
+
+Now build a complete Budget Management & Cost Control module.
+
+Tech Stack
+
+- Core PHP
+- MySQL
+- HTML
+- Tailwind CSS
+
+STRICT RULES
+
+- No Frameworks
+- No Laravel
+- No React
+- No Vue
+- No APIs
+
+Use:
+
+- Existing Finance Foundation
+- Existing Posting Engine
+- Existing Departments
+- Existing Projects
+- Existing Expense Categories
+- Existing Chart of Accounts
+- Existing RBAC
+- Existing Audit Logs
+
+====================================================
+
+OBJECTIVE
+
+Build an enterprise Budget Management system.
+
+Support:
+
+• Annual budgets
+• Monthly budgets
+• Department budgets
+• Project budgets
+• Account-wise budgets
+• Budget revisions
+• Budget transfers
+• Budget monitoring
+• Variance analysis
+
+Budgets DO NOT create accounting entries.
+
+Budgets are planning tools.
+
+Actual expenses come from the General Ledger.
+
+====================================================
+
+MODULES
+
+1. Budget Master
+2. Budget Versions
+3. Department Budgets
+4. Project Budgets
+5. Account Budgets
+6. Budget Transfers
+7. Budget Revisions
+8. Budget Monitoring
+9. Variance Analysis
+10. Budget Dashboard
+
+====================================================
+
+STEP 1
+
+Create folders
+
+modules/
+
+finance/
+
+budgets/
+
+budget_versions/
+
+budget_transfers/
+
+budget_revisions/
+
+budget_monitoring/
+
+budget_reports/
+
+====================================================
+
+STEP 2
+
+Database Tables
+
+budgets
+
+budget_lines
+
+budget_versions
+
+budget_transfers
+
+budget_revisions
+
+budget_monitoring_snapshots
+
+====================================================
+
+STEP 3
+
+Budget Master
+
+Fields
+
+Budget Code
+
+Budget Name
+
+Financial Year
+
+Version
+
+Budget Type
+
+Status
+
+Description
+
+====================================================
+
+Budget Types
+
+Annual
+
+Quarterly
+
+Monthly
+
+Project
+
+Department
+
+====================================================
+
+STEP 4
+
+Budget Lines
+
+Each budget contains multiple lines.
+
+Fields
+
+Department
+
+Project
+
+Chart Account
+
+Month
+
+Budget Amount
+
+Notes
+
+Unlimited rows.
+
+====================================================
+
+STEP 5
+
+Budget Versions
+
+Support
+
+Original
+
+Revision 1
+
+Revision 2
+
+Forecast
+
+Final
+
+Keep complete history.
+
+Never overwrite old versions.
+
+====================================================
+
+STEP 6
+
+Budget Transfers
+
+Move budget between:
+
+Departments
+
+Projects
+
+Accounts
+
+Rules
+
+Transfer Out
+
+Transfer In
+
+History required
+
+Approval required
+
+====================================================
+
+STEP 7
+
+Budget Revisions
+
+Allow
+
+Increase
+
+Decrease
+
+Adjustment
+
+Reason mandatory.
+
+Maintain audit history.
+
+====================================================
+
+STEP 8
+
+Budget Monitoring
+
+Automatically compare
+
+Budget
+
+vs
+
+Actual
+
+Actual values must come from
+
+General Ledger
+
+NOT manually entered.
+
+====================================================
+
+Show
+
+Allocated
+
+Spent
+
+Committed (future-ready)
+
+Available
+
+Percentage Used
+
+====================================================
+
+STEP 9
+
+Variance Analysis
+
+Generate
+
+Budget
+
+Actual
+
+Variance
+
+Variance %
+
+Color Coding
+
+Green
+
+Within Budget
+
+Yellow
+
+Near Limit
+
+Red
+
+Exceeded
+
+====================================================
+
+STEP 10
+
+Budget Dashboard
+
+Cards
+
+Total Budget
+
+Actual Spend
+
+Remaining Budget
+
+Departments Over Budget
+
+Projects Over Budget
+
+Top Spending Categories
+
+Monthly Spend Trend
+
+Budget Utilization %
+
+====================================================
+
+STEP 11
+
+Reports
+
+Department Budget Report
+
+Project Budget Report
+
+Account Budget Report
+
+Monthly Budget Report
+
+Annual Budget Report
+
+Budget vs Actual
+
+Variance Report
+
+====================================================
+
+STEP 12
+
+SEARCH & FILTERS
+
+Financial Year
+
+Department
+
+Project
+
+Account
+
+Month
+
+Budget Version
+
+Status
+
+====================================================
+
+STEP 13
+
+RBAC
+
+Permissions
+
+budget.view
+
+budget.create
+
+budget.edit
+
+budget.approve
+
+budget.transfer
+
+budget.revise
+
+budget.report
+
+====================================================
+
+STEP 14
+
+Validation
+
+No duplicate budgets
+
+Budget amount > 0
+
+Transfer cannot exceed available budget
+
+Financial year must be active
+
+Version locking
+
+====================================================
+
+STEP 15
+
+Audit Logs
+
+Track
+
+Budget creation
+
+Revision
+
+Transfer
+
+Approval
+
+Version creation
+
+====================================================
+
+STEP 16
+
+UI
+
+Professional ERP Budget UI
+
+Budget Grid
+
+Monthly Allocation Matrix
+
+Budget Dashboard
+
+Variance Charts
+
+Revision History
+
+Transfer Screen
+
+Reports
+
+Responsive Tailwind CSS
+
+====================================================
+
+ARCHITECTURE
+
+Budgets NEVER modify balances.
+
+Budgets NEVER create ledger entries.
+
+Budgets ONLY compare against
+
+Actual Accounting Data
+
+coming from
+
+General Ledger.
+
+====================================================
+
+OUTPUT
+
+Generate
+
+1. Database Schema
+
+2. Budget Module
+
+3. Budget Versions
+
+4. Budget Transfers
+
+5. Budget Revisions
+
+6. Monitoring Engine
+
+7. Variance Engine
+
+8. Dashboard
+
+9. Reports
+
+10. Tailwind UI
+
+11. RBAC
+
+12. Audit Logs
+
+13. Search & Filters
+
+14. Seeders
+
+====================================================
+
+IMPORTANT
+
+Do NOT build
+
+❌ Payroll
+
+❌ Fixed Assets Depreciation
+
+❌ Tax Return Filing
+
+❌ Manufacturing Costing
+
+❌ Consolidation
+
+Those will be separate phases.
+
+Build this as an enterprise FP&A (Financial Planning & Analysis) module comparable to SAP BPC, Oracle Hyperion, Microsoft Dynamics Finance, Oracle Fusion Financials, or ERPNext Budgeting.

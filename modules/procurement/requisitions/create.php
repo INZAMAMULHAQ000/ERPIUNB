@@ -1,0 +1,1 @@
+<?php $editId = 0; require __DIR__ . '/form.php'; 

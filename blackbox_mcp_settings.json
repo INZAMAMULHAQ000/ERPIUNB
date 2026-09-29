@@ -1,0 +1,12 @@
+{
+  "servers": [
+    {
+      "name": "github.com/upstash/context7-mcp",
+      "command": "npx -y @upstash/context7-mcp --transport stdio",
+      "env": {
+        "CONTEXT7_API_KEY": "<YOUR_CONTEXT7_API_KEY>"
+      }
+    }
+  ]
+}
+

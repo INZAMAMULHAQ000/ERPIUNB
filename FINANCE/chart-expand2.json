@@ -1,0 +1,1537 @@
+url        http://localhost/ERP/
+http       200
+load       7340ms
+title      "Sign in to your account"
+bodyChars  160
+patchright C:\Users\tonye\.vscode\extensions\danielsanmedium.dscodegpt-3.24.43\standalone/
+text       Sign in to continue to ERP System Email, phone, or Skype Password Forgot password? Sign in Demo: admin@erp.com / admin123 Terms of use · Privacy & cookies
+script     {
+ "t0": {
+  "holder": {
+   "tag": "div",
+   "cls": "cds--chart-holder",
+   "id": "revTrendChart",
+   "rectH": 7080,
+   "rectW": 603,
+   "inlineH": "",
+   "inlineW": "",
+   "children": [
+    {
+     "tag": "div",
+     "cls": "cds--cc--chart-wrapper cds--cc--layout-column",
+     "id": "chart-14c4c35fbffe1",
+     "rectH": 7080,
+     "rectW": 603,
+     "inlineH": "100%",
+     "inlineW": "100%",
+     "depth": 0,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "g",
+     "cls": "DONT_STYLE_ME_css_styles_verifier",
+     "id": "",
+     "rectH": 0,
+     "rectW": 603,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 1
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360078 header cds--cc--layout",
+     "id": "",
+     "rectH": 40,
+     "rectW": 603,
+     "inlineH": "40px",
+     "inlineW": "100%",
+     "depth": 1,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360076 title",
+     "id": "",
+     "rectH": 0,
+     "rectW": 483,
+     "inlineH": "100%",
+     "inlineW": "483px",
+     "depth": 2
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--title",
+     "id": "",
+     "rectH": 0,
+     "rectW": 483,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 3
+    },
+    {
+     "tag": "p",
+     "cls": "title",
+     "id": "",
+     "rectH": 0,
+     "rectW": 483,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360076 toolbar",
+     "id": "",
+     "rectH": 40,
+     "rectW": 120,
+     "inlineH": "100%",
+     "inlineW": "120px",
+     "depth": 2,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--toolbar",
+     "id": "",
+     "rectH": 40,
+     "rectW": 120,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 3,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "div",
+     "cls": "cds--overflow-menu-options cds--overflow-menu--flip cds--ove",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "ul",
+     "cls": "",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "div",
+     "cls": "toolbar-control cds--overflow-menu",
+     "id": "",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "button",
+     "cls": "cds--overflow-menu__trigger cds--overflow-menu__trigger",
+     "id": "chart-14c4c35fbffe1-control-toolbar-showasdatatable",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 20,
+     "rectW": 20,
+     "inlineH": "20px",
+     "inlineW": "20px",
+     "depth": 6
+    },
+    {
+     "tag": "div",
+     "cls": "toolbar-control cds--overflow-menu",
+     "id": "",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "button",
+     "cls": "cds--overflow-menu__trigger cds--overflow-menu__trigger",
+     "id": "chart-14c4c35fbffe1-control-toolbar-makefullscreen",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 15,
+     "rectW": 15,
+     "inlineH": "15px",
+     "inlineW": "15px",
+     "depth": 6
+    },
+    {
+     "tag": "div",
+     "cls": "toolbar-control cds--overflow-menu",
+     "id": "",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "button",
+     "cls": "cds--overflow-menu__trigger cds--overflow-menu__trigger",
+     "id": "chart-14c4c35fbffe1-control-toolbar-overflow-menu",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 20,
+     "rectW": 20,
+     "inlineH": "20px",
+     "inlineW": "20px",
+     "depth": 6
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360078 spacer",
+     "id": "",
+     "rectH": 15,
+     "rectW": 603,
+     "inlineH": "15px",
+     "inlineW": "100%",
+     "depth": 1
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--spacer",
+     "id": "",
+     "rectH": 15,
+     "rectW": 15,
+     "inlineH": "15px",
+     "inlineW": "15px",
+     "depth": 2
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360078 full-frame cds--cc--la",
+     "id": "",
+     "rectH": 6945,
+     "rectW": 603,
+     "inlineH": "6945px",
+     "inlineW": "100%",
+     "depth": 1,
+     "hasSvg": true,
+     "svgAttrH": "100%",
+     "svgViewBox": null
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360077 graph-frame",
+     "id": "",
+     "rectH": 6945,
+     "rectW": 603,
+     "inlineH": "6945px",
+     "inlineW": "100%",
+     "depth": 2,
+     "hasSvg": true,
+     "svgAttrH": "100%",
+     "svgViewBox": null
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6945,
+     "rectW": 603,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 3,
+     "hasSvg": true,
+     "svgAttrH": "6924.979999542236",
+     "svgViewBox": null
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "rect",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 530,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6925,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6237,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6945,
+     "rectW": 654,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6932,
+     "rectW": 102,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6932,
+     "rectW": 51,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6932,
+     "rectW": 51,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6945,
+     "rectW": 555,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 20,
+     "rectW": 555,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 20,
+     "rectW": 555,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6295,
+     "rectW": 502,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "path",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6295,
+     "rectW": 502,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 6303,
+     "rectW": 510,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--tooltip hidden",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 0
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--modal",
+     "id": "",
+     "rectH": 0,
+     "rectW": 603,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 0
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--threshold--label hidden",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 0
+    }
+   ]
+  }
+ },
+ "t1": {
+  "holder": {
+   "tag": "div",
+   "cls": "cds--chart-holder",
+   "id": "revTrendChart",
+   "rectH": 9960,
+   "rectW": 603,
+   "inlineH": "",
+   "inlineW": "",
+   "children": [
+    {
+     "tag": "div",
+     "cls": "cds--cc--chart-wrapper cds--cc--layout-column",
+     "id": "chart-14c4c35fbffe1",
+     "rectH": 9960,
+     "rectW": 603,
+     "inlineH": "100%",
+     "inlineW": "100%",
+     "depth": 0,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "g",
+     "cls": "DONT_STYLE_ME_css_styles_verifier",
+     "id": "",
+     "rectH": 0,
+     "rectW": 603,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 1
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360078 header cds--cc--layout",
+     "id": "",
+     "rectH": 40,
+     "rectW": 603,
+     "inlineH": "40px",
+     "inlineW": "100%",
+     "depth": 1,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360076 title",
+     "id": "",
+     "rectH": 0,
+     "rectW": 483,
+     "inlineH": "100%",
+     "inlineW": "483px",
+     "depth": 2
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--title",
+     "id": "",
+     "rectH": 0,
+     "rectW": 483,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 3
+    },
+    {
+     "tag": "p",
+     "cls": "title",
+     "id": "",
+     "rectH": 0,
+     "rectW": 483,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360076 toolbar",
+     "id": "",
+     "rectH": 40,
+     "rectW": 120,
+     "inlineH": "100%",
+     "inlineW": "120px",
+     "depth": 2,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--toolbar",
+     "id": "",
+     "rectH": 40,
+     "rectW": 120,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 3,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "div",
+     "cls": "cds--overflow-menu-options cds--overflow-menu--flip cds--ove",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "ul",
+     "cls": "",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "div",
+     "cls": "toolbar-control cds--overflow-menu",
+     "id": "",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "button",
+     "cls": "cds--overflow-menu__trigger cds--overflow-menu__trigger",
+     "id": "chart-14c4c35fbffe1-control-toolbar-showasdatatable",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 20,
+     "rectW": 20,
+     "inlineH": "20px",
+     "inlineW": "20px",
+     "depth": 6
+    },
+    {
+     "tag": "div",
+     "cls": "toolbar-control cds--overflow-menu",
+     "id": "",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "button",
+     "cls": "cds--overflow-menu__trigger cds--overflow-menu__trigger",
+     "id": "chart-14c4c35fbffe1-control-toolbar-makefullscreen",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 15,
+     "rectW": 15,
+     "inlineH": "15px",
+     "inlineW": "15px",
+     "depth": 6
+    },
+    {
+     "tag": "div",
+     "cls": "toolbar-control cds--overflow-menu",
+     "id": "",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "button",
+     "cls": "cds--overflow-menu__trigger cds--overflow-menu__trigger",
+     "id": "chart-14c4c35fbffe1-control-toolbar-overflow-menu",
+     "rectH": 40,
+     "rectW": 40,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5,
+     "hasSvg": true,
+     "svgAttrH": null,
+     "svgViewBox": "0 0 32 32"
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 20,
+     "rectW": 20,
+     "inlineH": "20px",
+     "inlineW": "20px",
+     "depth": 6
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360078 spacer",
+     "id": "",
+     "rectH": 15,
+     "rectW": 603,
+     "inlineH": "15px",
+     "inlineW": "100%",
+     "depth": 1
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--spacer",
+     "id": "",
+     "rectH": 15,
+     "rectW": 15,
+     "inlineH": "15px",
+     "inlineW": "15px",
+     "depth": 2
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360078 full-frame cds--cc--la",
+     "id": "",
+     "rectH": 9825,
+     "rectW": 603,
+     "inlineH": "9825px",
+     "inlineW": "100%",
+     "depth": 1,
+     "hasSvg": true,
+     "svgAttrH": "100%",
+     "svgViewBox": null
+    },
+    {
+     "tag": "div",
+     "cls": "layout-child layout-child-44407360077 graph-frame",
+     "id": "",
+     "rectH": 9825,
+     "rectW": 603,
+     "inlineH": "9825px",
+     "inlineW": "100%",
+     "depth": 2,
+     "hasSvg": true,
+     "svgAttrH": "100%",
+     "svgViewBox": null
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9825,
+     "rectW": 603,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 3,
+     "hasSvg": true,
+     "svgAttrH": "9804.979999542236",
+     "svgViewBox": null
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "rect",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 530,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9805,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8831,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 552,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9825,
+     "rectW": 654,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9812,
+     "rectW": 102,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9812,
+     "rectW": 51,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9812,
+     "rectW": 51,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 9825,
+     "rectW": 555,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 20,
+     "rectW": 555,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "g",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 20,
+     "rectW": 555,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 6
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8914,
+     "rectW": 502,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "path",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8914,
+     "rectW": 502,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8922,
+     "rectW": 510,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "circle",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 8,
+     "rectW": 8,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 5
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "svg",
+     "cls": "[object SVGAnimatedString]",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 4
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--tooltip hidden",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 0
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--modal",
+     "id": "",
+     "rectH": 0,
+     "rectW": 603,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 0
+    },
+    {
+     "tag": "div",
+     "cls": "cds--cc--threshold--label hidden",
+     "id": "",
+     "rectH": 0,
+     "rectW": 0,
+     "inlineH": "",
+     "inlineW": "",
+     "depth": 0
+    }
+   ]
+  }
+ }
+}
+
+console errors/warnings (0):
+
+requests failed (0):

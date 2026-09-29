@@ -1,0 +1,1063 @@
+url        http://localhost/ERP/
+http       200
+load       37047ms
+title      "Sign in to your account"
+bodyChars  160
+patchright C:\Users\tonye\.vscode\extensions\danielsanmedium.dscodegpt-3.24.43\standalone/
+text       Sign in to continue to ERP System Email, phone, or Skype Password Forgot password? Sign in Demo: admin@erp.com / admin123 Terms of use · Privacy & cookies
+script     {
+ "results": {
+  "home": [
+   {
+    "visibleCount": 3,
+    "pageScrollH": 720,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 3,
+    "pageScrollH": 720,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 3,
+    "pageScrollH": 720,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 3,
+    "pageScrollH": 720,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 3,
+    "pageScrollH": 720,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 240,
+      "rectW": 198,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "widget-body",
+      "parentDisplay": "block",
+      "parentH": "240px"
+     }
+    ]
+   }
+  ],
+  "executive": [
+   {
+    "visibleCount": 2,
+    "pageScrollH": 3888,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 2920,
+      "rectW": 603,
+      "csH": "2920px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "md:col-span-2 bg-white rounded-lg shadow",
+      "parentDisplay": "block",
+      "parentH": "2960px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 2920,
+      "rectW": 269,
+      "csH": "2920px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2960px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 2,
+    "pageScrollH": 5088,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 4120,
+      "rectW": 603,
+      "csH": "4120px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "md:col-span-2 bg-white rounded-lg shadow",
+      "parentDisplay": "block",
+      "parentH": "4160px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 4120,
+      "rectW": 269,
+      "csH": "4120px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "4160px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 2,
+    "pageScrollH": 6368,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 5400,
+      "rectW": 603,
+      "csH": "5400px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "md:col-span-2 bg-white rounded-lg shadow",
+      "parentDisplay": "block",
+      "parentH": "5440px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 5400,
+      "rectW": 269,
+      "csH": "5400px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "5440px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 2,
+    "pageScrollH": 7568,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 6600,
+      "rectW": 603,
+      "csH": "6600px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "md:col-span-2 bg-white rounded-lg shadow",
+      "parentDisplay": "block",
+      "parentH": "6640px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 6600,
+      "rectW": 269,
+      "csH": "6600px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "6640px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 2,
+    "pageScrollH": 8768,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 7800,
+      "rectW": 603,
+      "csH": "7800px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "md:col-span-2 bg-white rounded-lg shadow",
+      "parentDisplay": "block",
+      "parentH": "7840px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 7800,
+      "rectW": 269,
+      "csH": "7800px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "7840px"
+     }
+    ]
+   }
+  ],
+  "analytics": [
+   {
+    "visibleCount": 6,
+    "pageScrollH": 5401,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 2120,
+      "rectW": 436,
+      "csH": "2120px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2160px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 2120,
+      "rectW": 436,
+      "csH": "2120px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2160px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 1960,
+      "rectW": 269,
+      "csH": "1960px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2000px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 1960,
+      "rectW": 269,
+      "csH": "1960px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2000px"
+     },
+     {
+      "cls": "attChart",
+      "rectH": 240,
+      "rectW": 269,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": null,
+      "svgAttrH": null,
+      "viewBox": null,
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2000px"
+     },
+     {
+      "cls": "attHeatChart",
+      "rectH": 240,
+      "rectW": 936,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": null,
+      "svgAttrH": null,
+      "viewBox": null,
+      "parentCls": "bg-white rounded-lg shadow p-5 mb-6",
+      "parentDisplay": "block",
+      "parentH": "320px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 6,
+    "pageScrollH": 6921,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 2840,
+      "rectW": 436,
+      "csH": "2840px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2880px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 2840,
+      "rectW": 436,
+      "csH": "2840px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2880px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 2760,
+      "rectW": 269,
+      "csH": "2760px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2800px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 2760,
+      "rectW": 269,
+      "csH": "2760px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2800px"
+     },
+     {
+      "cls": "attChart",
+      "rectH": 240,
+      "rectW": 269,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": null,
+      "svgAttrH": null,
+      "viewBox": null,
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "2800px"
+     },
+     {
+      "cls": "attHeatChart",
+      "rectH": 240,
+      "rectW": 936,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": null,
+      "svgAttrH": null,
+      "viewBox": null,
+      "parentCls": "bg-white rounded-lg shadow p-5 mb-6",
+      "parentDisplay": "block",
+      "parentH": "320px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 6,
+    "pageScrollH": 9081,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 3960,
+      "rectW": 436,
+      "csH": "3960px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "4000px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 3960,
+      "rectW": 436,
+      "csH": "3960px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "4000px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 3800,
+      "rectW": 269,
+      "csH": "3800px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "3840px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 3800,
+      "rectW": 269,
+      "csH": "3800px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "3840px"
+     },
+     {
+      "cls": "attChart",
+      "rectH": 240,
+      "rectW": 269,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": null,
+      "svgAttrH": null,
+      "viewBox": null,
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "3840px"
+     },
+     {
+      "cls": "attHeatChart",
+      "rectH": 240,
+      "rectW": 936,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": null,
+      "svgAttrH": null,
+      "viewBox": null,
+      "parentCls": "bg-white rounded-lg shadow p-5 mb-6",
+      "parentDisplay": "block",
+      "parentH": "320px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 6,
+    "pageScrollH": 11241,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 5000,
+      "rectW": 436,
+      "csH": "5000px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "5040px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 5000,
+      "rectW": 436,
+      "csH": "5000px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "5040px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 4920,
+      "rectW": 269,
+      "csH": "4920px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "4960px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 4920,
+      "rectW": 269,
+      "csH": "4920px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "4960px"
+     },
+     {
+      "cls": "attChart",
+      "rectH": 240,
+      "rectW": 269,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": null,
+      "svgAttrH": null,
+      "viewBox": null,
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "4960px"
+     },
+     {
+      "cls": "attHeatChart",
+      "rectH": 240,
+      "rectW": 936,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": null,
+      "svgAttrH": null,
+      "viewBox": null,
+      "parentCls": "bg-white rounded-lg shadow p-5 mb-6",
+      "parentDisplay": "block",
+      "parentH": "320px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 6,
+    "pageScrollH": 13481,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 6120,
+      "rectW": 436,
+      "csH": "6120px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "6160px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 6120,
+      "rectW": 436,
+      "csH": "6120px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "6160px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 6040,
+      "rectW": 269,
+      "csH": "6040px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "6080px"
+     },
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 6040,
+      "rectW": 269,
+      "csH": "6040px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "6080px"
+     },
+     {
+      "cls": "attChart",
+      "rectH": 240,
+      "rectW": 269,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": null,
+      "svgAttrH": null,
+      "viewBox": null,
+      "parentCls": "bg-white rounded-lg shadow p-5",
+      "parentDisplay": "block",
+      "parentH": "6080px"
+     },
+     {
+      "cls": "attHeatChart",
+      "rectH": 240,
+      "rectW": 936,
+      "csH": "240px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": null,
+      "svgAttrH": null,
+      "viewBox": null,
+      "parentCls": "bg-white rounded-lg shadow p-5 mb-6",
+      "parentDisplay": "block",
+      "parentH": "320px"
+     }
+    ]
+   }
+  ],
+  "budget": [
+   {
+    "visibleCount": 1,
+    "pageScrollH": 980,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 245,
+      "rectW": 928,
+      "csH": "245px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-6 mb-6",
+      "parentDisplay": "block",
+      "parentH": "333px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 1,
+    "pageScrollH": 980,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 245,
+      "rectW": 928,
+      "csH": "245px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-6 mb-6",
+      "parentDisplay": "block",
+      "parentH": "333px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 1,
+    "pageScrollH": 980,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 245,
+      "rectW": 928,
+      "csH": "245px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-6 mb-6",
+      "parentDisplay": "block",
+      "parentH": "333px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 1,
+    "pageScrollH": 980,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 245,
+      "rectW": 928,
+      "csH": "245px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-6 mb-6",
+      "parentDisplay": "block",
+      "parentH": "333px"
+     }
+    ]
+   },
+   {
+    "visibleCount": 1,
+    "pageScrollH": 980,
+    "innerH": 720,
+    "cards": [
+     {
+      "cls": "cds--chart-holder",
+      "rectH": 245,
+      "rectW": 928,
+      "csH": "245px",
+      "minH": "240px",
+      "maxH": "none",
+      "overflowY": "visible",
+      "svgH": 20,
+      "svgAttrH": null,
+      "viewBox": "0 0 32 32",
+      "parentCls": "bg-white rounded-lg shadow p-6 mb-6",
+      "parentDisplay": "block",
+      "parentH": "333px"
+     }
+    ]
+   }
+  ]
+ }
+}
+
+console errors/warnings (0):
+
+requests failed (0):

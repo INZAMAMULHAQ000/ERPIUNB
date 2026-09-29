@@ -1,0 +1,85 @@
+<?php
+
+
+if (!function_exists('formatAmount')) {
+    function formatAmount() {
+        return number_format((float), 2, '.', ',');
+    }
+}
+
+function formatCurrency(,  = 'AED') {
+     = [
+        'AED' => 'AED ',
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+    ];
+     = [] ??  . ' ';
+    return  . number_format((float), 2, '.', ',');
+}
+
+function getActiveFinancialYear() {
+    static  = null;
+    if ( === null) {
+         = ->query('SELECT * FROM financial_years WHERE status = ''active'' LIMIT 1');
+         = ->fetch();
+    }
+    return ;
+}
+
+function generateVoucherNo(, ) {
+     = ->prepare('SELECT voucher_prefix FROM voucher_types WHERE id = ?');
+    ->execute([]);
+     = ->fetch();
+    if (!) return null;
+
+     = ['voucher_prefix'];
+     = getActiveFinancialYear();
+    if (!) return null;
+
+     = date('Y', strtotime(['start_date']));
+     = date('Y', strtotime(['end_date']));
+     =  . '-' . ;
+
+    // Get the highest existing number for this prefix in this FY
+    // Exclude reversal suffixes (-REV) from the search to avoid parsing issues
+     = ->prepare('
+        SELECT voucher_no FROM journal_entries
+        WHERE voucher_no LIKE ?
+        AND voucher_no NOT LIKE ''%-REV''
+        ORDER BY id DESC LIMIT 1
+    ');
+    ->execute([ . '-' .  . '-%']);
+     = ->fetch();
+
+    if () {
+         = explode('-', ['voucher_no']);
+         = (int)end();
+         =  + 1;
+    } else {
+         = 1;
+    }
+
+    return  . '-' .  . '-' . str_pad(, 6, '0', STR_PAD_LEFT);
+}
+function formatVoucherStatus() {
+    return 'test';
+}
+function formatVoucherStatus() {
+     = [
+        'draft'    => ['bg-yellow-100 text-yellow-800', 'Draft'],
+        'posted'   => ['bg-green-100 text-green-800', 'Posted'],
+        'reversed' => ['bg-red-100 text-red-800', 'Reversed'],
+    ];
+}
+function formatVoucherStatus() {
+     = [
+        'draft'    => ['bg-yellow-100 text-yellow-800', 'Draft'],
+        'posted'   => ['bg-green-100 text-green-800', 'Posted'],
+        'reversed' => ['bg-red-100 text-red-800', 'Reversed'],
+    ];
+     = [] ?? ['bg-gray-100 text-gray-800', ucfirst()];
+}
+function formatVoucherStatus() {
+    return 'test';
+}

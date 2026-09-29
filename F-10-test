@@ -1,0 +1,90 @@
+Test F10
+
+Before moving to F11, test these carefully:
+
+1. GL Mapping
+
+Map:
+
+Basic Salary → Salary Expense
+Housing → Housing Expense
+Transport → Transport Expense
+Salary Payable → Salary Payable
+Bank → Bank
+
+Verify mappings are configurable.
+
+2. Approved Payroll
+
+Create/finalize a test payroll:
+
+Gross salary: AED 50,000
+Deductions: AED 5,000
+Net salary: AED 45,000
+
+Post it.
+
+Verify the resulting journal is balanced and the Salary Payable = AED 45,000.
+
+3. Duplicate Protection
+
+Attempt to post the same payroll run again.
+
+Must be rejected.
+
+4. Salary Payment
+
+Pay AED 45,000 from the company bank.
+
+Expected:
+
+Debit: Salary Payable — AED 45,000
+Credit: Bank — AED 45,000
+
+5. Partial Payment
+
+If payroll payable is AED 45,000, pay AED 30,000.
+
+Expected:
+
+Paid = AED 30,000
+Remaining payable = AED 15,000
+
+Then pay the remaining AED 15,000.
+
+6. Reconciliation
+
+Verify:
+
+Payroll Total = Finance Posted Total = Bank Paid Total
+
+when fully paid.
+
+7. Unauthorized Payroll
+
+Attempt to post a draft/unapproved payroll.
+
+Must be blocked.
+
+8. Closed Period
+
+Close the accounting period and attempt to post payroll.
+
+Must be blocked.
+
+9. GL Verification
+
+Verify the payroll posting appears correctly in:
+
+Salary Expense
+Salary Payable
+Bank
+10. Audit Trail
+
+Verify the entire chain:
+
+Payroll → Finance Posting → Journal → Payment → Reconciliation
+
+is traceable.
+
+Once F10 passes, F11 should be Financial Reporting—Trial Balance, Profit & Loss, Balance Sheet, Cash Flow, AR/AP reports, tax reports, and management financial statements. That phase will finally turn all the accounting transactions we've built into the actual financial picture of the company.

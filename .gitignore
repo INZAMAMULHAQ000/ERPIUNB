@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Environment
+.env
+.env.local
+*.env
+*.env.*
+!.env.example
+
+# Editors
+.vscode/
+.idea/
+.kilo/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# XAMPP / local server files
+xampp/
+apache/
+mysql/
+phpMyAdmin/
+
+# Database backups / dumps
+*.sql
+*.sql.gz
+*.bak
+*.bacpac
+
+# Cache / temporary folders
+cache/
+tmp/
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Local debug files
+_debug*.php
+_tmp_*
+debug*.php
+check_*.php
+describe_table.php
+compare_tables.php
+find_missing_tables*.php
+scan_module_tables*.php
+
+# Local test files
+test*.php
+test*.txt
+test-*.php
+test-*.html
+test-results/
+
+# Temporary setup / migration scripts
+tmp_*.php
+mock_preview.backup.php
+
+# Local reports / generated documents
+*.docx
+
+# Screenshots
+*.png
+
+# Database backups
+DATABASE_BACKUP/
