@@ -77,3 +77,6 @@ mock_preview.backup.php
 DATABASE_BACKUP/
 # Version-controlled schema snapshot (the rest of *.sql stays ignored: dumps/backups)
 !database/schema.sql
+
+# Local DB dump artefacts (contain live data + password hashes)
+newdump/
