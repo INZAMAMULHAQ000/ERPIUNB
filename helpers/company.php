@@ -123,35 +123,128 @@ if (!function_exists('companyFilterSql')) {
 
 if (!function_exists('nextDocumentNumber')) {
     /**
-     * Allocation-safe document number. Uses a persisted per-company/per-type
-     * counter instead of COUNT(*)+1, which collides under concurrency and leaves
-     * gaps when rows are deleted.
+     * Allocation-safe document number.
+     *
+     * Replaces the old COUNT(*)+1 generators, which produced duplicate numbers
+     * under concurrency and reused a number after any deletion. The counter row
+     * is bumped and read in a single atomic UPDATE, and the rendered shape comes
+     * from the sequence's own `format` template so existing numbering is preserved.
+     *
+     * @param string $docType  document_sequences.doc_type
+     * @param string|null $periodKey  overrides the sequence's date_format period
      */
-    function nextDocumentNumber($db, $docType, $periodKey = '') {
+    function nextDocumentNumber($db, $docType, $periodKey = null) {
         $companyId = activeCompanyId();
         if ($companyId <= 0) {
             throw new RuntimeException('No active company — cannot allocate a document number.');
         }
 
-        $stmt = $db->prepare("SELECT prefix, padding, next_number FROM document_sequences WHERE company_id = ? AND doc_type = ?");
+        $stmt = $db->prepare("SELECT * FROM document_sequences WHERE company_id = ? AND doc_type = ? AND period_key = '' LIMIT 1");
         $stmt->execute([$companyId, $docType]);
-        $seq = $stmt->fetch();
-
-        if (!$seq) {
-            $prefix = $db->prepare("SELECT COALESCE(NULLIF(invoice_prefix,''), 'DOC') FROM companies WHERE id = ?");
-            $prefix->execute([$companyId]);
-            $db->prepare("INSERT INTO document_sequences (company_id, doc_type, prefix, padding, next_number) VALUES (?,?,?,?,1)")
-               ->execute([$companyId, $docType, $prefix->fetchColumn() ?: 'DOC', 4]);
-            $seq = ['prefix' => 'DOC', 'padding' => 4, 'next_number' => 1];
+        $base = $stmt->fetch();
+        if (!$base) {
+            throw new RuntimeException("No document sequence configured for '$docType'. Add it under Configuration → Document Numbering.");
         }
 
-        // Lock the counter row so two concurrent postings cannot take the same number.
-        $upd = $db->prepare("UPDATE document_sequences SET next_number = next_number + 1 WHERE company_id = ? AND doc_type = ?");
-        $upd->execute([$companyId, $docType]);
+        // Resolve the period this number belongs to ('' = one counter for all time).
+        if ($periodKey === null) {
+            $periodKey = $base['date_format'] ? date($base['date_format']) : '';
+        }
 
-        $number = $seq['prefix'];
-        if ($periodKey !== '') { $number .= $periodKey; }
-        $number .= str_pad((string) $seq['next_number'], (int) $seq['padding'], '0', STR_PAD_LEFT);
-        return $number;
+        // Materialise the counter row for this period, inheriting the template.
+        $db->prepare("
+            INSERT INTO document_sequences (company_id, doc_type, period_key, prefix, padding, date_format, format, next_number)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+            ON DUPLICATE KEY UPDATE document_sequences.id = document_sequences.id
+        ")->execute([$companyId, $docType, $periodKey, $base['prefix'], $base['padding'], $base['date_format'], $base['format']]);
+
+        // Single atomic read-and-increment: LAST_INSERT_ID() yields the value before the bump.
+        $db->prepare("
+            UPDATE document_sequences
+               SET next_number = LAST_INSERT_ID(next_number) + 1
+             WHERE company_id = ? AND doc_type = ? AND period_key = ?
+        ")->execute([$companyId, $docType, $periodKey]);
+        $allocated = (int) $db->query("SELECT LAST_INSERT_ID()")->fetchColumn();
+
+        $fy = getCompanyFinancialYear($db, $companyId);
+        $tokens = [
+            '{prefix}'    => (string) $base['prefix'],
+            '{seq}'       => str_pad((string) $allocated, max(1, (int) $base['padding']), '0', STR_PAD_LEFT),
+            '{period}'    => $periodKey,
+            '{year}'      => date('Y'),
+            '{month}'     => date('m'),
+            '{fy}'        => $fy ? date('Y', strtotime($fy['start_date'])) : date('Y'),
+            '{fy_short}'  => $fy ? date('Y', strtotime($fy['start_date'])) . '-' . date('Y', strtotime($fy['end_date'])) : date('Y') . '-' . date('Y'),
+        ];
+
+        $format = (string) ($base['format'] ?: '{prefix}{seq}');
+        return str_replace(array_keys($tokens), array_values($tokens), $format);
+    }
+}
+
+if (!function_exists('peekDocumentNumber')) {
+    /**
+     * Render the number the next allocation WOULD produce, without consuming it.
+     * Use for form previews: allocating on page view would burn a number every
+     * time someone opens and abandons a create form, punching gaps into a legal
+     * document sequence.
+     */
+    function peekDocumentNumber($db, $docType, $periodKey = null) {
+        $companyId = activeCompanyId();
+        if ($companyId <= 0) {
+            throw new RuntimeException('No active company — cannot preview a document number.');
+        }
+        $stmt = $db->prepare("SELECT * FROM document_sequences WHERE company_id = ? AND doc_type = ? AND period_key = '' LIMIT 1");
+        $stmt->execute([$companyId, $docType]);
+        $base = $stmt->fetch();
+        if (!$base) {
+            throw new RuntimeException("No document sequence configured for '$docType'.");
+        }
+        if ($periodKey === null) {
+            $periodKey = $base['date_format'] ? date($base['date_format']) : '';
+        }
+        $s = $db->prepare("SELECT next_number FROM document_sequences WHERE company_id = ? AND doc_type = ? AND period_key = ?");
+        $s->execute([$companyId, $docType, $periodKey]);
+        $next = (int) ($s->fetchColumn() ?: 1);
+
+        $fy = getCompanyFinancialYear($db, $companyId);
+        $tokens = [
+            '{prefix}'   => (string) $base['prefix'],
+            '{seq}'      => str_pad((string) $next, max(1, (int) $base['padding']), '0', STR_PAD_LEFT),
+            '{period}'   => $periodKey,
+            '{year}'     => date('Y'),
+            '{month}'    => date('m'),
+            '{fy}'       => $fy ? date('Y', strtotime($fy['start_date'])) : date('Y'),
+            '{fy_short}' => $fy ? date('Y', strtotime($fy['start_date'])) . '-' . date('Y', strtotime($fy['end_date'])) : date('Y') . '-' . date('Y'),
+        ];
+        $format = (string) ($base['format'] ?: '{prefix}{seq}');
+        return str_replace(array_keys($tokens), array_values($tokens), $format);
+    }
+}
+
+if (!function_exists('getCompanyFinancialYear')) {
+    /** The company's current financial year, or null. Never borrows another's. */
+    function getCompanyFinancialYear($db, $companyId) {
+        static $cache = [];
+        $cid = (int) $companyId;
+        if (array_key_exists($cid, $cache)) { return $cache[$cid]; }
+        try {
+            $s = $db->prepare("
+                SELECT * FROM financial_years
+                WHERE company_id = ? AND status = 'active'
+                  AND CURDATE() BETWEEN start_date AND end_date
+                ORDER BY start_date DESC LIMIT 1
+            ");
+            $s->execute([$cid]);
+            $row = $s->fetch() ?: null;
+            if (!$row) {
+                $s2 = $db->prepare("SELECT * FROM financial_years WHERE company_id = ? AND status = 'active' ORDER BY start_date DESC LIMIT 1");
+                $s2->execute([$cid]);
+                $row = $s2->fetch() ?: null;
+            }
+            return $cache[$cid] = $row;
+        } catch (Throwable $e) {
+            return $cache[$cid] = null;
+        }
     }
 }

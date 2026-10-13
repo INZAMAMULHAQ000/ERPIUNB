@@ -41,24 +41,10 @@ $taxes = $db->query("
 
 function generateInvoiceNumber($db)
 {
-    $year = date('Y');
-    $month = date('m');
-
-    $stmt = $db->query("
-        SELECT COUNT(*) as cnt
-        FROM invoices
-        WHERE invoice_number LIKE 'INV$year$month%'
-    ");
-
-    return "INV"
-        . $year
-        . $month
-        . str_pad(
-            $stmt->fetch()['cnt'] + 1,
-            4,
-            '0',
-            STR_PAD_LEFT
-        );
+    // Company document sequence (INV-YYYY-NNN) — allocation-safe, whereas the
+    // previous COUNT(*)+1 reused a number as soon as any invoice was deleted.
+    // Called only from the POST handler, so viewing the form consumes nothing.
+    return nextDocumentNumber($db, 'invoice_legacy');
 }
 
 

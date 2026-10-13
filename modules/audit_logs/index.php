@@ -2,13 +2,17 @@
 $pageTitle = 'Audit Logs';
 require_once '../../includes/header.php';
 
+// This page exposes every user's actions, IPs and timestamps, so it was never
+// meant to be readable without the audit permission.
+if (!hasPermission('auditlogs.view')) { die('Access Denied'); }
+
 $db = getDB();
 $logs = $db->query("
     SELECT al.*, u.name as user_name 
     FROM audit_logs al 
     LEFT JOIN users u ON al.user_id = u.id 
     ORDER BY al.created_at DESC 
-    LIMIT 50
+    LIMIT 200
 ")->fetchAll();
 ?>
 <div class="mb-8">

@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 pointRadius: 4,
                 borderWidth: 2
             }]
-        }, { legend: { enabled: false }, curve: 'curve', points: { radius: 4 } });
+        }, { legend: { enabled: false }, curve: 'curveMonotoneX', points: { radius: 4 } });
     }
 
     // Gender Distribution (doughnut)

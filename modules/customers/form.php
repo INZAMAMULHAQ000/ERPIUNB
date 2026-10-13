@@ -276,26 +276,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             logAudit($_SESSION['user_id'], 'Updated customer: ' . $data['company_name'], 'customers');
             flash('ok', 'Customer updated successfully.', 'success');
         } else {
-            // Collision-safe code generation: MAX, not COUNT, retried on duplicate key.
-            $code = null;
-            for ($attempt = 0; $attempt < 10; $attempt++) {
-                $prefix = 'CL' . date('Y');
-                $m = $db->query("SELECT MAX(CAST(SUBSTRING(client_code, 7) AS UNSIGNED)) FROM clients WHERE client_code LIKE '$prefix%'")->fetchColumn();
-                $code = $prefix . str_pad(((int) $m) + 1, 4, '0', STR_PAD_LEFT);
-                try {
-                    $cols = array_merge(['client_code', 'created_at', 'created_by'], array_keys($data));
-                    $vals = array_merge([$code, date('Y-m-d H:i:s'), $_SESSION['user_id']], array_values($data));
-                    $ph = implode(', ', array_fill(0, count($cols), '?'));
-                    $db->prepare("INSERT INTO clients (`" . implode('`, `', $cols) . "`) VALUES ($ph)")->execute($vals);
-                    $savedId = (int) $db->lastInsertId();
-                    break;
-                } catch (PDOException $e) {
-                    if ($e->getCode() !== '23000' || $attempt === 9) throw $e;
-                    $db->rollBack();
-                    $db->beginTransaction();
-                    continue;
-                }
-            }
+            // Code comes from the company document sequence (CL + YYYY + 4), so the
+            // counter is centralised and editable rather than derived from row counts.
+            $code = nextDocumentNumber($db, 'customer');
+            $cols = array_merge(['client_code', 'created_at', 'created_by'], array_keys($data));
+            $vals = array_merge([$code, date('Y-m-d H:i:s'), $_SESSION['user_id']], array_values($data));
+            $ph = implode(', ', array_fill(0, count($cols), '?'));
+            $db->prepare("INSERT INTO clients (`" . implode('`, `', $cols) . "`) VALUES ($ph)")->execute($vals);
+            $savedId = (int) $db->lastInsertId();
             logAudit($_SESSION['user_id'], 'Created customer: ' . $data['company_name'] . " ($code)", 'customers');
             flash('ok', "Customer created with code $code.", 'success');
         }

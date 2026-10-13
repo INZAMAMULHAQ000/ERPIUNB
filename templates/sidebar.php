@@ -14,7 +14,7 @@
             </a>
             <?php endif; ?>
 
-            <?php if (hasPermission('audit.view')): ?>
+            <?php if (hasPermission('auditlogs.view')): ?>
             <a href="<?= url('modules/audit_logs/index.php') ?>">
                 <i class="fas fa-clipboard-list"></i>
                 <span>Audit Logs</span>
@@ -121,6 +121,12 @@
             <div style="padding: 0.75rem 1.5rem 0.35rem; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #475569;">
                 Settings
             </div>
+            <?php if (hasPermission('settings.view')): ?>
+            <a href="<?= url('modules/settings/index.php') ?>">
+                <i class="fas fa-sliders"></i>
+                <span>Configuration</span>
+            </a>
+            <?php endif; ?>
             <a href="<?= url('modules/appearance/index.php') ?>">
                 <i class="fas fa-palette"></i>
                 <span>Appearance</span>

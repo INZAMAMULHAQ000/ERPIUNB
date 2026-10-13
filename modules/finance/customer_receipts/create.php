@@ -12,12 +12,10 @@ $errors = restoreFormErrors();
 if (empty($errors)) {
     clearOldInput();
 }
-// Generate receipt number: RCPT + YYYYMM + sequential
-$prefix = 'RCPT' . date('Ym');
-$stmt = $db->prepare("SELECT COUNT(*) FROM customer_receipts WHERE receipt_number LIKE ?");
-$stmt->execute([$prefix . '%']);
-$count = (int)$stmt->fetchColumn();
-$receipt_number = $prefix . '-' . str_pad($count + 1, 3, '0', STR_PAD_LEFT);
+// Receipt number from the company document sequence (RCPT + YYYYMM + 3).
+$receipt_number = ($_SERVER['REQUEST_METHOD'] === 'POST')
+    ? nextDocumentNumber($db, 'receipt')
+    : peekDocumentNumber($db, 'receipt');
 // Load clients for dropdown
 $clients = $db->query("
     SELECT id, client_code, company_name

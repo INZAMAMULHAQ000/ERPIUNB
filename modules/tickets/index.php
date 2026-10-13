@@ -7,6 +7,30 @@ require_once '../../helpers/pagination.php';
 if (!hasPermission('tickets.view')) { die('Access Denied'); }
 
 $db = getDB();
+
+// sla_breached was read in four places (this list, the badges, helpdesk counters)
+// but nothing ever wrote it, so every breach indicator sat at false. Recompute the
+// open tickets that have run past their SLA due date before the list is built.
+try {
+    $db->exec("
+        UPDATE tickets
+           SET sla_breached = 1
+         WHERE COALESCE(status, '') NOT IN ('closed', 'resolved')
+           AND due_date IS NOT NULL
+           AND due_date < NOW()
+           AND COALESCE(sla_breached, 0) = 0
+    ");
+    $db->exec("
+        UPDATE tickets
+           SET sla_breached = 0
+         WHERE due_date IS NOT NULL
+           AND due_date >= NOW()
+           AND COALESCE(sla_breached, 0) = 1
+    ");
+} catch (Throwable $e) {
+    error_log('sla_breached recompute failed: ' . $e->getMessage());
+}
+
 $search = $_GET['search'] ?? '';
 $status = $_GET['status'] ?? '';
 $priority = $_GET['priority'] ?? '';

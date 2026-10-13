@@ -2,16 +2,18 @@
 
 ## Project Overview
 
-**Enterprise ERP System** — A modular, production-ready Enterprise Resource Planning system built with vanilla PHP 8.1+ and MySQL. Zero dependencies architecture (no Composer, no framework lock-in) with 60+ integrated modules.
+**Enterprise ERP System** — A modular Enterprise Resource Planning system built with vanilla PHP 8.1+ and MySQL. Zero framework dependencies, 52 feature modules.
 
-**Purpose:** Comprehensive business management system covering HR, payroll, finance, procurement, CRM, projects, helpdesk, and AI-powered automation.
+**Purpose:** Comprehensive business management system covering HR, payroll posting, finance, procurement, CRM, projects, helpdesk, and AI-powered automation.
 
 **Tech Stack:**
-- PHP 8.1+ (vanilla, zero dependencies)
-- MySQL with PDO prepared statements
+- PHP 8.1+ (vanilla, zero framework dependencies)
+- MySQL/MariaDB with PDO prepared statements
 - Tailwind CSS (CDN-based, no build step)
 - Chart.js 4 + Carbon Charts for analytics
 - Apache mod_rewrite for routing
+
+> **Read this before trusting the rest of the file.** This document was previously inaccurate in ways that wasted engineering time: it described `config/schema.sql`, numbered migrations `001–047`, `config/runner.php`, `FixedAssetService`, and a set of `test_*_suite.php` files that **did not exist**. The authoritative schema is now `database/schema.sql` (generated from the live database). Commands and files listed below have been verified to exist.
 
 ## Directory Structure
 
@@ -44,6 +46,22 @@ erp-root/
 4. **Module Execution:** Module's `index.php` or action file executes
 5. **Template Rendering:** `includes/header.php` → Module content → `includes/footer.php`
 
+`includes/header.php` is the whole framework: it opens the output buffer, starts the session, requires every helper, calls `requireAuth()`, handles `?set_currency` / `?set_theme` / `?set_company`, resolves the active company, then renders navbar + sidebar. Any page that requires it is authenticated. `ob_end_flush()` lives in `includes/footer.php`, so **every page must include the footer** or the layout never closes.
+
+### Master data and multi-company
+
+| Module | Physical table | Notes |
+|---|---|---|
+| `modules/customers/` | **`clients`** | Customer master. Table name is legacy and deliberate — 6 tables FK to it. Do not create a `customers` table. |
+| `modules/companies/` | **`companies`** | Company master. 13 tables FK to it, 130+ carry `company_id`. |
+| `modules/settings/` | `app_settings`, `currencies`, `currency_rates`, `document_sequences`, `lookup_*` | Configuration console — the values that used to be hardcoded. |
+| `modules/system/` | `users`, `roles`, `permissions`, `people` | Landing dashboard grouping Users / Roles / Permissions / People. |
+
+- **Active company** comes from `$_SESSION['active_company_id']`, resolved by `activeCompany()` in `helpers/company.php`. Access rule matches `CompanyService`: role id 1 (Super Admin) sees every company, everyone else only their `user_companies` rows.
+- **Postings are company-explicit.** `PostingEngine` refuses to post when a journal has no company or no financial year for its own company — there is no `?? 1` fallback, and it will not borrow another company's year.
+- **Document numbers** come from `document_sequences` via `nextDocumentNumber()` (atomic read-and-increment). Use `peekDocumentNumber()` for form previews so viewing a page never consumes a number. Procurement and journal vouchers keep their own atomic sequences (`procurement_sequences`, `voucher_types.voucher_prefix`).
+- `sidebar_menu` is still written by `modules/menu_manager/` but **nothing renders from it** — navigation is hardcoded in `templates/sidebar.php`.
+
 ### Routing System
 - **Clean URLs:** `.htaccess` rewrites `/modules/users/index` to `/modules/users/index.php`
 - **Auto-Append:** Missing extensions automatically added (e.g., `users` → `users.php`)
@@ -59,63 +77,50 @@ erp-root/
 
 ## Essential Commands
 
-### Setup & Initialization
+All commands below are run from the repository root and have been verified to exist.
+
+### Setup & migrations
 ```bash
-# Database setup (run once)
-php setup.php                    # Dashboard widget system
-php config/runner.php            # Run all migrations in order
-php config/seed_data.php         # Seed sample data
+# Rebuild an empty database from the committed snapshot, then apply migrations
+mysql -u root erp_db < database/schema.sql
+
+# Idempotent migrations (safe to re-run; each checks before altering)
+php config/migrations/2026_10_12_customer_master.php
+php config/migrations/2026_10_12_company_master.php
+php config/migrations/2026_10_12_company_scoped_posting.php
+php config/migrations/2026_10_12_configuration_layer.php
+php config/migrations/2026_10_12_sequence_formats.php
+
+php setup.php                    # dashboard widget system (CLI only)
+php config/seed_data.php         # seed sample data
 ```
+
+There is **no migration runner and no migration-tracking table**. `config/migrations/runner.php` only exposes an `applySql()` helper; migrations are applied by invoking each file directly. Migrations are written to be idempotent (they query `information_schema` before altering), which is what makes re-running safe.
+
+### Regenerate the schema snapshot
+```bash
+mysqldump -u root --no-data --skip-comments --routines --triggers erp_db > database/schema.sql
+```
+`database/schema.sql` is deliberately the one `.sql` file that is version-controlled (`.gitignore` has a `!` exception for it); every other `.sql` stays ignored so dumps and backups never get committed.
+
+### Schedulers & maintenance (CLI)
+```bash
+php ai_automation_scheduler.php   # cron: AI automations
+php erp_module_health_check.php   # module health report
+php enable_workflow_studio.php    # workflow studio toggle
+php maintenance.php clean users   # guarded maintenance console
+```
+These are blocked over HTTP by `.htaccess` and must be run from the command line.
 
 ### Testing
+There is **no automated test suite in this repository.** The `test_*.php` and `check_*.php` files previously listed here were never committed (`.gitignore` excludes `test*.php` and `check_*.php`). Verification is done by:
 ```bash
-# F12 Finance period closing tests (11 formal tests)
-php test_f12_suite.php
+# 1. Every PHP file must parse
+find . -name "*.php" -not -path "./.git/*" -print0 \
+  | xargs -0 -I{} sh -c 'php -l "{}" >/dev/null 2>&1 || echo "BROKEN {}"'
 
-# F13 Group consolidation tests
-php test_f13_suite.php
-
-# F9 Fixed assets tests
-php test_f9_complete.php
-
-# Procurement tests
-php test_p1_suite.php
-php test_p2_suite.php
-php test_p3_suite.php
-
-# Workflow studio tests
-php test_workflow_studio.php
-```
-
-### Manual Testing Files (debugging)
-```bash
-# Various check scripts (check_tables.php, check_users.php, etc.)
-php check_asset_categories.php
-php check_users.php
-php check_kill_switches.php
-```
-
-### Database Management
-```bash
-# Import schemas
-mysql -u root -p erp_db < config/schema.sql
-mysql -u root -p erp_db < config/migrations/001_schema.sql
-mysql -u root -p erp_db < payroll_finance_tables.sql
-```
-
-### Schedulers
-```bash
-# AI automation scheduler (cron job)
-php ai_automation_scheduler.php
-```
-
-### Maintenance
-```bash
-# Module health check
-php erp_module_health_check.php
-
-# Enable workflow studio
-php enable_workflow_studio.php
+# 2. Load every page and assert no PHP errors surface
+#    (see the manual test checklist in CLEANUP_PLAN.md / project notes)
 ```
 
 ## Code Organization
@@ -187,32 +192,37 @@ Each module in `modules/` is self-contained with:
 - Print/CSV/PDF export
 
 ### Helpers
-- `security.php` — XSS prevention, URL detection, CSRF tokens
-- `rbac.php` — Role/permission validation, permission normalization
-- `url.php` — Base URL detection, routing helpers
-- `validation.php** — Form validation
-- `pagination.php** — Pagination utilities
-- `breadcrumbs.php** — Breadcrumb generation
-- `currency.php` — Multi-currency handling
-- `menu.php` — Dynamic menu generation
-- `template_renderer.php` — Template rendering
-- `report_engine.php** — Report generation
+- `security.php` — `sanitize()`, `detectBaseUrl()` (defines `BASE_URL`), `csrfToken()`, `verifyCsrf()`, `logAudit()`, `getClientIP()`, flash helpers
+- `rbac.php` — `hasPermission()`, `hasRole()`; permission normalisation and a hand-maintained module prefix map
+- `url.php` — `url()`, `resolveAppUrl()`, `normalizeAppUrl()` (base-URL detection itself lives in `security.php`)
+- `validation.php` — `validate()`, `old()`, `saveFormState()`, `restoreFormErrors()`, `clearOldInput()`
+- `pagination.php` — `paginate()`, `getPageNumber()`, `paginationLinks()`
+- `breadcrumbs.php` — filesystem-driven breadcrumbs, `renderBreadcrumbs()`
+- `currency.php` — currencies and FX rates resolved from the `currencies` / `currency_rates` tables (no hardcoded list), `getActiveCurrency()`, `convertAmount()`, `formatMoney()`
+- `company.php` — **active company context**: `activeCompany()`, `activeCompanyId()`, `appSetting()`, `appName()`, `companyFilterSql()`, `nextDocumentNumber()`, `peekDocumentNumber()`, `getCompanyFinancialYear()`
+- `lookup.php` — `lookupOptions()`, `lookupLabel()`, `lookupExtra()`, `paymentTermDays()` backed by `lookup_types` / `lookup_values`
+- `redirect.php` — `redirect()`, `back()`, `to()`, `redirect_to()`
+- `finance_helpers.php` — `getActiveFinancialYear($db, $companyId)`, `getFinancialYearForDate()`, `generateVoucherNo()`
+- `menu.php` — **removed**: it read a `sidebar_menu` table that nothing rendered
+- `template_renderer.php`, `report_engine.php`, `placeholder_registry.php` — reporting and template design
 
 ### Middleware
 - `auth.php` — Simple session-based authentication (`requireAuth()`)
 
 ### Templates
-- `header.php` — Bootstrap, layout, theme support, flash messages
-- `footer.php** — Page footer
-- `navbar.php` — Top navigation bar
-- `sidebar.php` — Collapsible sidebar with dynamic menu
+- `navbar.php` — top bar: brand, **company switcher**, currency switcher, theme toggle, sign out
+- `sidebar.php` — the live navigation, hardcoded with one `hasPermission()` gate per link
+- `footer.php` — closes the layout, sidebar JS, flushes the output buffer
+- `mock_preview.php` — client preview mock, removable
+- `templates/header.php` — **removed**: nothing included it; `includes/header.php` is the only shell
 
 ### Configuration
-- `database.php` — Database connection with local/production detection
-- `schema.sql` — Main database schema
-- `schema_ai_*.sql` — AI module schemas
-- `migrations/` — 50+ migration files (001 to 047)
-- `seeds/` — Template seed data
+- `config/database.php` — `getDB()` PDO singleton plus the `CompatPDO` / `CompatPDOStatement` MySQLi shim; picks local vs production credentials from `SERVER_NAME`/`HTTP_HOST`
+- `config/widgets.php` — widget registry and per-user dashboard layout
+- `config/seed_data.php` — sample data
+- `config/migrations/` — date-named idempotent PHP migrations (see Essential Commands); `runner.php` provides `applySql()` only
+- `database/schema.sql` — **authoritative schema snapshot**, version-controlled
+- There is **no** `config/schema.sql`, no `schema_ai_*.sql`, and no numbered `001–047` migration set.
 
 ### Database Schema Structure
 - `users` — User accounts with roles, permissions

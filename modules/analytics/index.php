@@ -416,7 +416,7 @@ foreach ($attHeat as $ah) {
                     legend: {
                         enabled: false
                     },
-                    curve: 'curve',
+                    curve: 'curveMonotoneX',
                     axes: {
                         left: {
                             domain: [0, 100]

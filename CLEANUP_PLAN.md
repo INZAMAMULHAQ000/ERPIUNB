@@ -67,6 +67,46 @@ Only after Phase 1 proves zero references. Files are deleted, not blanked; the P
 
 ---
 
-## Out of scope unless asked
+## Verification result (2026-10-13)
 
-Rotating the hosting DB password and the `admin123` account (only you can do those on the server). Consolidating the two payroll engines into a real calculation module — that is a feature build, not a cleanup, and I will report what I find rather than invent it.
+- Whole-tree `php -l`: **0 files fail to parse** (was 12 — all in the deleted orphan module).
+- Company-scoped posting test: passes; the single reported "FAIL" is the test's own `1 === '1'` assertion, not the product.
+- Document sequence test: **all checks pass**, including 20 unique sequential allocations.
+- Page sweep: **36/36 clean** — no fatal, warning, notice or undefined-key.
+- Data baseline: `clients`, `companies`, `journal_entries`, `general_ledger`, `financial_years`, `accounting_periods`, `chart_of_accounts` all **unchanged**. Only +2 tables and +4 permissions, both intended.
+- CLI tools blocked over HTTP return 403; app pages still route to login correctly.
+
+## Status by phase
+
+| Phase | State |
+|---|---|
+| 0 Safety net | Done — checkpoint commits, schema snapshot, baseline recorded |
+| 1 Inventory | Done — evidence-based, every verdict backed by reference counts |
+| 2 Dynamic configuration | Done — settings, currencies, sequences, lookups, COA company assignment |
+| 3 Numbering pipeline | Done for AR/customer documents; procurement and journal vouchers already had atomic sequences and were left alone |
+| 4 Broken logic | Done — `audit.view`, unguarded audit page, `sla_breached`, curve bug |
+| 5 Remove weight | Done — see below |
+| 6 Verification | Done |
+
+## Removed
+
+Corrupt/mock: `finance/PayrollProcessor.php`, `finance/PayrollReportGenerator.php`, `finance/helpers/finance_helpers.php.backup`, `fetchColumn()`, `F-10`, `F-10-test`, `f9`, `THEMES`, `ui_preview_m365.html`, `blackbox_mcp_settings.json`, `skills-lock.json`.
+Scratch: `FINANCE/`, `Error/`, `AI-Assistance-Module/`, `Inventory/`, `Procurement/`, `.freebuff/`.
+Dead code: `helpers/menu.php`, `templates/header.php`, `modules/clients/` (redirect stubs), `modules/payroll/` (stub config).
+Orphan module: `modules/finance/payroll/` — 33 files, 12 of which did not parse, zero inbound references, fully duplicated by the live `modules/finance/payroll_finance/`.
+Root one-offs: 27 unreferenced dev/debug/codegen scripts.
+
+## Deliberately kept
+
+`composer.json` / `composer.lock` — the only record of the dompdf dependency that two export pages call; `vendor/` is absent so those exports are already broken and this is the breadcrumb to fix them.
+`maintenance.php` — has a correct Super-Admin gate and is a real console.
+`setup_f9_*`, `setup_f11`, `setup_p1–p4`, `setup.php`, `migration_inspector.php`, `migration_executor.php`, `erp_module_health_check.php`, `create_user_roles.php`, `enable_workflow_studio.php`, `ai_automation_scheduler.php` — CLI tools holding the only reproducible seed data. Now blocked over HTTP rather than deleted.
+`modules/menu_manager/` — the UI is unwired, but `sidebar_menu` has a live consumer in `AIGovernanceService::seedSidebar()`. Needs a decision, not a deletion.
+`modules/activity_logs/` and `modules/audit_logs/` — both reachable; now both correctly permission-gated.
+
+## Still open (needs your decision, not silently skipped)
+
+1. `modules/menu_manager/` writes `sidebar_menu`, which nothing renders. Either wire the sidebar to it or retire the module.
+2. Option lists in the customer/company forms still fall back to PHP arrays when a lookup type is missing. They now read `lookup_values` first.
+3. `config/database.php` still contains plaintext production credentials; `admin@erp.com / admin123` is still the login. Only you can rotate these.
+4. Payroll still has no calculation engine — `payroll_runs` is read-only external data with no creator anywhere in the codebase.

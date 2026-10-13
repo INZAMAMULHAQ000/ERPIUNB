@@ -58,23 +58,18 @@ $defRate = TaxService::getDefaultTaxRate($defaultTypeId);
 $defaultRateId = $defRate ? (int)$defRate['id'] : 0;
 
 
-// Generate next invoice number
-
-$prefix = 'INV' . date('Ymd');
-
-$stmt = $db->prepare("
-    SELECT COUNT(*) as cnt
-    FROM customer_invoices
-    WHERE invoice_number LIKE ?
-");
-
-$stmt->execute([$prefix . '%']);
-
-$count = (int)$stmt->fetch()['cnt'];
-
-$invoice_number =
-    $prefix . '-' .
-    str_pad($count + 1, 3, '0', STR_PAD_LEFT);
+// Invoice number comes from the company's document sequence: allocation-safe and
+// gap-free, unlike the previous COUNT(*)+1 which collided under concurrency and
+// reused a number after any deletion.
+try {
+    // Allocate only on submit — a form preview must not consume a number.
+    $invoice_number = ($_SERVER['REQUEST_METHOD'] === 'POST')
+        ? nextDocumentNumber($db, 'customer_invoice')
+        : peekDocumentNumber($db, 'customer_invoice');
+} catch (Throwable $e) {
+    $invoice_number = '';
+    flash('seq', 'Could not allocate an invoice number: ' . $e->getMessage(), 'error');
+}
 
 
 // ---------------------------------------------------------

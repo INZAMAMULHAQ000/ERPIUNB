@@ -171,6 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $db->prepare("
         UPDATE chart_of_accounts
         SET
+            company_id = ?,
             account_code = ?,
             account_name = ?,
             group_id = ?,
@@ -183,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ");
 
     $stmt->execute([
+        ($_POST['company_id'] ?? '') === '' ? null : (int) $_POST['company_id'],
         $data['account_code'],
         $data['account_name'],
         $data['group_id'],
@@ -536,6 +538,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 </label>
 
+            </div>
+
+
+            <!-- Owning company -->
+            <div>
+                <label for="company_id" class="block text-sm font-medium text-gray-700 mb-1">Owning Company</label>
+                <select id="company_id" name="company_id" class="px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500 w-full">
+                    <option value="">Shared — all companies</option>
+                    <?php foreach ($db->query("SELECT id, company_code, company_name FROM companies WHERE deleted_at IS NULL AND status = 'active' ORDER BY is_default DESC, company_name") as $coRow): ?>
+                    <option value="<?= (int) $coRow['id'] ?>" <?= (int) ($account['company_id'] ?? 0) === (int) $coRow['id'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($coRow['company_name']) ?> (<?= htmlspecialchars($coRow['company_code']) ?>)
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="text-xs text-gray-400 mt-1">Shared accounts are selectable by every company; a company-specific one only by its owner.</p>
             </div>
 
 

@@ -16,15 +16,11 @@ if (empty($errors)) {
     clearOldInput();
 }
 
-// Generate CN number: CN + YYYYMM + sequential
-$prefix = 'CN' . date('Ym');
-
-$stmt = $db->prepare("SELECT COUNT(*) FROM credit_notes WHERE credit_note_number LIKE ?");
-$stmt->execute([$prefix . '%']);
-
-$count = (int)$stmt->fetchColumn();
-
-$credit_note_number = $prefix . '-' . str_pad($count + 1, 3, '0', STR_PAD_LEFT);
+// Credit note number from the company document sequence (CN + YYYYMM + 3).
+// Allocated on submit only; GET shows a non-consuming preview.
+$credit_note_number = ($_SERVER['REQUEST_METHOD'] === 'POST')
+    ? nextDocumentNumber($db, 'credit_note')
+    : peekDocumentNumber($db, 'credit_note');
 
 // Load clients
 $clients = $db->query("

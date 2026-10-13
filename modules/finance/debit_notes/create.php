@@ -32,26 +32,10 @@ $vendors = $db->query("
 |--------------------------------------------------------------------------
 */
 
-$prefix = 'DN' . date('Ymd');
-
-$stmt = $db->prepare("
-    SELECT COUNT(*)
-    FROM debit_notes
-    WHERE debit_note_number LIKE ?
-");
-
-$stmt->execute([
-    $prefix . '%'
-]);
-
-$debit_note_number =
-    $prefix . '-' .
-    str_pad(
-        (int)$stmt->fetchColumn() + 1,
-        3,
-        '0',
-        STR_PAD_LEFT
-    );
+// Debit note number from the company document sequence (DN + YYYYMMDD + 3).
+$debit_note_number = ($_SERVER['REQUEST_METHOD'] === 'POST')
+    ? nextDocumentNumber($db, 'debit_note')
+    : peekDocumentNumber($db, 'debit_note');
 
 $dnTypes = [
     'price_correction'    => 'Price Correction',

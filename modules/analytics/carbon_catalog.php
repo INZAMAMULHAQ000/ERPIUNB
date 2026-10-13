@@ -503,13 +503,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (lineEl) render(lineEl, 'line', {
         labels: <?= json_encode(array_column($attTrend, 'attendance_date') ?: ['No data']) ?>,
         datasets: [{ label: 'Attendance %', data: <?= json_encode(array_map('floatval', array_column($attTrend, 'pct')) ?: [0]) ?>, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true }]
-    }, { legend: { enabled: false }, curve: 'curve', getAreaOpacity: function () { return 0.18; } });
+    }, { legend: { enabled: false }, curve: 'curveMonotoneX', getAreaOpacity: function () { return 0.18; } });
 
     const areaEl = document.getElementById('cc-area');
     if (areaEl) render(areaEl, 'area', {
         labels: <?= json_encode($months6) ?>,
         datasets: [{ label: 'Revenue', data: <?= json_encode($revArr) ?>, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.15)' }]
-    }, { legend: { enabled: false }, curve: 'curve', getAreaOpacity: function () { return 0.2; } });
+    }, { legend: { enabled: false }, curve: 'curveMonotoneX', getAreaOpacity: function () { return 0.2; } });
 
     const stackAreaEl = document.getElementById('cc-stackarea');
     if (stackAreaEl) render(stackAreaEl, 'stacked-area', {

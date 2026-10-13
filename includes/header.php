@@ -14,6 +14,7 @@ require_once $basePath . '/helpers/breadcrumbs.php';
 require_once $basePath . '/middleware/auth.php';
 require_once $basePath . '/helpers/currency.php';
 require_once $basePath . '/helpers/company.php';
+require_once $basePath . '/helpers/lookup.php';
 
 requireAuth();
 

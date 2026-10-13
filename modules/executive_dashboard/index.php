@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }]
         }, {
             legend: { enabled: false },
-            curve: 'curve',
+            curve: 'curveMonotoneX',
             points: { radius: 4 },
             getAreaOpacity: function () { return 0.2; }
         });

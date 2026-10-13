@@ -18,6 +18,12 @@ RewriteRule ^config/ - [F,L]
 RewriteRule ^helpers/ - [F,L]
 RewriteRule ^middleware/ - [F,L]
 RewriteRule ^templates/ - [F,L]
+RewriteRule ^database/ - [F,L]
+
+# ——— Security: CLI-only maintenance & seeding scripts ———
+# These run DDL and seed SQL and carry no session check, so they must not be
+# reachable over HTTP. Run them with `php <script>` instead.
+RewriteRule ^(setup|setup_f9_complete|setup_f9_final|setup_f9_fixed|setup_f11_reports|setup_f12_period_close|setup_f13_group|setup_p1_procurement|setup_p2_rfq|setup_p3|setup_p4_receipts|create_user_roles|enable_workflow_studio|migration_inspector|migration_executor|ai_automation_scheduler)\.php$ - [F,L]
 
 # ——— Security: Deny access to sensitive file types ———
 RewriteRule \.sql$ - [F,L]
