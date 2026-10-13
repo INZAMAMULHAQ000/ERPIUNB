@@ -30,7 +30,7 @@ $stmt = $db->prepare("SELECT i.*, c.company_name, c.client_code FROM invoices i 
 $stmt->execute($queryParams);
 $invoices = $stmt->fetchAll();
 
-$clients = $db->query("SELECT id, company_name FROM clients WHERE status = 'active' ORDER BY company_name")->fetchAll();
+$clients = $db->query("SELECT id, company_name FROM clients WHERE status = 'active' AND deleted_at IS NULL AND deleted_at IS NULL ORDER BY company_name")->fetchAll();
 
 $statusColors = ['draft' => 'bg-gray-100 text-gray-800', 'sent' => 'bg-blue-100 text-blue-800', 'partially_paid' => 'bg-yellow-100 text-yellow-800', 'paid' => 'bg-green-100 text-green-800', 'overdue' => 'bg-red-100 text-red-800', 'cancelled' => 'bg-red-200 text-red-800'];
 ?>

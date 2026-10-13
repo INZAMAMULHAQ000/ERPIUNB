@@ -36,7 +36,7 @@ if (empty($errors)) {
 $clients = $db->query("
     SELECT id, client_code, company_name
     FROM clients
-    WHERE status = 'active'
+    WHERE status = 'active' AND deleted_at IS NULL
     ORDER BY company_name
 ")->fetchAll();
 $projects = $db->query("

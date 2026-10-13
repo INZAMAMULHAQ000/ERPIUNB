@@ -19,7 +19,7 @@ $items = $db->prepare("SELECT * FROM invoice_items WHERE invoice_id = ?");
 $items->execute([$id]);
 $items = $items->fetchAll();
 
-$clients = $db->query("SELECT id, company_name FROM clients WHERE status = 'active' ORDER BY company_name")->fetchAll();
+$clients = $db->query("SELECT id, company_name FROM clients WHERE status = 'active' AND deleted_at IS NULL AND deleted_at IS NULL ORDER BY company_name")->fetchAll();
 $projects = $db->query("SELECT id, project_name FROM projects WHERE status IN ('active','planning') ORDER BY project_name")->fetchAll();
 $taxes = $db->query("SELECT * FROM tax_settings WHERE is_active = 1")->fetchAll();
 $errors = restoreFormErrors();

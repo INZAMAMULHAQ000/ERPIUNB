@@ -107,7 +107,7 @@ foreach ($invoices as $inv) {
 }
 
 // Clients for filter
-$clients = $db->query("SELECT id, client_code, company_name FROM clients WHERE status = 'active' ORDER BY company_name")->fetchAll();
+$clients = $db->query("SELECT id, client_code, company_name FROM clients WHERE status = 'active' AND deleted_at IS NULL ORDER BY company_name")->fetchAll();
 
 $total_overdue = $agingBuckets['31_60']['total'] + $agingBuckets['61_90']['total'] + $agingBuckets['90_plus']['total'];
 ?>

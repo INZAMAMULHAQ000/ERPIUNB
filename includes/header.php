@@ -13,6 +13,7 @@ require_once $basePath . '/helpers/pagination.php';
 require_once $basePath . '/helpers/breadcrumbs.php';
 require_once $basePath . '/middleware/auth.php';
 require_once $basePath . '/helpers/currency.php';
+require_once $basePath . '/helpers/company.php';
 
 requireAuth();
 
@@ -39,6 +40,52 @@ if (isset($_GET['set_theme']) && in_array($_GET['set_theme'], ['ibm-light', 'ibm
         header("Location: $redirect");
         exit;
     }
+}
+
+// ——— Active company context ———
+// Documents (invoices, credit notes, statements) render an issuer block from
+// these session keys. Before the Company Master existed, `company_tax_number`
+// was never written, so those blocks silently fell back to the *customer's*
+// tax registration number.
+if (isset($_GET['set_company'])) {
+    $wanted = (int) $_GET['set_company'];
+    try {
+        $allowed = getDB()->prepare("
+            SELECT id FROM companies c
+            WHERE c.id = ? AND c.deleted_at IS NULL AND c.status = 'active'
+              AND (EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = ? AND ur.role_id = 1)
+                   OR EXISTS (SELECT 1 FROM user_companies uc WHERE uc.user_id = ? AND uc.company_id = c.id))
+        ");
+        $allowed->execute([$wanted, $_SESSION['user_id'], $_SESSION['user_id']]);
+        if ($allowed->fetchColumn()) {
+            $_SESSION['active_company_id'] = $wanted;
+            unset($_SESSION['company_snapshot']);
+        }
+    } catch (Throwable $e) { /* companies not migrated yet — ignore the switch */ }
+    $redirect = strtok($_SERVER['REQUEST_URI'], '?');
+    header("Location: $redirect");
+    exit;
+}
+
+// Resolution and access rules live in helpers/company.php so every page agrees.
+try {
+    $activeCompany = activeCompany();
+    if ($activeCompany) {
+        $_SESSION['company_name']          = $activeCompany['company_name'];
+        $_SESSION['company_legal_name']    = $activeCompany['legal_name'] ?: $activeCompany['company_name'];
+        $_SESSION['company_tax_number']    = $activeCompany['vat_number'] ?: $activeCompany['tax_number'];
+        $_SESSION['company_currency']      = $activeCompany['base_currency'];
+        $_SESSION['company_logo']          = $activeCompany['logo_path'];
+        $_SESSION['company_invoice_prefix']= $activeCompany['invoice_prefix'];
+        $_SESSION['company_address'] = trim(implode(', ', array_filter([
+            $activeCompany['address_line1'], $activeCompany['address_line2'],
+            $activeCompany['city'], $activeCompany['state'],
+            $activeCompany['postal_code'], $activeCompany['country'],
+        ])));
+        $COMPANY = $activeCompany;
+    }
+} catch (Throwable $e) {
+    // The companies table may predate the Company Master migration.
 }
 
 $pageTitle = $pageTitle ?? 'Dashboard';
@@ -71,7 +118,7 @@ if (!empty($dashboardKey)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $pageTitle ?> - ERP System</title>
+    <title><?= $pageTitle ?> - <?= htmlspecialchars(appName()) ?></title>
     <script src="<?= rtrim(BASE_URL, '/') ?>/assets/js/theme.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>

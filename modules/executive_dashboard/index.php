@@ -45,7 +45,7 @@ $projectStatus = $db->query("SELECT status, COUNT(*) AS cnt FROM projects GROUP 
 $topClients = $db->query("
     SELECT c.company_name AS name, SUM(i.paid_amount) AS revenue
     FROM clients c JOIN invoices i ON i.client_id=c.id
-    WHERE YEAR(i.invoice_date)=YEAR(CURDATE())
+    WHERE YEAR(i.invoice_date)=YEAR(CURDATE()) AND c.deleted_at IS NULL
     GROUP BY c.id ORDER BY revenue DESC LIMIT 5
 ")->fetchAll();
 

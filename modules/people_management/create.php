@@ -62,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'gender' => $_POST['gender'] ?? '',
         'date_of_birth' => $_POST['date_of_birth'] ?? '',
         'category' => $category,
+        'customer_id' => $_POST['customer_id'] ?? '',
         'notes' => $_POST['notes'] ?? '',
         'status' => $_POST['status'] ?? 'active',
     ];
@@ -172,8 +173,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 3. Create the person record
             $personStmt = $db->prepare("INSERT INTO people (
                 person_code, first_name, last_name, email, phone, address,
-                gender, date_of_birth, category, user_id, employee_id, notes, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                gender, date_of_birth, category, user_id, employee_id, customer_id, notes, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             $personStmt->execute([
                 $personCode,
@@ -187,6 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['category'],
                 $userId,
                 $employeeId,
+                $category === 'customer' && !empty($data['customer_id']) ? (int) $data['customer_id'] : null,
                 $data['notes'] ?: null,
                 $data['status']
             ]);
@@ -299,6 +301,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </label>
                 <?php endforeach; ?>
+            </div>
+        </div>
+
+        <!-- Customer-only fields -->
+        <?php $customerOptions = $db->query("SELECT id, client_code, company_name FROM clients WHERE deleted_at IS NULL AND status IN ('active','prospect') ORDER BY company_name")->fetchAll(); ?>
+        <div id="customerFields" class="mt-6" style="<?= old('category') === 'customer' ? '' : 'display:none' ?>">
+            <div class="border-t pt-4">
+                <h2 class="text-lg font-semibold mb-1">Customer Link</h2>
+                <p class="text-xs text-gray-500 mb-3">Attach this person to an existing organisation in the Customer Master.</p>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Linked Customer</label>
+                <div class="flex gap-2">
+                    <select name="customer_id" class="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">— Not linked —</option>
+                        <?php foreach ($customerOptions as $co): ?>
+                        <option value="<?= $co['id'] ?>" <?= (string) old('customer_id') === (string) $co['id'] ? 'selected' : '' ?>>
+                            <?= sanitize($co['company_name']) ?> (<?= sanitize($co['client_code']) ?>)
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <?php if (hasPermission('customers.create')): ?>
+                    <a href="<?= url('modules/customers/form.php') ?>" target="_blank" rel="noopener"
+                       class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 whitespace-nowrap">
+                        <i class="fas fa-plus mr-1"></i>New
+                    </a>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
 
@@ -435,6 +463,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         var empFields = document.getElementById('employeeFields');
         if (empFields) {
             empFields.style.display = val === 'employee' ? '' : 'none';
+        }
+        var custFields = document.getElementById('customerFields');
+        if (custFields) {
+            custFields.style.display = val === 'customer' ? '' : 'none';
         }
     }
 

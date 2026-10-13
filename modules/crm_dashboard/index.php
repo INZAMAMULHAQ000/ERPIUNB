@@ -14,7 +14,7 @@ $contactedLeads = $db->query("SELECT COUNT(*) FROM leads WHERE status = 'contact
 $qualifiedLeads = $db->query("SELECT COUNT(*) FROM leads WHERE status = 'qualified'")->fetchColumn();
 $wonLeads = $db->query("SELECT COUNT(*) FROM leads WHERE status = 'won'")->fetchColumn();
 $lostLeads = $db->query("SELECT COUNT(*) FROM leads WHERE status = 'lost'")->fetchColumn();
-$totalClients = $db->query("SELECT COUNT(*) FROM clients WHERE status = 'active'")->fetchColumn();
+$totalClients = $db->query("SELECT COUNT(*) FROM clients WHERE status = 'active' AND deleted_at IS NULL")->fetchColumn();
 $totalDeals = $db->query("SELECT COUNT(*) FROM deals")->fetchColumn();
 $activeDeals = $db->query("SELECT COUNT(*) FROM deals WHERE stage NOT IN ('closed_won','closed_lost')")->fetchColumn();
 $pipelineValue = $db->query("SELECT COALESCE(SUM(deal_value),0) FROM deals WHERE stage NOT IN ('closed_won','closed_lost')")->fetchColumn();
@@ -123,9 +123,9 @@ $dealStageColors = [
         <p class="text-2xl font-bold text-slate-800"><?= $totalLeads ?></p>
         <p class="text-xs text-slate-400 mt-1"><?= $leadsThisMonth ?> new this month</p>
     </a>
-    <a href="<?= url('modules/clients/index.php') ?>" class="bg-white rounded-xl shadow-sm p-4 border border-slate-100 hover:shadow-md transition block">
+    <a href="<?= url('modules/customers/index.php') ?>" class="bg-white rounded-xl shadow-sm p-4 border border-slate-100 hover:shadow-md transition block">
         <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Active Clients</span>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Active Customers</span>
             <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
                 <i class="fas fa-building text-emerald-500 text-sm"></i>
             </div>
@@ -191,15 +191,15 @@ $dealStageColors = [
         </div>
     </a>
     <?php endif; ?>
-    <?php if (hasPermission('clients.view')): ?>
-    <a href="<?= url('modules/clients/index.php') ?>" class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition group">
+    <?php if (hasPermission('customers.view')): ?>
+    <a href="<?= url('modules/customers/index.php') ?>" class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition group">
         <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center group-hover:scale-110 transition">
                 <i class="fas fa-building text-white"></i>
             </div>
             <div>
-                <h3 class="font-semibold text-slate-800">Clients</h3>
-                <p class="text-xs text-slate-400">Client accounts</p>
+                <h3 class="font-semibold text-slate-800">Customers</h3>
+                <p class="text-xs text-slate-400">Customer master</p>
             </div>
         </div>
         <div class="flex items-center justify-between">
@@ -404,12 +404,12 @@ $dealStageColors = [
             </div>
         </a>
         <?php endif; ?>
-        <?php if (hasPermission('clients.create')): ?>
-        <a href="<?= url('modules/clients/create.php') ?>" class="flex items-center gap-3 p-4 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition">
+        <?php if (hasPermission('customers.create')): ?>
+        <a href="<?= url('modules/customers/form.php') ?>" class="flex items-center gap-3 p-4 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition">
             <i class="fas fa-building text-emerald-600 text-xl"></i>
             <div>
-                <div class="font-medium text-sm">New Client</div>
-                <div class="text-xs text-gray-500">Add client account</div>
+                <div class="font-medium text-sm">New Customer</div>
+                <div class="text-xs text-gray-500">Add to customer master</div>
             </div>
         </a>
         <?php endif; ?>

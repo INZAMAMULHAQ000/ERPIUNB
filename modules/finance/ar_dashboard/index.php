@@ -45,7 +45,7 @@ $topCustomers = $db->query("
     SELECT c.id, c.company_name, c.client_code, COALESCE(SUM(ci.balance_amount),0) as outstanding
     FROM clients c
     JOIN customer_invoices ci ON c.id = ci.client_id
-    WHERE ci.status IN ('sent','partially_paid','overdue') AND ci.balance_amount > 0
+    WHERE ci.status IN ('sent','partially_paid','overdue') AND ci.balance_amount > 0 AND c.deleted_at IS NULL
     GROUP BY c.id, c.company_name, c.client_code
     ORDER BY outstanding DESC
     LIMIT 10

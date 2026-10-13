@@ -20,11 +20,29 @@ if (empty($errors)) {
 }
 
 $clients = $db->query("
-    SELECT id, client_code, company_name
-    FROM clients
-    WHERE status = 'active'
-    ORDER BY company_name
+    SELECT c.id, c.client_code, c.company_name, c.currency_code, c.payment_terms,
+           c.credit_limit, c.credit_hold,
+           (SELECT COALESCE(SUM(CASE WHEN ci.status NOT IN ('cancelled','draft','void')
+                                     THEN ci.balance_amount ELSE 0 END), 0)
+              FROM customer_invoices ci WHERE ci.client_id = c.id) AS outstanding
+    FROM clients c
+    WHERE c.status = 'active' AND c.deleted_at IS NULL
+    ORDER BY c.company_name
 ")->fetchAll();
+
+// Credit profile handed to the browser so the exposure warning tracks the
+// selected client and the running invoice total without another round trip.
+$customerCredit = [];
+foreach ($clients as $cl) {
+    $customerCredit[(int) $cl['id']] = [
+        'name'        => $cl['company_name'],
+        'limit'       => (float) $cl['credit_limit'],
+        'outstanding' => (float) $cl['outstanding'],
+        'currency'    => $cl['currency_code'],
+        'terms'       => $cl['payment_terms'],
+        'hold'        => $cl['credit_hold'],
+    ];
+}
 
 $projects = $db->query("
     SELECT id, project_code, project_name
@@ -720,7 +738,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <option
                             value="<?= $c['id'] ?>"
-                            <?= old('client_id') == $c['id']
+                            <?= (old('client_id') ?: (int)($_GET['client_id'] ?? 0)) == $c['id']
                                 ? 'selected'
                                 : '' ?>>
 
@@ -733,6 +751,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endforeach; ?>
 
                 </select>
+
+                <div id="creditPanel" class="hidden mt-2 rounded-lg border px-3 py-2 text-xs leading-relaxed"></div>
 
             </div>
 
@@ -934,45 +954,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         Select Terms
                     </option>
 
-
+                    <?php foreach (['Due on Receipt', 'Net 7', 'Net 15', 'Net 30', 'Net 45', 'Net 60', 'Net 90', '2/10 Net 30', 'End of Month Net 30', 'End of Month Net 60'] as $pt): ?>
                     <option
-                        value="Due on Receipt"
-                        <?= old('payment_terms') ===
-                            'Due on Receipt'
-                            ? 'selected'
-                            : '' ?>>
-                        Due on Receipt
+                        value="<?= $pt ?>"
+                        <?= old('payment_terms', 'Net 30') === $pt ? 'selected' : '' ?>>
+                        <?= $pt ?>
                     </option>
-
-
-                    <option
-                        value="Net 15"
-                        <?= old('payment_terms') === 'Net 15'
-                            ? 'selected'
-                            : '' ?>>
-                        Net 15
-                    </option>
-
-
-                    <option
-                        value="Net 30"
-                        <?= old(
-                            'payment_terms',
-                            'Net 30'
-                        ) === 'Net 30'
-                            ? 'selected'
-                            : '' ?>>
-                        Net 30
-                    </option>
-
-
-                    <option
-                        value="Net 60"
-                        <?= old('payment_terms') === 'Net 60'
-                            ? 'selected'
-                            : '' ?>>
-                        Net 60
-                    </option>
+                    <?php endforeach; ?>
 
                 </select>
 
@@ -1678,65 +1666,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     */
 
     function setDueDate(terms) {
+        var el = document.querySelector("input[name=\"invoice_date\"]");
+        var due = document.getElementById("due_date");
+        if (!due) return;
 
-        const invDate =
-            document.querySelector(
-                'input[name="invoice_date"]'
-            ).value ||
-            new Date()
-            .toISOString()
-            .split('T')[0];
-
-
-        const d =
-            new Date(invDate);
-
-
-        if (terms === 'Due on Receipt') {
-
-            document.getElementById(
-                'due_date'
-            ).value = invDate;
-
-
-        } else if (terms === 'Net 15') {
-
-            d.setDate(
-                d.getDate() + 15
-            );
-
-
-            document.getElementById(
-                    'due_date'
-                ).value =
-                d.toISOString().split('T')[0];
-
-
-        } else if (terms === 'Net 30') {
-
-            d.setDate(
-                d.getDate() + 30
-            );
-
-
-            document.getElementById(
-                    'due_date'
-                ).value =
-                d.toISOString().split('T')[0];
-
-
-        } else if (terms === 'Net 60') {
-
-            d.setDate(
-                d.getDate() + 60
-            );
-
-
-            document.getElementById(
-                    'due_date'
-                ).value =
-                d.toISOString().split('T')[0];
+        var src = (el && el.value) ? el.value : new Date().toISOString().slice(0, 10);
+        var days = 0;
+        if (terms !== "Due on Receipt") {
+            var m = /Net\s+(\d+)$/i.exec(terms || "");
+            if (!m) return;
+            days = parseInt(m[1], 10);
         }
+
+        var d = new Date(src + "T00:00:00");
+        d.setDate(d.getDate() + days);
+
+        due.value = d.getFullYear() + "-"
+            + String(d.getMonth() + 1).padStart(2, "0") + "-"
+            + String(d.getDate()).padStart(2, "0");
     }
 
 
@@ -2590,6 +2537,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         }
     );
+</script>
+
+<script>
+(function () {
+    var CREDIT = <?= json_encode($customerCredit) ?>;
+    var sel     = document.getElementById('client_id');
+    var panel   = document.getElementById('creditPanel');
+    var totalEl = document.getElementById('total_hidden');
+    if (!sel || !panel) return;
+
+    var fmt = function (n, cur) {
+        return (cur || '') + ' ' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+    var lastKey = null;
+
+    function render() {
+        var c = CREDIT[sel.value];
+        var invoice = totalEl ? (parseFloat(totalEl.value) || 0) : 0;
+        var key = sel.value + '|' + invoice;
+        if (key === lastKey) return;
+        lastKey = key;
+
+        if (!c) { panel.className = 'hidden'; panel.innerHTML = ''; return; }
+
+        var projected = c.outstanding + invoice;
+        var available = c.limit - projected;
+        var over = c.limit > 0 && projected > c.limit;
+        var near = c.limit > 0 && !over && (projected / c.limit) >= 0.8;
+
+        panel.className = 'mt-2 rounded-lg border px-3 py-2 text-xs leading-relaxed '
+            + (over ? 'border-red-200 bg-red-50 text-red-700'
+                    : (near ? 'border-amber-200 bg-amber-50 text-amber-700'
+                            : 'border-slate-200 bg-slate-50 text-slate-600'));
+
+        var html = ''
+            + '<div class="flex justify-between"><span>Credit limit</span><span class="font-semibold">' + fmt(c.limit, c.currency) + '</span></div>'
+            + '<div class="flex justify-between"><span>Current outstanding</span><span class="font-semibold">' + fmt(c.outstanding, c.currency) + '</span></div>'
+            + (invoice > 0 ? '<div class="flex justify-between"><span>This invoice</span><span class="font-semibold">' + fmt(invoice, c.currency) + '</span></div>' : '')
+            + '<div class="flex justify-between mt-1 pt-1 border-t border-black/10"><span>Available after posting</span><span class="font-bold">' + fmt(available, c.currency) + '</span></div>';
+
+        if (c.hold !== 'no') {
+            html += '<p class="mt-1.5 font-semibold"><i class="fas fa-lock mr-1"></i>' + c.name + ' is on ' + c.hold + ' credit hold.</p>';
+        }
+        if (over) {
+            html += '<p class="mt-1 font-semibold"><i class="fas fa-triangle-exclamation mr-1"></i>This invoice exceeds the credit limit by ' + fmt(Math.abs(available), c.currency) + '.</p>';
+        } else if (near) {
+            html += '<p class="mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>This invoice brings the account within 20% of its credit limit.</p>';
+        } else {
+            html += '<p class="mt-1.5 text-emerald-600"><i class="fas fa-check-circle mr-1"></i>Within credit limits.</p>';
+        }
+        panel.innerHTML = html;
+    }
+
+    // Carry the master's billing defaults onto the invoice.
+    function applyDefaults() {
+        var c = CREDIT[sel.value];
+        if (!c) return;
+        [['currency', c.currency], ['payment_terms', c.terms]].forEach(function (pair) {
+            var el = document.querySelector('[name="' + pair[0] + '"]');
+            if (!el || !pair[1]) return;
+            if (el.tagName === 'SELECT') {
+                var hit = Array.prototype.some.call(el.options, function (o) { return o.value === pair[1]; });
+                if (!hit) return;
+            }
+            el.value = pair[1];
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    }
+
+    sel.addEventListener('change', function () { applyDefaults(); render(); });
+    document.addEventListener('input', function (e) { if (e.target && e.target.form) render(); });
+    // The line-item scripts rewrite #total_hidden without firing an event.
+    if (totalEl) setInterval(render, 500);
+    applyDefaults();
+    render();
+})();
 </script>
 
 

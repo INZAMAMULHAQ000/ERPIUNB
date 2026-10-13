@@ -6,31 +6,11 @@
                 <span>Dashboard</span>
             </a>
 
-            <?php if (hasPermission('people_management.view')): ?>
-            <a href="<?= url('modules/people_management/index.php') ?>">
-                <i class="fas fa-address-book"></i>
-                <span>People</span>
-            </a>
-            <?php endif; ?>
-
-            <?php if (hasPermission('users.view')): ?>
-            <a href="<?= url('modules/users/index.php') ?>">
-                <i class="fas fa-users"></i>
-                <span>Users</span>
-            </a>
-            <?php endif; ?>
-
-            <?php if (hasPermission('roles.view')): ?>
-            <a href="<?= url('modules/roles/index.php') ?>">
-                <i class="fas fa-user-tag"></i>
-                <span>Roles</span>
-            </a>
-            <?php endif; ?>
-
-            <?php if (hasPermission('permissions.view')): ?>
-            <a href="<?= url('modules/permissions/index.php') ?>">
-                <i class="fas fa-key"></i>
-                <span>Permissions</span>
+            <!-- ===== System (Users, Roles, Permissions, People) ===== -->
+            <?php if (hasPermission('users.view') || hasPermission('roles.view') || hasPermission('permissions.view') || hasPermission('people_management.view')): ?>
+            <a href="<?= url('modules/system/index.php') ?>">
+                <i class="fas fa-server"></i>
+                <span>System</span>
             </a>
             <?php endif; ?>
 
@@ -38,6 +18,14 @@
             <a href="<?= url('modules/audit_logs/index.php') ?>">
                 <i class="fas fa-clipboard-list"></i>
                 <span>Audit Logs</span>
+            </a>
+            <?php endif; ?>
+
+            <!-- ===== Companies ===== -->
+            <?php if (hasPermission('company.view')): ?>
+            <a href="<?= url('modules/companies/index.php') ?>">
+                <i class="fas fa-building"></i>
+                <span>Companies</span>
             </a>
             <?php endif; ?>
 
@@ -62,6 +50,14 @@
             <a href="<?= url('modules/crm_dashboard/index.php') ?>">
                 <i class="fas fa-chart-line"></i>
                 <span>CRM</span>
+            </a>
+            <?php endif; ?>
+
+            <!-- ===== Customers ===== -->
+            <?php if (hasPermission('customers.view')): ?>
+            <a href="<?= url('modules/customers/index.php') ?>">
+                <i class="fas fa-people-group"></i>
+                <span>Customers</span>
             </a>
             <?php endif; ?>
 

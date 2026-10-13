@@ -28,6 +28,13 @@ if (!$fyId && $activeFY) {
 $where  = "WHERE 1=1";
 $params = [];
 
+// Scope the ledger to the active company.
+$companyScopeId = activeCompanyId();
+if ($companyScopeId > 0) {
+    $where .= " AND gl.company_id = ?";
+    $params[] = $companyScopeId;
+}
+
 if ($accountId) {
     $where .= " AND gl.account_id = ?";
     $params[] = $accountId;

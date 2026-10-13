@@ -22,7 +22,7 @@ $receipt_number = $prefix . '-' . str_pad($count + 1, 3, '0', STR_PAD_LEFT);
 $clients = $db->query("
     SELECT id, client_code, company_name
     FROM clients
-    WHERE status = 'active'
+    WHERE status = 'active' AND deleted_at IS NULL
     ORDER BY company_name
 ")->fetchAll();
 $bankAccounts = $db->query("

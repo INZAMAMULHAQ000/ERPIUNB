@@ -50,9 +50,22 @@ if (!function_exists('sanitize')) {
 }
 
 if (!function_exists('getActiveFinancialYear')) {
-    function getActiveFinancialYear($db) {
-        $stmt = $db->prepare('SELECT * FROM financial_years WHERE status = ? ORDER BY start_date DESC, id DESC LIMIT 1');
-        $stmt->execute(['active']);
+    function getActiveFinancialYear($db, $companyId = null) {
+        // Default to the caller's active company: without this, a budget or expense
+        // screen could pick another entity's financial year.
+        if ($companyId === null && function_exists('activeCompanyId')) {
+            $companyId = activeCompanyId() ?: null;
+        }
+        $sql   = "SELECT * FROM financial_years WHERE status = 'active'";
+        $params = [];
+        if ($companyId) {
+            $sql .= ' AND company_id = ?';
+            $params[] = (int) $companyId;
+        }
+        // Prefer the year covering today, then the most recent one.
+        $sql .= ' ORDER BY (CURDATE() BETWEEN start_date AND end_date) DESC, start_date DESC, id DESC LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetch();
     }
 }

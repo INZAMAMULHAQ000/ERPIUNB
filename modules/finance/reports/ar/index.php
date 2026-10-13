@@ -20,7 +20,7 @@ $clientId = (int)($_GET['client_id'] ?? 0);
 $asOfDate = $_GET['as_of_date'] ?? date('Y-m-d');
 
 // Get customers for selector
-$customers = $db->query("SELECT id, client_code, company_name FROM clients WHERE status = 'active' ORDER BY company_name")->fetchAll();
+$customers = $db->query("SELECT id, client_code, company_name FROM clients WHERE status = 'active' AND deleted_at IS NULL ORDER BY company_name")->fetchAll();
 
 // Generate report based on type
 $report = null;
@@ -36,7 +36,7 @@ if ($reportType === 'aging') {
         'date_to' => $asOfDate,
     ]);
     // Get customer info
-    $clientStmt = $db->prepare("SELECT * FROM clients WHERE id = ?");
+    $clientStmt = $db->prepare("SELECT * FROM clients WHERE id = ? AND deleted_at IS NULL");
     $clientStmt->execute([$clientId]);
     $customer = $clientStmt->fetch();
 } elseif ($reportType === 'overdue') {

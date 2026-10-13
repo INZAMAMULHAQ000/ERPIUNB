@@ -25,6 +25,7 @@ $leads = $db->query("
 $clients = $db->query("
     SELECT id, company_name
     FROM clients
+    WHERE deleted_at IS NULL
     ORDER BY company_name
 ")->fetchAll();
 

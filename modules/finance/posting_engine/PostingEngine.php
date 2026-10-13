@@ -38,26 +38,33 @@ class PostingEngine {
                 return ['success' => false, 'message' => 'Only draft journals can be posted. Current status: ' . $journal['status']];
             }
 
-            // === 2. Validate financial year ===
-            $jeCompanyId = (int)($journal['company_id'] ?? 1);
+            // === 2. Resolve the owning company, then its financial year ===
+            // Deliberately no fallback: guessing company 1, or accepting another
+            // company's financial year, would post one entity's journal into
+            // another's ledger.
+            $jeCompanyId = (int) ($journal['company_id'] ?? 0);
+            if ($jeCompanyId <= 0) {
+                return ['success' => false, 'message' =>
+                    "Journal #$journalId has no company assigned. Recreate it with an active company selected."];
+            }
+
+            require_once __DIR__ . '/../group/CompanyService.php';
+            if (class_exists('CompanyService')
+                && !CompanyService::isSuperAdmin($db, $userId)
+                && !CompanyService::canAccessCompany($db, $userId, $jeCompanyId)) {
+                return ['success' => false, 'message' =>
+                    'You are not authorised to post to this company.'];
+            }
+
             $postDate = $journal['voucher_date'];
             $fy = getFinancialYearForDate($db, $postDate, $jeCompanyId, true);
             if (!$fy) {
-                $fy = getFinancialYearForDate($db, $postDate, null, true);
-            }
-            if (!$fy) {
-                return ['success' => false, 'message' => 'No active financial year found.'];
+                return ['success' => false, 'message' =>
+                    "No active financial year for company #$jeCompanyId covers $postDate. "
+                    . 'Create one under Finance → Financial Year before posting.'];
             }
             if ($postDate < $fy['start_date'] || $postDate > $fy['end_date']) {
                 return ['success' => false, 'message' => "Posting date $postDate is outside active financial year ({$fy['start_date']} to {$fy['end_date']})."];
-            }
-            if ((int)$fy['company_id'] !== $jeCompanyId) {
-                $cFy = getFinancialYearForDate($db, $postDate, $jeCompanyId, true);
-                if (!$cFy) {
-                    return ['success' => false, 'message' =>
-                        "Journal belongs to company #$jeCompanyId but no active financial year for that company covers $postDate."];
-                }
-                $fy = $cFy;
             }
 
             // === 2b. F12 PERIOD LOCK — block posting into closed/closing periods ===
@@ -227,12 +234,17 @@ class PostingEngine {
             $stmt->execute([$journalId]);
             $lines = $stmt->fetchAll();
 
-            // F13: reversal belongs to the ORIGINAL journal's company — use that company's active FY
-            $fy = getFinancialYearForDate($db, date('Y-m-d'), (int)($journal['company_id'] ?? 1), true)
-               ?: getFinancialYearForDate($db, date('Y-m-d'), null, true)
-               ?: getActiveFinancialYear($db);
+            // F13: reversal belongs to the ORIGINAL journal's company — never borrow another's FY
+            $revCompanyId = (int) ($journal['company_id'] ?? 0);
+            if ($revCompanyId <= 0) {
+                return ['success' => false, 'message' =>
+                    "Journal #$journalId has no company assigned, so it cannot be reversed."];
+            }
+            $fy = getFinancialYearForDate($db, date('Y-m-d'), $revCompanyId, true);
             if (!$fy) {
-                return ['success' => false, 'message' => 'No active financial year found.'];
+                return ['success' => false, 'message' =>
+                    "No active financial year for company #$revCompanyId covers " . date('Y-m-d')
+                    . '. Reversal blocked to avoid posting into the wrong entity.'];
             }
 
             $stmt = $db->prepare("SELECT voucher_name, voucher_prefix FROM voucher_types WHERE id = ?");
@@ -252,7 +264,7 @@ class PostingEngine {
                 VALUES (?, ?, ?, ?, ?, ?, 'posted', ?, NOW())
             ");
             $stmt->execute([
-                (int)($journal['company_id'] ?? 1),
+                $revCompanyId,
                 $reversalNo,
                 $journal['voucher_type_id'],
                 date('Y-m-d'),
@@ -282,8 +294,7 @@ class PostingEngine {
                     INSERT INTO general_ledger (posting_date, journal_entry_id, account_id, company_id, voucher_type, voucher_no, debit, credit, running_balance, financial_year_id)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
-                $revCompanyId = (int)$db->query("SELECT company_id FROM journal_entries WHERE id = " . (int)$reversalId)->fetchColumn();
-                $stmt->execute([date('Y-m-d'), $reversalId, $line['account_id'], $revCompanyId ?: 1, $voucherTypeName . ' (Reversal)', $reversalNo, $debit, $credit, $newBalance, $fy['id']]);
+                $stmt->execute([date('Y-m-d'), $reversalId, $line['account_id'], $revCompanyId, $voucherTypeName . ' (Reversal)', $reversalNo, $debit, $credit, $newBalance, $fy['id']]);
             }
 
             // Mark original as reversed
@@ -328,20 +339,23 @@ class PostingEngine {
             $errors[] = 'Only draft journals can be posted.';
         }
 
-        $jeCompanyId = (int)($journal['company_id'] ?? 1);
-        $fy = getFinancialYearForDate($db, $journal['voucher_date'], $jeCompanyId, true)
-           ?: getFinancialYearForDate($db, $journal['voucher_date'], null, true)
-           ?: getActiveFinancialYear($db);
-        if (!$fy) {
-            $errors[] = 'No active financial year found.';
-        } elseif ($journal['voucher_date'] < $fy['start_date'] || $journal['voucher_date'] > $fy['end_date']) {
-            $errors[] = 'Posting date is outside active financial year.';
+        $jeCompanyId = (int) ($journal['company_id'] ?? 0);
+        if ($jeCompanyId <= 0) {
+            $errors[] = 'Journal has no company assigned; it cannot be posted.';
         } else {
-            // F12 period lock preview
-            require_once __DIR__ . '/../period_close/PeriodCloseService.php';
-            $period = PeriodCloseService::findPeriodForDate($db, $fy['id'], $journal['voucher_date']);
-            if ($period && in_array($period['status'], ['closing', 'closed'], true)) {
-                $errors[] = "Period \"{$period['period_name']}\" is {$period['status']} (locked).";
+            // Mirrors post(): strictly the journal's own company, no borrowed financial year.
+            $fy = getFinancialYearForDate($db, $journal['voucher_date'], $jeCompanyId, true);
+            if (!$fy) {
+                $errors[] = "No active financial year for company #$jeCompanyId covers {$journal['voucher_date']}.";
+            } elseif ($journal['voucher_date'] < $fy['start_date'] || $journal['voucher_date'] > $fy['end_date']) {
+                $errors[] = 'Posting date is outside active financial year.';
+            } else {
+                // F12 period lock preview
+                require_once __DIR__ . '/../period_close/PeriodCloseService.php';
+                $period = PeriodCloseService::findPeriodForDate($db, $fy['id'], $journal['voucher_date']);
+                if ($period && in_array($period['status'], ['closing', 'closed'], true)) {
+                    $errors[] = "Period \"{$period['period_name']}\" is {$period['status']} (locked).";
+                }
             }
         }
 

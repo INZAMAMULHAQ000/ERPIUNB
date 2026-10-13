@@ -26,7 +26,7 @@ $lastRun = $db->query("SELECT * FROM consolidation_runs WHERE status='posted' OR
         <p class="text-gray-600">Multi-company structure &amp; consolidation overview</p>
     </div>
     <div class="flex gap-2">
-        <a href="companies/index.php" class="bg-white border px-3 py-2 rounded hover:bg-gray-50 text-sm"><i class="fas fa-building mr-1"></i>Companies</a>
+        <a href="../../companies/index.php" class="bg-white border px-3 py-2 rounded hover:bg-gray-50 text-sm"><i class="fas fa-building mr-1"></i>Companies</a>
         <a href="intercompany/transactions.php" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"><i class="fas fa-right-left mr-1"></i>New IC Transaction</a>
     </div>
 </div>
@@ -52,7 +52,7 @@ $lastRun = $db->query("SELECT * FROM consolidation_runs WHERE status='posted' OR
     <!-- Companies -->
     <div class="bg-white rounded-lg shadow lg:col-span-2">
         <div class="px-4 py-3 border-b flex justify-between items-center"><h3 class="font-semibold text-gray-800">Legal Entities</h3>
-            <?php if (hasPermission('company.create')): ?><a href="companies/index.php" class="text-sm text-blue-600 hover:underline">Manage →</a><?php endif; ?></div>
+            <?php if (hasPermission('company.create')): ?><a href="../../companies/index.php" class="text-sm text-blue-600 hover:underline">Manage →</a><?php endif; ?></div>
         <table class="w-full text-sm">
             <thead class="bg-gray-50 text-gray-600 uppercase text-xs"><tr>
                 <th class="px-4 py-2 text-left">Code</th><th class="px-4 py-2 text-left">Company</th>

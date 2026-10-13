@@ -12,6 +12,14 @@ if (!hasPermission('finance.journal.create')) {
 
 $db = getDB();
 
+// Journals are created against the active company; PostingEngine refuses to guess one.
+$activeCompanyRow = activeCompany();
+$activeCompanyId  = $activeCompanyRow ? (int) $activeCompanyRow['id'] : 0;
+if ($activeCompanyId <= 0) {
+    flash('nocorp', 'No active company is configured. Create a company and mark it default before raising journals.', 'error');
+    to('modules/companies/index.php');
+}
+
 $errors = restoreFormErrors();
 
 if (empty($errors)) {
@@ -29,6 +37,7 @@ $accounts = $db->query("
     SELECT id, account_code, account_name
     FROM chart_of_accounts
     WHERE status = 'active'
+      AND (company_id IS NULL OR company_id = " . (int) $activeCompanyId . ")
     ORDER BY account_code
 ")->fetchAll();
 
@@ -227,6 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $db->prepare("
             INSERT INTO journal_entries
             (
+                company_id,
                 voucher_no,
                 voucher_type_id,
                 voucher_date,
@@ -237,10 +247,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 created_at,
                 updated_at
             )
-            VALUES (?, ?, ?, ?, ?, 'draft', ?, NOW(), NOW())
+            VALUES (?, ?, ?, ?, ?, ?, 'draft', ?, NOW(), NOW())
         ");
 
         $stmt->execute([
+            $activeCompanyId,
             $voucher_no,
             $voucher_type_id,
             $voucher_date,

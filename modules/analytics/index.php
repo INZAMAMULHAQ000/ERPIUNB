@@ -39,7 +39,7 @@ $convertedLeads = $db->prepare("SELECT COUNT(*) FROM leads WHERE status='convert
 $convertedLeads->execute([$dateFrom]);
 $convertedLeads = $convertedLeads->fetchColumn();
 $convRate       = $totalLeads > 0 ? round($convertedLeads / $totalLeads * 100, 1) : 0;
-$totalClients   = $db->query("SELECT COUNT(*) FROM clients WHERE status='active'")->fetchColumn();
+$totalClients   = $db->query("SELECT COUNT(*) FROM clients WHERE status='active' AND deleted_at IS NULL")->fetchColumn();
 
 // ── Finance Analytics ─────────────────────────────────────────
 $revenue  = $db->prepare("SELECT COALESCE(SUM(paid_amount),0) FROM invoices WHERE invoice_date >= ?");

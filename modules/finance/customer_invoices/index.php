@@ -62,7 +62,7 @@ $stmt->execute($queryParams);
 $invoices = $stmt->fetchAll();
 
 // Fetch clients for filter
-$clients = $db->query("SELECT id, client_code, company_name FROM clients WHERE status = 'active' ORDER BY company_name")->fetchAll();
+$clients = $db->query("SELECT id, client_code, company_name FROM clients WHERE status = 'active' AND deleted_at IS NULL ORDER BY company_name")->fetchAll();
 
 // Stats
 $stats = [];

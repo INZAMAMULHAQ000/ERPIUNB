@@ -845,7 +845,7 @@ $recentTransfers = $db->query("SELECT mt.*, COALESCE(fba.account_name, fca.cash_
             </div>
         </a>
         <?php if (hasPermission('company.create')): ?>
-        <a href="group/companies/index.php" class="water-card" style="background: linear-gradient(135deg, #0e7490 0%, #0891b2 50%, #155e75 100%);">
+        <a href="../companies/index.php" class="water-card" style="background: linear-gradient(135deg, #0e7490 0%, #0891b2 50%, #155e75 100%);">
             <div class="water-card-icon"><i class="fas fa-building"></i></div>
             <div class="water-card-content">
                 <h3>Companies</h3>

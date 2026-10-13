@@ -49,6 +49,13 @@ $perPage = 15;
 $where = "WHERE 1=1";
 $params = [];
 
+// Scope the journal register to the active company.
+$companyScopeId = activeCompanyId();
+if ($companyScopeId > 0) {
+    $where .= " AND je.company_id = ?";
+    $params[] = $companyScopeId;
+}
+
 if ($statusFilter !== '') {
     $where .= " AND je.status = ?";
     $params[] = $statusFilter;

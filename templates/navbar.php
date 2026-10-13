@@ -15,7 +15,7 @@
                             <path d="M6.5 10h11M10 6.5v11" />
                         </svg>
                     </span>
-                    <span class="text-lg font-bold text-slate-800 tracking-tight">ERP System</span>
+                    <span class="text-lg font-bold text-slate-800 tracking-tight"><?= htmlspecialchars(appName()) ?></span>
                 </a>
             </div>
             <div class="flex items-center gap-3">
@@ -25,11 +25,56 @@
                     </div>
                     <span class="text-sm font-medium text-slate-700"><?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?></span>
                 </div>
+                <!-- Company Switcher -->
+                <?php
+                $navCompanies = [];
+                try {
+                    $navUid = (int) ($_SESSION['user_id'] ?? 0);
+                    $ncs = getDB()->prepare("
+                        SELECT id, company_code, company_name, base_currency, logo_path
+                        FROM companies c
+                        WHERE c.deleted_at IS NULL AND c.status = 'active'
+                          AND (EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = ? AND ur.role_id = 1)
+                               OR EXISTS (SELECT 1 FROM user_companies uc WHERE uc.user_id = ? AND uc.company_id = c.id))
+                        ORDER BY c.is_default DESC, c.company_name
+                    ");
+                    $ncs->execute([$navUid, $navUid]);
+                    $navCompanies = $ncs->fetchAll();
+                } catch (Throwable $e) { $navCompanies = []; }
+                $activeCompanyId = (int) ($_SESSION['active_company_id'] ?? 0);
+                ?>
+                <?php if (count($navCompanies) > 1): ?>
+                <div class="relative group pr-3 border-r border-slate-200">
+                    <button class="flex items-center gap-1.5 px-2.5 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition">
+                        <i class="fas fa-building text-xs"></i>
+                        <span class="hidden md:inline text-xs font-semibold max-w-[10rem] truncate"><?= htmlspecialchars($_SESSION['company_name'] ?? ($navCompanies[0]['company_name'] ?? 'Company')) ?></span>
+                        <i class="fas fa-chevron-down text-[10px] text-slate-400"></i>
+                    </button>
+                    <div class="absolute right-0 mt-1 w-72 max-h-72 overflow-y-auto bg-white rounded-xl shadow-xl border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
+                        <div class="py-1.5">
+                            <p class="px-4 py-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Active Company</p>
+                            <?php foreach ($navCompanies as $nc): ?>
+                                <a href="?set_company=<?= $nc['id'] ?>"
+                                   class="flex items-center gap-3 px-4 py-2 text-sm <?= $activeCompanyId === (int) $nc['id'] ? 'text-indigo-600 bg-indigo-50 font-medium' : 'text-slate-600 hover:bg-slate-50' ?> transition">
+                                    <span class="w-6 h-6 rounded bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-building text-[10px] text-slate-400"></i>
+                                    </span>
+                                    <span class="flex-1 min-w-0">
+                                        <span class="block truncate"><?= htmlspecialchars($nc['company_name']) ?></span>
+                                        <span class="block text-[11px] text-slate-400 font-mono"><?= htmlspecialchars($nc['company_code']) ?></span>
+                                    </span>
+                                    <span class="text-xs font-semibold <?= $activeCompanyId === (int) $nc['id'] ? 'text-indigo-500' : 'text-slate-400' ?>"><?= htmlspecialchars($nc['base_currency']) ?></span>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <!-- Currency Switcher -->
                 <div class="relative group pr-3 border-r border-slate-200">
                     <button class="flex items-center gap-1.5 px-2.5 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition">
-                        <span><?php $cur = getCurrencies()[getActiveCurrency()];
-                                echo $cur['symbol']; ?></span>
+                        <span><?php echo getCurrencyInfo(getActiveCurrency())['symbol']; ?></span>
                         <span class="hidden sm:inline text-xs uppercase font-semibold"><?= getActiveCurrency() ?></span>
                         <i class="fas fa-chevron-down text-[10px] text-slate-400"></i>
                     </button>

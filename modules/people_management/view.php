@@ -128,6 +128,44 @@ $catColors = ['employee' => 'bg-blue-100 text-blue-800', 'customer' => 'bg-purpl
             <?php endif; ?>
         </div>
 
+        <!-- Linked Customer -->
+        <?php
+        $linkedCustomer = null;
+        if (!empty($person['customer_id'])) {
+            $custStmt = $db->prepare("SELECT id, client_code, company_name, status, currency_code, credit_limit FROM clients WHERE id = ? AND deleted_at IS NULL");
+            $custStmt->execute([$person['customer_id']]);
+            $linkedCustomer = $custStmt->fetch();
+        }
+        ?>
+        <?php if ($linkedCustomer): ?>
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                Customer Master
+                <a href="<?= url('modules/customers/view.php?id=' . $linkedCustomer['id']) ?>" class="text-blue-600 text-sm font-normal ml-2">
+                    <i class="fas fa-external-link-alt mr-1"></i>Open Customer Record
+                </a>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Customer Code</div>
+                    <div class="font-medium font-mono"><?= sanitize($linkedCustomer['client_code']) ?></div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Organisation</div>
+                    <div class="font-medium"><?= sanitize($linkedCustomer['company_name']) ?></div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Status</div>
+                    <div class="font-medium capitalize"><?= sanitize($linkedCustomer['status']) ?></div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Credit Limit</div>
+                    <div class="font-medium"><?= sanitize($linkedCustomer['currency_code'] . ' ' . number_format((float) $linkedCustomer['credit_limit'], 2)) ?></div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Employee Details -->
         <?php if ($employee): ?>
         <div class="bg-white rounded-lg shadow p-6">

@@ -27,7 +27,7 @@ $categories = $db->query("
 $clients = $db->query("
     SELECT id, company_name
     FROM clients
-    WHERE status = 'active'
+    WHERE status = 'active' AND deleted_at IS NULL AND deleted_at IS NULL
     ORDER BY company_name
 ")->fetchAll();
 

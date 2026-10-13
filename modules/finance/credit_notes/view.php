@@ -88,7 +88,7 @@ $invStatusBadges = [
             </span>
         </div>
         <div class="text-right">
-            <p class="font-semibold text-gray-800"><?= sanitize($companyName ?? 'Your Company') ?></p>
+            <p class="font-semibold text-gray-800"><?= sanitize($_SESSION['company_name'] ?? 'Your Company') ?></p>
             <?php if ($_SESSION['company_tax_number'] ?? $creditNote['gst_vat_number']): ?>
             <p class="text-sm text-gray-500"><?= sanitize($_SESSION['company_tax_number'] ?? $creditNote['gst_vat_number']) ?></p>
             <?php endif; ?>
