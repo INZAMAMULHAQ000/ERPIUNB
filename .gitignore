@@ -75,3 +75,5 @@ mock_preview.backup.php
 
 # Database backups
 DATABASE_BACKUP/
+# Version-controlled schema snapshot (the rest of *.sql stays ignored: dumps/backups)
+!database/schema.sql
