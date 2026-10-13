@@ -3,6 +3,7 @@ $pageTitle = 'Edit Employee';
 require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
 require_once '../../helpers/validation.php';
+require_once __DIR__ . '/document_service.php';
 
 if (!hasPermission('employees.edit')) {
     die('Access Denied');
@@ -27,10 +28,19 @@ if (!$emp) {
 $departments = $db->query("SELECT * FROM departments WHERE status = 'active' ORDER BY department_name")->fetchAll();
 $designations = $db->query("SELECT * FROM designations WHERE status = 'active' ORDER BY designation_name")->fetchAll();
 $managers = $db->query("SELECT id, first_name, last_name FROM employees WHERE status = 'active' AND id != $id ORDER BY first_name")->fetchAll();
-$old = $_POST;
+
+$isEdit = true;
+$employeeId = $id;
+$slotDocs = employeeSlotDocuments($db, $id);
+$photoPath = $emp['photo_path'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = [
+    if (!verifyCsrf($_POST['csrf_token'] ?? '')) {
+        flash('error', 'Your session expired. Please submit the form again.');
+        to('modules/employees/edit.php?id=' . $id);
+    }
+
+    $data = array_merge([
         'first_name' => $_POST['first_name'] ?? '',
         'last_name' => $_POST['last_name'] ?? '',
         'gender' => $_POST['gender'] ?? '',
@@ -46,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'reporting_manager_id' => $_POST['reporting_manager_id'] ?? '',
         'work_location' => $_POST['work_location'] ?? '',
         'status' => $_POST['status'] ?? 'active'
-    ];
+    ], employeeIdInput($_POST));
     
     $errors = validate($data, [
         'first_name' => 'required|min:2|max:100',
@@ -56,6 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'designation_id' => 'required',
         'joining_date' => 'required'
     ]);
+    $errors += employeeIdErrors($data, $_POST);
     
     if (empty($errors)) {
         $checkStmt = $db->prepare("SELECT id FROM employees WHERE email = ? AND id != ?");
@@ -72,20 +83,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt = $db->prepare("UPDATE employees SET 
             first_name = ?, last_name = ?, gender = ?, date_of_birth = ?, marital_status = ?,
+            nationality = ?, passport_number = ?, passport_expiry = ?, visa_type = ?,
+            visa_number = ?, visa_expiry = ?, emirates_id_number = ?, emirates_id_expiry = ?,
             phone = ?, email = ?, address = ?, department_id = ?, designation_id = ?, 
             joining_date = ?, employment_type = ?, reporting_manager_id = ?, work_location = ?, status = ?
             WHERE id = ?");
         
         $stmt->execute([
             $data['first_name'], $data['last_name'], $data['gender'],
-            $data['date_of_birth'] ?: null, $data['marital_status'], $data['phone'],
-            $data['email'], $data['address'], $data['department_id'], $data['designation_id'],
+            $data['date_of_birth'] ?: null, $data['marital_status'],
+            $data['nationality'] ?: null, $data['passport_number'] ?: null, $data['passport_expiry'] ?: null,
+            $data['visa_type'] ?: null, $data['visa_number'] ?: null, $data['visa_expiry'] ?: null,
+            $data['emirates_id_number'] ?: null, $data['emirates_id_expiry'] ?: null,
+            $data['phone'], $data['email'], $data['address'], $data['department_id'], $data['designation_id'],
             $data['joining_date'], $data['employment_type'], $data['reporting_manager_id'] ?: null,
             $data['work_location'], $data['status'], $id
         ]);
+
+        $uploadErrors = [];
+        foreach (array_keys(employeeDocSlots()) as $slot) {
+            $message = employeeSaveSlot($db, $id, $slot, $_FILES[$slot] ?? null, !empty($_POST['remove_' . $slot]), $_SESSION['user_id']);
+            if ($message !== null) {
+                $uploadErrors[$slot] = $message;
+            }
+        }
+        $photoMessage = employeeSavePhoto($db, $id, $_FILES['photo'] ?? null, !empty($_POST['remove_photo']), $photoPath);
+        if ($photoMessage !== null) {
+            $uploadErrors['photo'] = $photoMessage;
+        }
         
         logAudit($_SESSION['user_id'], 'update', 'employees');
-        flash('success', 'Employee updated successfully');
+        if ($uploadErrors) {
+            flash('warning', 'Employee updated, but these files were not accepted: ' . implode(' ', $uploadErrors));
+        } else {
+            flash('success', 'Employee updated successfully');
+        }
         to('modules/employees/index.php');
     
 
@@ -113,12 +145,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <?php endif; ?>
     
-    <form method="POST" id="employeeForm" class="space-y-6">
+    <form method="POST" id="employeeForm" enctype="multipart/form-data" class="space-y-6">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
         <div>
             <h3 class="text-lg font-medium text-gray-800 mb-3 border-b pb-2">Personal Information</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-red-600">*</span></labe>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-red-600">*</span></label>
                     <input type="text" id="first_name" name="first_name" value="<?= old('first_name', $emp['first_name']) ?>" required
                         class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -128,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Gender <span class="text-red-600">*</span></labe>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Gender <span class="text-red-600">*</span></label>
                     <select id="gender" name="gender" required class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
                         <option value="male" <?= ($emp['gender'] ?? '') === 'male' ? 'selected' : '' ?>>Male</option>
                         <option value="female" <?= ($emp['gender'] ?? '') === 'female' ? 'selected' : '' ?>>Female</option>
@@ -155,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-600">*</span></labe>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-600">*</span></label>
                     <input type="email" id="email" name="email" value="<?= old('email', $emp['email']) ?>" required
                         class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -171,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h3 class="text-lg font-medium text-gray-800 mb-3 border-b pb-2">Employment Information</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Department <span class="text-red-600">*</span></labe>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Department <span class="text-red-600">*</span></label>
                     <select id="department_id" name="department_id" required class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
                         <?php foreach ($departments as $dept): ?>
                         <option value="<?= $dept['id'] ?>" <?= ($emp['department_id'] ?? '') == $dept['id'] ? 'selected' : '' ?>><?= sanitize($dept['department_name']) ?></option>
@@ -179,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Designation <span class="text-red-600">*</span></labe>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Designation <span class="text-red-600">*</span></label>
                     <select id="designation_id" name="designation_id" required class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
                         <?php foreach ($designations as $desig): ?>
                         <option value="<?= $desig['id'] ?>" <?= ($emp['designation_id'] ?? '') == $desig['id'] ? 'selected' : '' ?>><?= sanitize($desig['designation_name']) ?></option>
@@ -187,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Joining Date <span class="text-red-600">*</span></labe>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Joining Date <span class="text-red-600">*</span></label>
                     <input type="date" id="joining_date" name="joining_date" value="<?= old('joining_date', $emp['joining_date'] ?? '') ?>" required
                         class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -226,6 +259,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
         
+        <?php require __DIR__ . '/identification_form.php'; ?>
+
         <div class="pt-4 border-t">
             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
                 Update Employee
@@ -273,6 +308,40 @@ $(document).ready(function () {
     // Work Location - letters, numbers and spaces
     $("#work_location").on("input", function () {
         this.value = this.value.replace(/[^A-Za-z0-9 ]/g, "");
+    });
+
+
+    // Nationality - letters and spaces
+    $("#nationality").on("input", function () {
+        this.value = this.value.replace(/[^A-Za-z ]/g, "");
+    });
+
+
+    // Passport / Visa Number - letters and numbers, uppercase
+    $("#passport_number, #visa_number").on("input", function () {
+        this.value = this.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+    });
+
+
+    // Emirates ID Number - digits only
+    $("#emirates_id_number").on("input", function () {
+        this.value = this.value.replace(/[^0-9]/g, "");
+    });
+
+
+    // Document scans - reject oversized files before upload
+    $("#passport_copy, #visa_copy, #emirates_id_copy").on("change", function () {
+        if (this.files.length && this.files[0].size > 5 * 1024 * 1024) {
+            alert(this.files[0].name + " is larger than 5 MB.");
+            this.value = "";
+        }
+    });
+
+    $("#photo").on("change", function () {
+        if (this.files.length && this.files[0].size > 2 * 1024 * 1024) {
+            alert(this.files[0].name + " is larger than 2 MB.");
+            this.value = "";
+        }
     });
 
 
@@ -345,6 +414,36 @@ $(document).ready(function () {
                 maxlength: 100
             },
 
+            nationality: {
+                maxlength: 100,
+                lettersOnly: true
+            },
+
+            passport_number: {
+                maxlength: 50
+            },
+
+            passport_expiry: {
+                date: true
+            },
+
+            visa_number: {
+                maxlength: 50
+            },
+
+            visa_expiry: {
+                date: true
+            },
+
+            emirates_id_number: {
+                digits: true,
+                maxlength: 20
+            },
+
+            emirates_id_expiry: {
+                date: true
+            },
+
             status: {
                 required: true
             }
@@ -413,6 +512,24 @@ $(document).ready(function () {
                 maxlength: "Work Location must not exceed 100 characters"
             },
 
+            nationality: {
+                lettersOnly: "Nationality can contain letters and spaces only",
+                maxlength: "Nationality must not exceed 100 characters"
+            },
+
+            passport_number: {
+                maxlength: "Passport Number must not exceed 50 characters"
+            },
+
+            visa_number: {
+                maxlength: "Visa Number must not exceed 50 characters"
+            },
+
+            emirates_id_number: {
+                digits: "Emirates ID Number can contain digits only",
+                maxlength: "Emirates ID Number must not exceed 20 digits"
+            },
+
             status: {
                 required: "Please select status"
             }
@@ -437,5 +554,7 @@ $(document).ready(function () {
 
 });
 </script>
+
+<?php require __DIR__ . '/document_viewer.php'; ?>
 
 <?php require_once '../../includes/footer.php'; ?>

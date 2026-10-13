@@ -3,6 +3,7 @@ $pageTitle = 'Create Employee';
 require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
 require_once '../../helpers/validation.php';
+require_once __DIR__ . '/document_service.php';
 
 if (!hasPermission('employees.create')) {
     die('Access Denied');
@@ -17,6 +18,13 @@ if (empty($errors)) {
 $departments = $db->query("SELECT * FROM departments WHERE status = 'active' ORDER BY department_name")->fetchAll();
 $designations = $db->query("SELECT * FROM designations WHERE status = 'active' ORDER BY designation_name")->fetchAll();
 $managers = $db->query("SELECT id, first_name, last_name FROM employees WHERE status = 'active' ORDER BY first_name")->fetchAll();
+
+// Create mode renders the shared identification block with no record behind it yet.
+$emp = [];
+$isEdit = false;
+$employeeId = 0;
+$slotDocs = [];
+$photoPath = '';
 
 function generateEmployeeCode($db)
 {
@@ -33,7 +41,12 @@ function generateEmployeeCode($db)
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = [
+    if (!verifyCsrf($_POST['csrf_token'] ?? '')) {
+        flash('error', 'Your session expired. Please submit the form again.');
+        to('modules/employees/create.php');
+    }
+
+    $data = array_merge([
         'first_name' => $_POST['first_name'] ?? '',
         'last_name' => $_POST['last_name'] ?? '',
         'gender' => $_POST['gender'] ?? '',
@@ -49,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'reporting_manager_id' => $_POST['reporting_manager_id'] ?? '',
         'work_location' => $_POST['work_location'] ?? '',
         'status' => $_POST['status'] ?? 'active'
-    ];
+    ], employeeIdInput($_POST));
 
     $errors = validate($data, [
         'first_name' => 'required|min:2|max:100',
@@ -59,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'designation_id' => 'required',
         'joining_date' => 'required'
     ]);
+    $errors += employeeIdErrors($data, $_POST);
 
     if (empty($errors)) {
         $checkStmt = $db->prepare("SELECT id FROM employees WHERE email = ?");
@@ -74,15 +88,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $maxRetries = 5;
+    $employeeId = 0;
     for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
         try {
             $employeeCode = generateEmployeeCode($db);
 
             $stmt = $db->prepare("INSERT INTO employees (
                 employee_code, first_name, last_name, gender, date_of_birth, marital_status,
+                nationality, passport_number, passport_expiry, visa_type, visa_number, visa_expiry,
+                emirates_id_number, emirates_id_expiry,
                 phone, email, address, department_id, designation_id, joining_date,
                 employment_type, reporting_manager_id, work_location, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             $stmt->execute([
                 $employeeCode,
@@ -91,6 +108,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['gender'],
                 $data['date_of_birth'] ?: null,
                 $data['marital_status'],
+                $data['nationality'] ?: null,
+                $data['passport_number'] ?: null,
+                $data['passport_expiry'] ?: null,
+                $data['visa_type'] ?: null,
+                $data['visa_number'] ?: null,
+                $data['visa_expiry'] ?: null,
+                $data['emirates_id_number'] ?: null,
+                $data['emirates_id_expiry'] ?: null,
                 $data['phone'],
                 $data['email'],
                 $data['address'],
@@ -103,9 +128,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['status']
             ]);
 
-            logAudit($_SESSION['user_id'], 'create', 'employees');
-            flash('success', 'Employee created successfully');
-            to('modules/employees/index.php');
+            $employeeId = (int) $db->lastInsertId();
+            break;
         } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1062 && $attempt < $maxRetries - 1) {
                 continue;
@@ -116,6 +140,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors['_general'] = 'Failed to create employee: ' . $e->getMessage();
             break;
         }
+    }
+
+    if ($employeeId > 0) {
+        logAudit($_SESSION['user_id'], 'create', 'employees');
+
+        // The record now exists, so the scans can be filed against it. Anything
+        // that fails here is reported on the edit form rather than rolled back.
+        $uploadErrors = [];
+        foreach (array_keys(employeeDocSlots()) as $slot) {
+            $message = employeeSaveSlot($db, $employeeId, $slot, $_FILES[$slot] ?? null, !empty($_POST['remove_' . $slot]), $_SESSION['user_id']);
+            if ($message !== null) {
+                $uploadErrors[$slot] = $message;
+            }
+        }
+        $photoMessage = employeeSavePhoto($db, $employeeId, $_FILES['photo'] ?? null, !empty($_POST['remove_photo']), '');
+        if ($photoMessage !== null) {
+            $uploadErrors['photo'] = $photoMessage;
+        }
+
+        if ($uploadErrors) {
+            flash('error', 'Employee created, but these files were not accepted: ' . implode(' ', $uploadErrors));
+            to('modules/employees/edit.php?id=' . $employeeId);
+        }
+
+        flash('success', 'Employee created successfully');
+        to('modules/employees/index.php');
     }
 }
 ?>
@@ -139,7 +189,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 
-    <form method="POST" id="employeeForm" class="space-y-6">
+    <form method="POST" id="employeeForm" enctype="multipart/form-data" class="space-y-6">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
         <div>
             <h3 class="text-lg font-medium text-gray-800 mb-3 border-b pb-2">Personal Information</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -253,6 +304,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
+        <?php require __DIR__ . '/identification_form.php'; ?>
+
         <div class="pt-4 border-t">
             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
                 Create Employee
@@ -352,6 +405,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
 
 
+        /*
+         * Nationality
+         * Letters and spaces only
+         */
+        $("#nationality").on("input", function() {
+            this.value = this.value.replace(/[^A-Za-z ]/g, "");
+        });
+
+
+        /*
+         * Passport / Visa Number
+         * Letters and numbers only, stored uppercase
+         */
+        $("#passport_number, #visa_number").on("input", function() {
+            this.value = this.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+        });
+
+
+        /*
+         * Emirates ID Number
+         * Digits only
+         */
+        $("#emirates_id_number").on("input", function() {
+            this.value = this.value.replace(/[^0-9]/g, "");
+        });
+
+
+        /*
+         * Document scans
+         * Client-side size gate so an oversized file is rejected before upload
+         */
+        $("#passport_copy, #visa_copy, #emirates_id_copy").on("change", function() {
+            if (this.files.length && this.files[0].size > 5 * 1024 * 1024) {
+                alert(this.files[0].name + " is larger than 5 MB.");
+                this.value = "";
+            }
+        });
+
+        $("#photo").on("change", function() {
+            if (this.files.length && this.files[0].size > 2 * 1024 * 1024) {
+                alert(this.files[0].name + " is larger than 2 MB.");
+                this.value = "";
+            }
+        });
+
+
         $("#employeeForm").validate({
 
             rules: {
@@ -419,6 +518,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     maxlength: 100
                 },
 
+                nationality: {
+                    maxlength: 100,
+                    lettersOnly: true
+                },
+
+                passport_number: {
+                    maxlength: 50
+                },
+
+                passport_expiry: {
+                    date: true
+                },
+
+                visa_number: {
+                    maxlength: 50
+                },
+
+                visa_expiry: {
+                    date: true
+                },
+
+                emirates_id_number: {
+                    digits: true,
+                    maxlength: 20
+                },
+
+                emirates_id_expiry: {
+                    date: true
+                },
+
                 status: {
                     required: true
                 }
@@ -456,6 +585,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     required: "Please select employment type"
                 },
 
+                nationality: {
+                    lettersOnly: "Nationality can contain letters and spaces only",
+                    maxlength: "Nationality must not exceed 100 characters"
+                },
+
+                passport_number: {
+                    maxlength: "Passport Number must not exceed 50 characters"
+                },
+
+                visa_number: {
+                    maxlength: "Visa Number must not exceed 50 characters"
+                },
+
+                emirates_id_number: {
+                    digits: "Emirates ID Number can contain digits only",
+                    maxlength: "Emirates ID Number must not exceed 20 digits"
+                },
+
                 status: {
                     required: "Please select status"
                 }
@@ -484,4 +631,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     });
 </script>
+<?php require __DIR__ . '/document_viewer.php'; ?>
+
 <?php require_once '../../includes/footer.php'; ?>

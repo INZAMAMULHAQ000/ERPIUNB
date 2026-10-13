@@ -2,6 +2,7 @@
 $pageTitle = 'Employee Profile';
 require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
+require_once __DIR__ . '/document_service.php';
 
 if (!hasPermission('employees.view')) {
     die('Access Denied');
@@ -30,8 +31,13 @@ $documents = $db->prepare("SELECT * FROM employee_documents WHERE employee_id = 
 $documents->execute([$id]);
 $docs = $documents->fetchAll();
 
+$slotDocs = employeeSlotDocuments($db, $id);
+$slotKeys = array_keys(employeeDocSlots());
+$photoPath = $emp['photo_path'] ?? '';
+
 $statusColors = ['active' => 'bg-green-100 text-green-800', 'inactive' => 'bg-gray-100 text-gray-800', 'terminated' => 'bg-red-100 text-red-800', 'resigned' => 'bg-yellow-100 text-yellow-800'];
 $typeLabels = ['full_time' => 'Full Time', 'part_time' => 'Part Time', 'contract' => 'Contract', 'intern' => 'Intern'];
+$visaLabels = employeeVisaTypes();
 ?>
 
 <div class="mb-6 flex justify-between items-center">
@@ -86,6 +92,44 @@ $typeLabels = ['full_time' => 'Full Time', 'part_time' => 'Part Time', 'contract
         </div>
         
         <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Identification</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Nationality</label>
+                    <p class="text-gray-900"><?= sanitize($emp['nationality'] ?? '') ?: '-' ?></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Passport Number</label>
+                    <p class="text-gray-900 font-medium"><?= sanitize($emp['passport_number'] ?? '') ?: '-' ?></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Passport Expiry</label>
+                    <p class="<?= employeeExpiryClass($emp['passport_expiry'] ?? '') ?>"><?= $emp['passport_expiry'] ? date('M d, Y', strtotime($emp['passport_expiry'])) : '-' ?></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Emirates ID Number</label>
+                    <p class="text-gray-900 font-medium"><?= sanitize(employeeFormatEmiratesId($emp['emirates_id_number'] ?? '')) ?: '-' ?></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Visa Type</label>
+                    <p class="text-gray-900"><?= $visaLabels[$emp['visa_type'] ?? ''] ?? '-' ?></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Visa Number</label>
+                    <p class="text-gray-900 font-medium"><?= sanitize($emp['visa_number'] ?? '') ?: '-' ?></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Visa Expiry</label>
+                    <p class="<?= employeeExpiryClass($emp['visa_expiry'] ?? '') ?>"><?= $emp['visa_expiry'] ? date('M d, Y', strtotime($emp['visa_expiry'])) : '-' ?></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Emirates ID Expiry</label>
+                    <p class="<?= employeeExpiryClass($emp['emirates_id_expiry'] ?? '') ?>"><?= $emp['emirates_id_expiry'] ? date('M d, Y', strtotime($emp['emirates_id_expiry'])) : '-' ?></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
             <h2 class="text-xl font-semibold mb-4">Employment Details</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
@@ -120,13 +164,61 @@ $typeLabels = ['full_time' => 'Full Time', 'part_time' => 'Part Time', 'contract
                 </div>
             </div>
         </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Document Scans</h2>
+                <?php if (hasPermission('employees.edit')): ?>
+                <a href="edit.php?id=<?= $id ?>" class="text-blue-600 hover:text-blue-900 text-sm">
+                    <i class="fas fa-upload mr-1"></i>Upload / Replace
+                </a>
+                <?php endif; ?>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <?php foreach (employeeDocSlots() as $slot => $label): ?>
+                <?php $doc = $slotDocs[$slot] ?? null; ?>
+                <div class="border rounded-lg p-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2"><?= $label ?></p>
+                    <?php if ($doc): ?>
+                        <?php if (strpos($doc['mime_type'] ?? '', 'image/') === 0): ?>
+                        <img src="<?= employeeFileUrl($doc['file_path']) ?>" alt="<?= sanitize($label) ?>"
+                            class="w-full h-28 object-cover rounded border mb-2">
+                        <?php else: ?>
+                        <div class="w-full h-28 rounded border bg-gray-50 flex items-center justify-center text-gray-400 mb-2">
+                            <i class="fas <?= strpos($doc['mime_type'] ?? '', 'pdf') !== false ? 'fa-file-pdf text-3xl' : 'fa-file-word text-3xl' ?>"></i>
+                        </div>
+                        <?php endif; ?>
+                        <?= employeeDocViewButton('View', $doc['file_path'], $doc['mime_type'] ?? '', $doc['document_name']) ?>
+                        <p class="text-xs text-gray-500 mt-2">
+                            <?= employeeFileSizeLabel($doc['file_size']) ?> &middot; <?= date('M d, Y', strtotime($doc['created_at'])) ?>
+                        </p>
+                    <?php else: ?>
+                        <div class="w-full h-28 rounded border border-dashed flex items-center justify-center text-gray-300 mb-2">
+                            <i class="fas fa-file-upload text-2xl"></i>
+                        </div>
+                        <p class="text-xs text-gray-500">Not on record</p>
+                    <?php endif; ?>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
     </div>
     
     <div class="space-y-6">
         <div class="bg-white rounded-lg shadow p-6 text-center">
+            <?php if ($photoPath): ?>
+            <button type="button" onclick="employeeDocViewerOpen(this)"
+                data-url="<?= employeeFileUrl($photoPath) ?>" data-mime="<?= employeeMimeFromPath($photoPath) ?>"
+                data-name="Profile Photo — <?= sanitize($emp['first_name'] . ' ' . $emp['last_name']) ?>"
+                class="block mx-auto" title="View photo">
+                <img src="<?= employeeFileUrl($photoPath) ?>" alt="<?= sanitize($emp['first_name']) ?>"
+                    class="h-24 w-24 mx-auto rounded-full object-cover border-2 border-white shadow">
+            </button>
+            <?php else: ?>
             <div class="h-24 w-24 mx-auto rounded-full bg-blue-500 flex items-center justify-center text-white text-3xl font-bold">
                 <?= strtoupper(substr($emp['first_name'], 0, 1)) ?>
             </div>
+            <?php endif; ?>
             <h3 class="mt-4 text-xl font-semibold"><?= sanitize($emp['first_name'] . ' ' . $emp['last_name']) ?></h3>
             <p class="text-gray-600"><?= sanitize($emp['designation_name'] ?? 'No Designation') ?></p>
             <span class="inline-block mt-2 px-2 py-1 text-xs rounded <?= $statusColors[$emp['status']] ?? 'bg-gray-100' ?>">
@@ -136,24 +228,28 @@ $typeLabels = ['full_time' => 'Full Time', 'part_time' => 'Part Time', 'contract
         
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Documents</h3>
+                <h3 class="text-lg font-semibold">Other Documents</h3>
                 <?php if (hasPermission('employees.edit')): ?>
                 <a href="documents.php?id=<?= $id ?>" class="text-blue-600 hover:text-blue-900 text-sm">
                     <i class="fas fa-plus mr-1"></i>Add
                 </a>
                 <?php endif; ?>
             </div>
-            <?php if ($docs): ?>
+            <?php $otherDocs = array_filter($docs, fn($d) => !in_array($d['document_type'], $slotKeys, true)); ?>
+            <?php if ($otherDocs): ?>
             <ul class="space-y-2">
-                <?php foreach ($docs as $doc): ?>
+                <?php foreach ($otherDocs as $doc): ?>
                 <li class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <div class="flex items-center">
+                    <div class="flex items-center min-w-0">
                         <i class="fas fa-file-alt text-gray-400 mr-2"></i>
-                        <span class="text-sm"><?= sanitize($doc['document_name']) ?></span>
+                        <span class="text-sm truncate"><?= sanitize($doc['document_name']) ?></span>
                     </div>
-                    <a href="../../<?= sanitize($doc['file_path']) ?>" target="_blank" class="text-blue-600 hover:text-blue-900">
-                        <i class="fas fa-download"></i>
-                    </a>
+                    <span class="flex items-center space-x-3 ml-2 shrink-0">
+                        <?= employeeDocViewButton('View', $doc['file_path'], $doc['mime_type'] ?? '', $doc['document_name']) ?>
+                        <a href="<?= employeeFileUrl($doc['file_path']) ?>" class="text-blue-600 hover:text-blue-900" title="Download">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </span>
                 </li>
                 <?php endforeach; ?>
             </ul>
@@ -163,5 +259,7 @@ $typeLabels = ['full_time' => 'Full Time', 'part_time' => 'Part Time', 'contract
         </div>
     </div>
 </div>
+
+<?php require __DIR__ . '/document_viewer.php'; ?>
 
 <?php require_once '../../includes/footer.php'; ?>

@@ -5838,7 +5838,7 @@ CREATE TABLE `audit_logs` (
   KEY `idx_module` (`module`),
   KEY `idx_created_at` (`created_at`),
   CONSTRAINT `audit_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2130 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2153 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `bank_accounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -7122,16 +7122,18 @@ CREATE TABLE `document_sequences` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `company_id` int(10) unsigned NOT NULL,
   `doc_type` varchar(40) NOT NULL,
+  `period_key` varchar(20) NOT NULL DEFAULT '',
   `prefix` varchar(20) NOT NULL,
   `padding` tinyint(3) unsigned NOT NULL DEFAULT 4,
   `date_format` varchar(20) NOT NULL DEFAULT '',
+  `format` varchar(80) DEFAULT NULL,
   `next_number` bigint(20) unsigned NOT NULL DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_docseq` (`company_id`,`doc_type`),
+  UNIQUE KEY `uq_docseq_period` (`company_id`,`doc_type`,`period_key`),
   CONSTRAINT `fk_docseq_company` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=289 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `employee_documents`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -7150,9 +7152,10 @@ CREATE TABLE `employee_documents` (
   KEY `idx_employee_id` (`employee_id`),
   KEY `idx_document_type` (`document_type`),
   KEY `uploaded_by` (`uploaded_by`),
+  KEY `idx_employee_type` (`employee_id`,`document_type`),
   CONSTRAINT `employee_documents_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE,
   CONSTRAINT `employee_documents_ibfk_2` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `employee_expense_claims`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -7205,6 +7208,14 @@ CREATE TABLE `employees` (
   `gender` enum('male','female','other') NOT NULL,
   `date_of_birth` date DEFAULT NULL,
   `marital_status` enum('single','married','divorced','widowed') DEFAULT 'single',
+  `nationality` varchar(100) DEFAULT NULL,
+  `passport_number` varchar(50) DEFAULT NULL,
+  `passport_expiry` date DEFAULT NULL,
+  `visa_type` varchar(30) DEFAULT NULL,
+  `visa_number` varchar(50) DEFAULT NULL,
+  `visa_expiry` date DEFAULT NULL,
+  `emirates_id_number` varchar(20) DEFAULT NULL,
+  `emirates_id_expiry` date DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `email` varchar(255) NOT NULL,
   `address` text DEFAULT NULL,
@@ -7215,6 +7226,7 @@ CREATE TABLE `employees` (
   `reporting_manager_id` int(10) unsigned DEFAULT NULL,
   `work_location` varchar(255) DEFAULT NULL,
   `user_id` int(10) unsigned DEFAULT NULL,
+  `photo_path` varchar(500) DEFAULT NULL,
   `status` enum('active','inactive','terminated','resigned') DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -7228,11 +7240,13 @@ CREATE TABLE `employees` (
   KEY `idx_email` (`email`),
   KEY `reporting_manager_id` (`reporting_manager_id`),
   KEY `user_id` (`user_id`),
+  KEY `idx_passport_number` (`passport_number`),
+  KEY `idx_emirates_id_number` (`emirates_id_number`),
   CONSTRAINT `employees_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL,
   CONSTRAINT `employees_ibfk_2` FOREIGN KEY (`designation_id`) REFERENCES `designations` (`id`) ON DELETE SET NULL,
   CONSTRAINT `employees_ibfk_3` FOREIGN KEY (`reporting_manager_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL,
   CONSTRAINT `employees_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `exchange_rates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -7574,7 +7588,7 @@ CREATE TABLE `general_ledger` (
   CONSTRAINT `general_ledger_ibfk_1` FOREIGN KEY (`journal_entry_id`) REFERENCES `journal_entries` (`id`),
   CONSTRAINT `general_ledger_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `chart_of_accounts` (`id`),
   CONSTRAINT `general_ledger_ibfk_3` FOREIGN KEY (`financial_year_id`) REFERENCES `financial_years` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1295 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1299 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `goods_receipt_batches`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -8369,7 +8383,7 @@ CREATE TABLE `journal_entries` (
   KEY `idx_je_company` (`company_id`),
   CONSTRAINT `journal_entries_ibfk_1` FOREIGN KEY (`voucher_type_id`) REFERENCES `voucher_types` (`id`),
   CONSTRAINT `journal_entries_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=894 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=898 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `journal_entry_details`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -8386,7 +8400,7 @@ CREATE TABLE `journal_entry_details` (
   KEY `idx_account` (`account_id`),
   CONSTRAINT `journal_entry_details_ibfk_1` FOREIGN KEY (`journal_entry_id`) REFERENCES `journal_entries` (`id`) ON DELETE CASCADE,
   CONSTRAINT `journal_entry_details_ibfk_2` FOREIGN KEY (`account_id`) REFERENCES `chart_of_accounts` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1711 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1719 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `knowledge_base_articles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -8583,6 +8597,38 @@ CREATE TABLE `locations` (
   KEY `idx_loc_warehouse` (`warehouse_id`),
   CONSTRAINT `fk_loc_warehouse` FOREIGN KEY (`warehouse_id`) REFERENCES `warehouses` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `lookup_types`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lookup_types` (
+  `type_key` varchar(60) NOT NULL,
+  `label` varchar(160) NOT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `group_name` varchar(60) NOT NULL DEFAULT 'general',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`type_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `lookup_values`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lookup_values` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `type_key` varchar(60) NOT NULL,
+  `value_key` varchar(80) NOT NULL,
+  `value_label` varchar(200) NOT NULL,
+  `extra` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`extra`)),
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `sort_order` smallint(5) unsigned NOT NULL DEFAULT 100,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_lookup` (`type_key`,`value_key`),
+  KEY `idx_lookup_active` (`type_key`,`is_active`,`sort_order`),
+  CONSTRAINT `fk_lookup_type` FOREIGN KEY (`type_key`) REFERENCES `lookup_types` (`type_key`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `milestones`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -8878,7 +8924,7 @@ CREATE TABLE `period_checklist_items` (
   UNIQUE KEY `uk_checklist_item` (`financial_year_id`,`period_id`,`item_text`(191)),
   KEY `idx_chk_fy` (`financial_year_id`),
   KEY `idx_chk_status` (`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=11072 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11142 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `period_checklist_templates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -8961,7 +9007,7 @@ CREATE TABLE `permissions` (
   KEY `idx_name` (`name`),
   KEY `idx_module` (`module`),
   KEY `idx_perms_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=6558 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6562 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `petty_cash_funds`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -10716,7 +10762,7 @@ CREATE TABLE `users` (
   KEY `idx_email` (`email`),
   KEY `idx_status` (`status`),
   KEY `idx_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=185 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=193 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `vendor_bill_approvals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

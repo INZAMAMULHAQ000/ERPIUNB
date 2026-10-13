@@ -14,13 +14,6 @@
             </a>
             <?php endif; ?>
 
-            <?php if (hasPermission('auditlogs.view')): ?>
-            <a href="<?= url('modules/audit_logs/index.php') ?>">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Audit Logs</span>
-            </a>
-            <?php endif; ?>
-
             <!-- ===== Companies ===== -->
             <?php if (hasPermission('company.view')): ?>
             <a href="<?= url('modules/companies/index.php') ?>">

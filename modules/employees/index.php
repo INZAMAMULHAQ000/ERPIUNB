@@ -4,6 +4,7 @@ $pageTitle = 'Employees';
 require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
 require_once '../../helpers/pagination.php';
+require_once __DIR__ . '/document_service.php';
 
 if (!hasPermission('employees.view')) {
     die('Access Denied');
@@ -182,14 +183,29 @@ if ($search !== '') {
             OR e.last_name LIKE ?
             OR e.email LIKE ?
             OR e.employee_code LIKE ?
+            OR e.passport_number LIKE ?
+            OR e.visa_number LIKE ?
+            OR e.emirates_id_number LIKE ?
+            OR e.nationality LIKE ?
         )
     ";
 
     $searchValue = "%{$search}%";
 
+    // Document numbers are stored without separators, so searching
+    // "784-1234567890-12" has to match the digits-only value.
+    $alphaValue = preg_replace('/[^A-Za-z0-9]/', '', $search);
+    $digitValue = preg_replace('/\D/', '', $search);
+    $passportValue = $alphaValue !== '' ? '%' . strtoupper($alphaValue) . '%' : $searchValue;
+    $emiratesValue = $digitValue !== '' ? '%' . $digitValue . '%' : $searchValue;
+
     $params[] = $searchValue;
     $params[] = $searchValue;
     $params[] = $searchValue;
+    $params[] = $searchValue;
+    $params[] = $passportValue;
+    $params[] = $passportValue;
+    $params[] = $emiratesValue;
     $params[] = $searchValue;
 }
 
@@ -664,6 +680,11 @@ $statusColors = [
 
                     <th class="px-6 py-3 text-left text-xs font-medium
                                text-gray-500 uppercase">
+                        Identification
+                    </th>
+
+                    <th class="px-6 py-3 text-left text-xs font-medium
+                               text-gray-500 uppercase">
                         Department
                     </th>
 
@@ -730,6 +751,11 @@ $statusColors = [
 
                             <div class="flex items-center">
 
+                                <?php if (!empty($emp['photo_path'])): ?>
+                                <img src="<?= employeeFileUrl($emp['photo_path']) ?>"
+                                     alt="<?= sanitize($employeeName) ?>"
+                                     class="h-10 w-10 rounded-full object-cover border">
+                                <?php else: ?>
                                 <div
                                     class="h-10 w-10 rounded-full
                                            bg-blue-500
@@ -737,6 +763,7 @@ $statusColors = [
                                            text-white font-bold">
                                     <?= sanitize($initial) ?>
                                 </div>
+                                <?php endif; ?>
 
                                 <div class="ml-3">
 
@@ -760,6 +787,21 @@ $statusColors = [
 
                         <td class="px-6 py-4 text-gray-600">
                             <?= sanitize($emp['employee_code'] ?? '-') ?>
+                        </td>
+
+
+                        <!-- Identification -->
+
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">
+                                <?= sanitize($emp['nationality'] ?? '') ?: '-' ?>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                Passport: <?= sanitize($emp['passport_number'] ?? '') ?: '-' ?>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                Emirates ID: <?= sanitize(employeeFormatEmiratesId($emp['emirates_id_number'] ?? '')) ?: '-' ?>
+                            </div>
                         </td>
 
 
@@ -871,7 +913,7 @@ $statusColors = [
                     <tr>
 
                         <td
-                            colspan="7"
+                            colspan="8"
                             class="px-6 py-8 text-center text-gray-500">
                             No employees found
                         </td>
