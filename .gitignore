@@ -32,11 +32,7 @@ apache/
 mysql/
 phpMyAdmin/
 
-# Database backups / dumps
-*.sql
-*.sql.gz
-*.bak
-*.bacpac
+
 
 # Cache / temporary folders
 cache/
@@ -45,36 +41,3 @@ tmp/
 # Uploads
 uploads/*
 !uploads/.gitkeep
-
-# Local debug files
-_debug*.php
-_tmp_*
-debug*.php
-check_*.php
-describe_table.php
-compare_tables.php
-find_missing_tables*.php
-scan_module_tables*.php
-
-# Local test files
-test*.php
-test*.txt
-test-*.php
-test-*.html
-test-results/
-
-# Temporary setup / migration scripts
-tmp_*.php
-mock_preview.backup.php
-
-# Local reports / generated documents
-*.docx
-
-# Screenshots
-*.png
-
-# Database backups
-DATABASE_BACKUP/
-# Version-controlled schema snapshot (the rest of *.sql stays ignored: dumps/backups)
-!database/schema.sql
-
