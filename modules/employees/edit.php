@@ -85,8 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             first_name = ?, last_name = ?, gender = ?, date_of_birth = ?, marital_status = ?,
             nationality = ?, passport_number = ?, passport_expiry = ?, visa_type = ?,
             visa_number = ?, visa_expiry = ?, emirates_id_number = ?, emirates_id_expiry = ?,
+            joining_date = ?, contract_number = ?, contract_start_date = ?, contract_end_date = ?,
             phone = ?, email = ?, address = ?, department_id = ?, designation_id = ?, 
-            joining_date = ?, employment_type = ?, reporting_manager_id = ?, work_location = ?, status = ?
+            employment_type = ?, reporting_manager_id = ?, work_location = ?, status = ?
             WHERE id = ?");
         
         $stmt->execute([
@@ -95,8 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data['nationality'] ?: null, $data['passport_number'] ?: null, $data['passport_expiry'] ?: null,
             $data['visa_type'] ?: null, $data['visa_number'] ?: null, $data['visa_expiry'] ?: null,
             $data['emirates_id_number'] ?: null, $data['emirates_id_expiry'] ?: null,
+            $data['joining_date'], $data['contract_number'] ?: null,
+            $data['contract_start_date'] ?: null, $data['contract_end_date'] ?: null,
             $data['phone'], $data['email'], $data['address'], $data['department_id'], $data['designation_id'],
-            $data['joining_date'], $data['employment_type'], $data['reporting_manager_id'] ?: null,
+            $data['employment_type'], $data['reporting_manager_id'] ?: null,
             $data['work_location'], $data['status'], $id
         ]);
 
@@ -329,8 +332,14 @@ $(document).ready(function () {
     });
 
 
+    // Contract Number - letters, numbers, dashes and slashes, uppercase
+    $("#contract_number").on("input", function () {
+        this.value = this.value.replace(/[^A-Za-z0-9\/-]/g, "").toUpperCase();
+    });
+
+
     // Document scans - reject oversized files before upload
-    $("#passport_copy, #visa_copy, #emirates_id_copy").on("change", function () {
+    $("#passport_copy, #visa_copy, #emirates_id_copy, #employment_contract_copy").on("change", function () {
         if (this.files.length && this.files[0].size > 5 * 1024 * 1024) {
             alert(this.files[0].name + " is larger than 5 MB.");
             this.value = "";
@@ -441,6 +450,18 @@ $(document).ready(function () {
             },
 
             emirates_id_expiry: {
+                date: true
+            },
+
+            contract_number: {
+                maxlength: 50
+            },
+
+            contract_start_date: {
+                date: true
+            },
+
+            contract_end_date: {
                 date: true
             },
 
@@ -555,6 +576,6 @@ $(document).ready(function () {
 });
 </script>
 
-<?php require __DIR__ . '/document_viewer.php'; ?>
+<?php require __DIR__ . '/../../templates/document_viewer.php'; ?>
 
 <?php require_once '../../includes/footer.php'; ?>

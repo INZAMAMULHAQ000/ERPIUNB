@@ -1,6 +1,8 @@
 <?php
 $pageTitle = 'View Person';
 require_once '../../includes/header.php';
+require_once __DIR__ . '/../contractors/document_service.php';
+require_once __DIR__ . '/../contractors/contract_service.php';
 
 if (!hasPermission('people_management.view')) {
     die('Access Denied');
@@ -161,6 +163,85 @@ $catColors = ['employee' => 'bg-blue-100 text-blue-800', 'customer' => 'bg-purpl
                 <div>
                     <div class="text-xs text-gray-500 uppercase tracking-wide">Credit Limit</div>
                     <div class="font-medium"><?= sanitize($linkedCustomer['currency_code'] . ' ' . number_format((float) $linkedCustomer['credit_limit'], 2)) ?></div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Linked Contractor Register -->
+        <?php
+        // Register data (contracts, rates, compliance) is only shown to holders
+        // of contractors.view; the directory itself does not imply that right.
+        $linkedContractor = null;
+        $canSeeRegister = hasPermission('contractors.view');
+        if ($canSeeRegister && !empty($person['contractor_id'])) {
+            $ctrStmt = $db->prepare("SELECT * FROM contractors WHERE id = ? AND deleted_at IS NULL");
+            $ctrStmt->execute([$person['contractor_id']]);
+            $linkedContractor = $ctrStmt->fetch();
+        }
+        ?>
+        <?php if ($canSeeRegister && $person['category'] === 'contractor' && !$linkedContractor): ?>
+        <div class="bg-white rounded-lg shadow p-6 mb-6 border-l-4 border-orange-400">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Not on the contractor register</h3>
+            <p class="text-sm text-gray-600 mb-3">
+                This person is classified as a contractor but has no register entry, so their right-to-work
+                documents and engagement contracts have nowhere to live.
+            </p>
+            <?php if (hasPermission('contractors.create')): ?>
+            <a href="<?= url('modules/contractors/form.php') ?>" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">
+                <i class="fas fa-user-plus mr-1"></i>Register contractor
+            </a>
+            <?php endif; ?>
+        </div>
+        <?php elseif ($linkedContractor): ?>
+        <?php
+        $ctrCurrent = contractorCurrentContract($db, (int) $linkedContractor['id']);
+        $ctrDates = array_filter([
+            $linkedContractor['emirates_id_expiry'], $linkedContractor['passport_expiry'],
+            $linkedContractor['visa_expiry'], $linkedContractor['work_permit_expiry'], $linkedContractor['labor_card_expiry'],
+        ]);
+        $ctrWorst = null;
+        foreach ($ctrDates as $d) {
+            $days = intdiv(strtotime($d) - time(), 86400);
+            if ($ctrWorst === null || $days < $ctrWorst) { $ctrWorst = $days; }
+        }
+        $ctrState = $ctrWorst === null ? ['label' => 'No dates recorded', 'class' => 'bg-gray-100 text-gray-600']
+            : ($ctrWorst < 0 ? ['label' => 'Expired ' . abs($ctrWorst) . ' days ago', 'class' => 'bg-red-100 text-red-700']
+            : ($ctrWorst <= 60 ? ['label' => 'Expires in ' . $ctrWorst . ' days', 'class' => 'bg-amber-100 text-amber-700']
+            : ['label' => 'All documents valid', 'class' => 'bg-green-100 text-green-700']));
+        ?>
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+                Contractor Register
+                <a href="<?= url('modules/contractors/view.php?id=' . $linkedContractor['id']) ?>" class="text-blue-600 text-sm font-normal ml-2">
+                    <i class="fas fa-external-link-alt mr-1"></i>Open Contractor Profile
+                </a>
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Contractor Code</div>
+                    <div class="font-medium font-mono"><?= sanitize($linkedContractor['contractor_code']) ?></div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Register Status</div>
+                    <div class="font-medium capitalize"><?= sanitize($linkedContractor['status']) ?></div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Current Contract</div>
+                    <div class="font-medium">
+                        <?php if ($ctrCurrent): ?>
+                            <?= sanitize($ctrCurrent['contract_number']) ?>
+                            <span class="block text-xs text-gray-500 font-normal">
+                                <?= $ctrCurrent['end_date'] ? 'ends ' . date('M d, Y', strtotime($ctrCurrent['end_date'])) : 'open-ended' ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="text-gray-400">None</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wide">Compliance</div>
+                    <div class="mt-1"><span class="px-2 py-0.5 text-xs rounded <?= $ctrState['class'] ?>"><?= $ctrState['label'] ?></span></div>
                 </div>
             </div>
         </div>

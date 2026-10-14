@@ -187,6 +187,7 @@ if ($search !== '') {
             OR e.visa_number LIKE ?
             OR e.emirates_id_number LIKE ?
             OR e.nationality LIKE ?
+            OR e.contract_number LIKE ?
         )
     ";
 
@@ -206,6 +207,8 @@ if ($search !== '') {
     $params[] = $passportValue;
     $params[] = $passportValue;
     $params[] = $emiratesValue;
+    $params[] = $searchValue;
+    // Contract numbers keep their dashes and slashes, so match them verbatim.
     $params[] = $searchValue;
 }
 
@@ -752,7 +755,7 @@ $statusColors = [
                             <div class="flex items-center">
 
                                 <?php if (!empty($emp['photo_path'])): ?>
-                                <img src="<?= employeeFileUrl($emp['photo_path']) ?>"
+                                <img src="<?= attachmentFileUrl($emp['photo_path']) ?>"
                                      alt="<?= sanitize($employeeName) ?>"
                                      class="h-10 w-10 rounded-full object-cover border">
                                 <?php else: ?>

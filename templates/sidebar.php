@@ -54,6 +54,14 @@
             </a>
             <?php endif; ?>
 
+            <!-- ===== Contractors ===== -->
+            <?php if (hasPermission('contractors.view')): ?>
+            <a href="<?= url('modules/contractors/index.php') ?>">
+                <i class="fas fa-user-plus"></i>
+                <span>Contractors</span>
+            </a>
+            <?php endif; ?>
+
             <!-- ===== Finance ===== -->
             <?php if (hasPermission('finance.view') || hasPermission('budget.view') || hasPermission('budget.transfer') || hasPermission('budget.revise') || hasPermission('budget.report')): ?>
             <a href="<?= url('modules/finance/index.php') ?>">

@@ -4,10 +4,12 @@ $dashboardKey = 'hrms';
 require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
 
-if (!hasPermission('employees.view') && !hasPermission('departments.view') && !hasPermission('attendance.view')) { die('Access Denied'); }
+if (!hasPermission('employees.view') && !hasPermission('departments.view') && !hasPermission('attendance.view') && !hasPermission('contractors.view')) { die('Access Denied'); }
 
 $db = getDB();
 
+$totalContractors = $db->query("SELECT COUNT(*) FROM contractors WHERE deleted_at IS NULL")->fetchColumn();
+$activeContractors = $db->query("SELECT COUNT(*) FROM contractors WHERE status = 'active' AND deleted_at IS NULL")->fetchColumn();
 $totalEmployees = $db->query("SELECT COUNT(*) FROM employees")->fetchColumn();
 $activeEmployees = $db->query("SELECT COUNT(*) FROM employees WHERE status = 'active'")->fetchColumn();
 $inactiveEmployees = $db->query("SELECT COUNT(*) FROM employees WHERE status != 'active'")->fetchColumn();
@@ -178,6 +180,20 @@ $typeLabels = ['full_time' => 'Full Time', 'part_time' => 'Part Time', 'contract
 
 <!-- ===== Sub-Module Navigation Cards ===== -->
 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+    <?php if (hasPermission('contractors.view')): ?>
+    <a href="<?= url('modules/contractors/index.php') ?>" class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition group">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center group-hover:scale-110 transition">
+                <i class="fas fa-user-plus text-white"></i>
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-800 text-sm">Contractors</h3>
+                <p class="text-xs text-slate-400">Contingent workforce</p>
+            </div>
+        </div>
+        <span class="text-xl font-bold text-slate-800"><?= $activeContractors ?></span>
+    </a>
+    <?php endif; ?>
     <?php if (hasPermission('employees.view')): ?>
     <a href="<?= url('modules/employees/index.php') ?>" class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 hover:shadow-md transition group">
         <div class="flex items-center gap-3 mb-3">

@@ -61,6 +61,31 @@ $docSlots  = employeeDocSlots();
                 class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
         </div>
     </div>
+
+    <h4 class="text-sm font-semibold text-gray-700 mt-5 mb-3">Employment Contract</h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Contract Number</label>
+            <input type="text" id="contract_number" name="contract_number" value="<?= old('contract_number', $emp['contract_number'] ?? '') ?>"
+                   placeholder="MOHRE-2026-00014" class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Contract Start Date</label>
+            <input type="date" id="contract_start_date" name="contract_start_date" value="<?= old('contract_start_date', $emp['contract_start_date'] ?? '') ?>"
+                   class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Contract End Date</label>
+            <input type="date" id="contract_end_date" name="contract_end_date" value="<?= old('contract_end_date', $emp['contract_end_date'] ?? '') ?>"
+                   class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500">
+            <?php if (!empty($errors['contract_end_date'])): ?>
+            <p class="text-red-600 text-sm mt-1"><?= sanitize($errors['contract_end_date']) ?></p>
+            <?php endif; ?>
+            <?php if (!empty($errors['contract_start_date'])): ?>
+            <p class="text-red-600 text-sm mt-1"><?= sanitize($errors['contract_start_date']) ?></p>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
 <div>
@@ -71,19 +96,30 @@ $docSlots  = employeeDocSlots();
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <?php foreach ($docSlots as $slot => $label): ?>
-        <?php $doc = $slotDocs[$slot] ?? null; ?>
+        <?php
+            $doc = $slotDocs[$slot] ?? null;
+            $expiryColumn = employeeSlotExpiryColumn($slot);
+            $expiry = $expiryColumn ? ($emp[$expiryColumn] ?? '') : '';
+        ?>
         <div class="border rounded-lg p-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1" for="<?= $slot ?>"><?= $label ?></label>
+            <div class="flex items-start justify-between gap-2 mb-1">
+                <label class="block text-sm font-medium text-gray-700" for="<?= $slot ?>"><?= $label ?></label>
+                <?php if ($expiry): ?>
+                <span class="text-[11px] px-2 py-0.5 rounded-full <?= employeeExpiryChipClass($expiry) ?>">
+                    <?= date('M d, Y', strtotime($expiry)) ?>
+                </span>
+                <?php endif; ?>
+            </div>
 
             <?php if ($doc): ?>
             <?php if (strpos($doc['mime_type'] ?? '', 'image/') === 0): ?>
-            <img src="<?= employeeFileUrl($doc['file_path']) ?>" alt="<?= sanitize($label) ?>"
+            <img src="<?= attachmentFileUrl($doc['file_path']) ?>" alt="<?= sanitize($label) ?>"
                 class="w-full h-24 object-cover rounded border mb-2">
             <?php endif; ?>
             <div class="flex items-center gap-2 flex-wrap">
-                <?= employeeDocViewButton('View current file', $doc['file_path'], $doc['mime_type'] ?? '', $label . ' — ' . $doc['document_name']) ?>
+                <?= attachmentViewButton('View current file', $doc['file_path'], $doc['mime_type'] ?? '', $label . ' — ' . $doc['document_name']) ?>
                 <span class="text-xs text-gray-500">
-                    <?= sanitize($doc['document_name']) ?> &middot; <?= employeeFileSizeLabel($doc['file_size']) ?>
+                    <?= sanitize($doc['document_name']) ?> &middot; <?= attachmentSizeLabel($doc['file_size']) ?>
                 </span>
             </div>
             <label class="mt-2 inline-flex items-center gap-2 text-sm text-gray-600">
@@ -107,9 +143,9 @@ $docSlots  = employeeDocSlots();
 
             <div class="flex items-center gap-3 mb-2">
                 <?php if ($photoPath): ?>
-                <img src="<?= employeeFileUrl($photoPath) ?>" alt="" class="h-14 w-14 rounded-full object-cover border">
+                <img src="<?= attachmentFileUrl($photoPath) ?>" alt="" class="h-14 w-14 rounded-full object-cover border">
                 <div>
-                    <?= employeeDocViewButton('View', $photoPath, employeeMimeFromPath($photoPath), 'Profile Photo') ?>
+                    <?= attachmentViewButton('View', $photoPath, attachmentMimeFromPath($photoPath), 'Profile Photo') ?>
                     <label class="mt-1 flex items-center gap-2 text-sm text-gray-600">
                         <input type="checkbox" name="remove_photo" value="1"> Remove
                     </label>

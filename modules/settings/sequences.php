@@ -11,7 +11,7 @@ $errors = restoreFormErrors();
 $docLabels = [
     'customer_invoice' => 'Customer Invoice', 'credit_note' => 'Credit Note', 'receipt' => 'Customer Receipt',
     'journal_entry' => 'Journal Voucher', 'purchase_order' => 'Purchase Order', 'purchase_request' => 'Purchase Requisition',
-    'goods_receipt' => 'Goods Receipt Note', 'vendor_bill' => 'Vendor Bill', 'customer' => 'Customer Code', 'vendor' => 'Vendor Code',
+    'goods_receipt' => 'Goods Receipt Note', 'vendor_bill' => 'Vendor Bill', 'customer' => 'Customer Code', 'vendor' => 'Vendor Code', 'contractor' => 'Contractor Code', 'contractor_contract' => 'Contractor Contract Number',
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

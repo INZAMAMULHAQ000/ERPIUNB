@@ -3,6 +3,8 @@ $pageTitle = 'Create Person';
 require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
 require_once '../../helpers/validation.php';
+require_once __DIR__ . '/../contractors/document_service.php';
+require_once __DIR__ . '/../contractors/contract_service.php';
 
 if (!hasPermission('people_management.create')) {
     die('Access Denied');
@@ -170,11 +172,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $employeeId = $db->lastInsertId();
             }
 
+            // 2b. Create the contractor register entry if category = contractor
+            $contractorId = null;
+            if ($category === 'contractor') {
+                $ctrCode = contractorAllocateNumber($db, 'contractor', 'contractors', 'contractor_code');
+                $ctrStmt = $db->prepare("INSERT INTO contractors (
+                    contractor_code, first_name, last_name, gender, date_of_birth, email, phone, address,
+                    work_location, status, notes, user_id, created_by
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $ctrStmt->execute([
+                    $ctrCode,
+                    $data['first_name'],
+                    $data['last_name'] ?: null,
+                    $data['gender'] ?: null,
+                    $data['date_of_birth'] ?: null,
+                    $data['email'] ?: null,
+                    $data['phone'] ?: null,
+                    $data['address'] ?: null,
+                    $_POST['work_location'] ?: null,
+                    $data['status'] === 'active' ? 'active' : 'suspended',
+                    $data['notes'] ?: null,
+                    $userId,
+                    $_SESSION['user_id'],
+                ]);
+                $contractorId = (int) $db->lastInsertId();
+            }
+
             // 3. Create the person record
             $personStmt = $db->prepare("INSERT INTO people (
                 person_code, first_name, last_name, email, phone, address,
-                gender, date_of_birth, category, user_id, employee_id, customer_id, notes, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                gender, date_of_birth, category, user_id, employee_id, customer_id, contractor_id, notes, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             $personStmt->execute([
                 $personCode,
@@ -189,6 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $userId,
                 $employeeId,
                 $category === 'customer' && !empty($data['customer_id']) ? (int) $data['customer_id'] : null,
+                $contractorId,
                 $data['notes'] ?: null,
                 $data['status']
             ]);
@@ -196,7 +225,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->commit();
 
             logAudit($_SESSION['user_id'], 'create', 'people_management');
-            flash('success', 'Person created successfully');
+            if ($contractorId) {
+                flash('success', 'Person created and registered as a contractor (CTR #' . $contractorId . '). Add their right-to-work documents on the contractor profile.');
+            } else {
+                flash('success', 'Person created successfully');
+            }
             to('modules/people_management/index.php');
         } catch (PDOException $e) {
             $db->rollBack();
@@ -326,6 +359,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="fas fa-plus mr-1"></i>New
                     </a>
                     <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contractor-only fields -->
+        <div id="contractorFields" class="mt-6" style="<?= old('category') === 'contractor' ? '' : 'display:none' ?>">
+            <div class="border-t pt-4">
+                <h2 class="text-lg font-semibold mb-1">Contractor Register</h2>
+                <p class="text-xs text-gray-500 mb-3">
+                    Saving creates a register entry (CTR code) that holds this person's right-to-work
+                    documents, engagement contracts and rates.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Work Location</label>
+                        <input type="text" name="work_location" value="<?= old('work_location') ?>" placeholder="Dubai"
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="text-xs text-gray-500 self-end">
+                        <i class="fas fa-circle-info mr-1"></i>
+                        Nationality, Emirates ID, passport, visa, work permit and labour card are completed on
+                        the contractor profile after saving.
+                    </div>
                 </div>
             </div>
         </div>
@@ -467,6 +523,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         var custFields = document.getElementById('customerFields');
         if (custFields) {
             custFields.style.display = val === 'customer' ? '' : 'none';
+        }
+        var ctrFields = document.getElementById('contractorFields');
+        if (ctrFields) {
+            ctrFields.style.display = val === 'contractor' ? '' : 'none';
         }
     }
 

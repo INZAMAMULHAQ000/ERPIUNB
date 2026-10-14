@@ -3,6 +3,8 @@ $pageTitle = 'Edit Person';
 require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
 require_once '../../helpers/validation.php';
+require_once __DIR__ . '/../contractors/document_service.php';
+require_once __DIR__ . '/../contractors/contract_service.php';
 
 if (!hasPermission('people_management.edit')) {
     die('Access Denied');
@@ -125,6 +127,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
             }
     
+            // Update linked contractor register entry if exists.
+            // Status is deliberately not mirrored: the contractor register owns
+            // suspension and termination, and a directory edit must not undo it.
+            if ($person['contractor_id'] && $person['category'] === 'contractor') {
+                $ctrUpdate = $db->prepare("UPDATE contractors SET
+                    first_name = ?, last_name = ?, email = ?, phone = ?, address = ?,
+                    gender = ?, date_of_birth = ?, work_location = ?, notes = ?, updated_by = ?
+                    WHERE id = ?");
+                $ctrUpdate->execute([
+                    $data['first_name'],
+                    $data['last_name'] ?: null,
+                    $data['email'] ?: null,
+                    $data['phone'] ?: null,
+                    $data['address'] ?: null,
+                    $data['gender'] ?: null,
+                    $data['date_of_birth'] ?: null,
+                    $_POST['work_location'] ?: null,
+                    $data['notes'] ?: null,
+                    $_SESSION['user_id'],
+                    $person['contractor_id'],
+                ]);
+            }
+
             $db->commit();
     
             logAudit($_SESSION['user_id'], 'edit', 'people_management');

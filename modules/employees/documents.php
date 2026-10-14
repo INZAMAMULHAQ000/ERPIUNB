@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $doc = $docStmt->fetch();
 
         if ($doc && !in_array($doc['document_type'], $slotKeys, true)) {
-            employeeDeleteFile($doc['file_path']);
+            attachmentDeleteFile('employee', $doc['file_path']);
             $db->prepare("DELETE FROM employee_documents WHERE id = ? AND employee_id = ?")->execute([$docId, $id]);
             logAudit($_SESSION['user_id'], 'delete_document', 'employees');
             flash('success', 'Document deleted');
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $documentName = trim($_POST['document_name'] ?? '') ?: $_FILES['document']['name'];
 
         try {
-            $stored = employeeStoreFile($id, $documentType, $_FILES['document'], employeeDocMaxBytes());
+            $stored = attachmentStoreFile('employee', $id, $documentType, $_FILES['document'], employeeDocMaxBytes());
             $insert = $db->prepare("INSERT INTO employee_documents
                 (employee_id, document_type, document_name, file_path, file_size, mime_type, uploaded_by)
                 VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -168,7 +168,7 @@ $slotDocs = employeeSlotDocuments($db, $id);
                         <td class="px-4 py-3 text-sm text-gray-600">
                             <?= sanitize($docTypeLabels[$doc['document_type']] ?? $doc['document_type']) ?>
                         </td>
-                        <td class="px-4 py-3 text-sm text-gray-600"><?= employeeFileSizeLabel($doc['file_size']) ?></td>
+                        <td class="px-4 py-3 text-sm text-gray-600"><?= attachmentSizeLabel($doc['file_size']) ?></td>
                         <td class="px-4 py-3 text-sm text-gray-600">
                             <?= date('M d, Y', strtotime($doc['created_at'])) ?>
                             <?php if (!empty($doc['uploader_name'])): ?>
@@ -177,8 +177,8 @@ $slotDocs = employeeSlotDocuments($db, $id);
                         </td>
                         <td class="px-4 py-3 text-right">
                             <div class="flex items-center justify-end gap-3">
-                                <?= employeeDocViewButton('', $doc['file_path'], $doc['mime_type'] ?? '', $doc['document_name'], 'text-blue-600 hover:text-blue-900') ?>
-                                <a href="<?= employeeFileUrl($doc['file_path']) ?>" class="text-blue-600 hover:text-blue-900" title="Download">
+                                <?= attachmentViewButton('', $doc['file_path'], $doc['mime_type'] ?? '', $doc['document_name'], 'text-blue-600 hover:text-blue-900') ?>
+                                <a href="<?= attachmentFileUrl($doc['file_path']) ?>" class="text-blue-600 hover:text-blue-900" title="Download">
                                     <i class="fas fa-download"></i>
                                 </a>
                                 <?php if (!in_array($doc['document_type'], $slotKeys, true)): ?>
@@ -218,7 +218,7 @@ $slotDocs = employeeSlotDocuments($db, $id);
                 <li class="flex items-center justify-between p-2 bg-gray-50 rounded">
                     <span class="text-sm text-gray-700"><?= $label ?></span>
                     <?php if ($doc): ?>
-                    <?= employeeDocViewButton('View', $doc['file_path'], $doc['mime_type'] ?? '', $label . ' — ' . $doc['document_name']) ?>
+                    <?= attachmentViewButton('View', $doc['file_path'], $doc['mime_type'] ?? '', $label . ' — ' . $doc['document_name']) ?>
                     <?php else: ?>
                     <span class="text-xs text-gray-400">Not on record</span>
                     <?php endif; ?>
@@ -228,7 +228,7 @@ $slotDocs = employeeSlotDocuments($db, $id);
                 <li class="flex items-center justify-between p-2 bg-gray-50 rounded">
                     <span class="text-sm text-gray-700">Profile Photo</span>
                     <?php if (!empty($emp['photo_path'])): ?>
-                    <?= employeeDocViewButton('View', $emp['photo_path'], employeeMimeFromPath($emp['photo_path']), 'Profile Photo — ' . $emp['first_name'] . ' ' . $emp['last_name']) ?>
+                    <?= attachmentViewButton('View', $emp['photo_path'], attachmentMimeFromPath($emp['photo_path']), 'Profile Photo — ' . $emp['first_name'] . ' ' . $emp['last_name']) ?>
                     <?php else: ?>
                     <span class="text-xs text-gray-400">Not on record</span>
                     <?php endif; ?>
@@ -238,7 +238,7 @@ $slotDocs = employeeSlotDocuments($db, $id);
     </div>
 </div>
 
-<?php require __DIR__ . '/document_viewer.php'; ?>
+<?php require __DIR__ . '/../../templates/document_viewer.php'; ?>
 
 <?php require_once '../../includes/footer.php'; ?>
 

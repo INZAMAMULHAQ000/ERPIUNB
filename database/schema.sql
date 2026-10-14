@@ -5838,7 +5838,7 @@ CREATE TABLE `audit_logs` (
   KEY `idx_module` (`module`),
   KEY `idx_created_at` (`created_at`),
   CONSTRAINT `audit_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2153 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2432 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `bank_accounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -6803,6 +6803,197 @@ CREATE TABLE `consolidation_runs` (
   CONSTRAINT `fk_run_group` FOREIGN KEY (`group_id`) REFERENCES `company_groups` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `contractor_contracts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `contractor_contracts` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `contractor_id` int(10) unsigned NOT NULL,
+  `contract_number` varchar(50) NOT NULL,
+  `company_id` int(10) unsigned DEFAULT NULL,
+  `title` varchar(200) NOT NULL,
+  `contract_type` varchar(60) DEFAULT NULL,
+  `scope_of_work` text DEFAULT NULL,
+  `status` enum('draft','active','completed','terminated') NOT NULL DEFAULT 'draft',
+  `is_current` tinyint(1) unsigned DEFAULT NULL,
+  `supply_source` enum('direct','agency') NOT NULL DEFAULT 'direct',
+  `agency_vendor_id` int(10) unsigned DEFAULT NULL,
+  `department_id` int(10) unsigned DEFAULT NULL,
+  `designation_id` int(10) unsigned DEFAULT NULL,
+  `contractual_job_title` varchar(150) DEFAULT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `manager_employee_id` int(10) unsigned DEFAULT NULL,
+  `purchase_order_id` int(10) unsigned DEFAULT NULL,
+  `po_reference` varchar(60) DEFAULT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `work_arrangement` varchar(40) DEFAULT NULL,
+  `fte_allocation` decimal(5,2) DEFAULT NULL,
+  `rate_basis` varchar(40) DEFAULT NULL,
+  `rate_amount` decimal(15,2) DEFAULT NULL,
+  `currency_code` char(3) DEFAULT NULL,
+  `estimated_value` decimal(15,2) DEFAULT NULL,
+  `not_to_exceed_amount` decimal(15,2) DEFAULT NULL,
+  `billing_frequency` varchar(40) DEFAULT NULL,
+  `payment_terms` varchar(60) DEFAULT NULL,
+  `timesheet_required` tinyint(1) NOT NULL DEFAULT 0,
+  `security_clearance` varchar(60) DEFAULT NULL,
+  `badge_number` varchar(60) DEFAULT NULL,
+  `extension_count` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `extension_limit` smallint(5) unsigned DEFAULT NULL,
+  `extension_period_days` smallint(5) unsigned DEFAULT NULL,
+  `last_extended_on` date DEFAULT NULL,
+  `last_extension_reason` varchar(255) DEFAULT NULL,
+  `approved_by` int(10) unsigned DEFAULT NULL,
+  `approved_at` datetime DEFAULT NULL,
+  `ended_on` date DEFAULT NULL,
+  `end_reason` varchar(255) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `created_by` int(10) unsigned DEFAULT NULL,
+  `updated_by` int(10) unsigned DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_contract_number` (`contract_number`),
+  UNIQUE KEY `uq_one_current_contract` (`contractor_id`,`is_current`),
+  KEY `idx_contract_status_dates` (`status`,`start_date`,`end_date`),
+  KEY `idx_contract_agency` (`agency_vendor_id`),
+  KEY `idx_contract_company` (`company_id`),
+  KEY `idx_contract_project` (`project_id`),
+  KEY `idx_contract_po` (`purchase_order_id`),
+  KEY `fk_contract_department` (`department_id`),
+  KEY `fk_contract_designation` (`designation_id`),
+  KEY `fk_contract_manager` (`manager_employee_id`),
+  KEY `fk_contract_approved_by` (`approved_by`),
+  KEY `fk_contract_created_by` (`created_by`),
+  KEY `fk_contract_updated_by` (`updated_by`),
+  KEY `fk_contract_currency` (`currency_code`),
+  CONSTRAINT `fk_contract_agency` FOREIGN KEY (`agency_vendor_id`) REFERENCES `vendors` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contract_approved_by` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contract_company` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`),
+  CONSTRAINT `fk_contract_contractor` FOREIGN KEY (`contractor_id`) REFERENCES `contractors` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_contract_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contract_currency` FOREIGN KEY (`currency_code`) REFERENCES `currencies` (`code`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contract_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contract_designation` FOREIGN KEY (`designation_id`) REFERENCES `designations` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contract_manager` FOREIGN KEY (`manager_employee_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contract_project` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contract_purchase_order` FOREIGN KEY (`purchase_order_id`) REFERENCES `purchase_orders` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contract_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `contractor_documents`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `contractor_documents` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `contractor_id` int(10) unsigned NOT NULL,
+  `contract_id` int(10) unsigned DEFAULT NULL,
+  `document_type` varchar(50) NOT NULL,
+  `document_name` varchar(255) NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `file_size` int(11) DEFAULT NULL,
+  `mime_type` varchar(100) DEFAULT NULL,
+  `expires_on` date DEFAULT NULL,
+  `notes` varchar(255) DEFAULT NULL,
+  `uploaded_by` int(10) unsigned DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_contractor_doc_type` (`contractor_id`,`document_type`),
+  KEY `idx_contractor_doc_expiry` (`expires_on`),
+  KEY `fk_contractor_doc_contract` (`contract_id`),
+  KEY `fk_contractor_doc_user` (`uploaded_by`),
+  CONSTRAINT `fk_contractor_doc_contract` FOREIGN KEY (`contract_id`) REFERENCES `contractor_contracts` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contractor_doc_contractor` FOREIGN KEY (`contractor_id`) REFERENCES `contractors` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_contractor_doc_user` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `contractor_rate_schedules`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `contractor_rate_schedules` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `contract_id` int(10) unsigned NOT NULL,
+  `valid_from` date NOT NULL,
+  `valid_to` date DEFAULT NULL,
+  `rate_basis` varchar(40) DEFAULT NULL,
+  `rate_amount` decimal(15,2) NOT NULL,
+  `currency_code` char(3) DEFAULT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `created_by` int(10) unsigned DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_rate_valid_from` (`contract_id`,`valid_from`),
+  KEY `idx_rate_contract` (`contract_id`,`valid_from`),
+  KEY `fk_ctr_rate_created_by` (`created_by`),
+  KEY `fk_ctr_rate_currency` (`currency_code`),
+  CONSTRAINT `fk_ctr_rate_contract` FOREIGN KEY (`contract_id`) REFERENCES `contractor_contracts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_ctr_rate_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_ctr_rate_currency` FOREIGN KEY (`currency_code`) REFERENCES `currencies` (`code`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `contractors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `contractors` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `contractor_code` varchar(50) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) DEFAULT NULL,
+  `gender` enum('male','female','other') DEFAULT NULL,
+  `date_of_birth` date DEFAULT NULL,
+  `nationality` varchar(100) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` varchar(500) DEFAULT NULL,
+  `work_location` varchar(100) DEFAULT NULL,
+  `photo_path` varchar(500) DEFAULT NULL,
+  `contractor_category` varchar(60) DEFAULT NULL,
+  `specialisation` varchar(200) DEFAULT NULL,
+  `emirates_id_number` varchar(20) DEFAULT NULL,
+  `emirates_id_expiry` date DEFAULT NULL,
+  `passport_number` varchar(50) DEFAULT NULL,
+  `passport_expiry` date DEFAULT NULL,
+  `visa_number` varchar(50) DEFAULT NULL,
+  `visa_type` varchar(30) DEFAULT NULL,
+  `visa_expiry` date DEFAULT NULL,
+  `work_permit_number` varchar(50) DEFAULT NULL,
+  `work_permit_expiry` date DEFAULT NULL,
+  `labor_card_number` varchar(50) DEFAULT NULL,
+  `labor_card_expiry` date DEFAULT NULL,
+  `trn_number` varchar(40) DEFAULT NULL,
+  `bank_name` varchar(150) DEFAULT NULL,
+  `bank_account_number` varchar(60) DEFAULT NULL,
+  `account_holder_name` varchar(150) DEFAULT NULL,
+  `status` enum('active','suspended','terminated') NOT NULL DEFAULT 'active',
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `termination_date` date DEFAULT NULL,
+  `termination_reason` varchar(255) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `created_by` int(10) unsigned DEFAULT NULL,
+  `updated_by` int(10) unsigned DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_contractor_code` (`contractor_code`),
+  UNIQUE KEY `uq_contractor_email` (`email`),
+  KEY `idx_contractor_name` (`first_name`,`last_name`),
+  KEY `idx_contractor_status` (`status`),
+  KEY `idx_contractor_category` (`contractor_category`),
+  KEY `idx_contractor_emirates_id` (`emirates_id_number`),
+  KEY `idx_contractor_passport` (`passport_number`),
+  KEY `idx_contractor_deleted` (`deleted_at`),
+  KEY `fk_contractor_created_by` (`created_by`),
+  KEY `fk_contractor_updated_by` (`updated_by`),
+  KEY `idx_contractor_user` (`user_id`),
+  CONSTRAINT `fk_contractor_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contractor_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_contractor_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cost_centers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -7133,7 +7324,7 @@ CREATE TABLE `document_sequences` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_docseq_period` (`company_id`,`doc_type`,`period_key`),
   CONSTRAINT `fk_docseq_company` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=289 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=370 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `employee_documents`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -7155,7 +7346,7 @@ CREATE TABLE `employee_documents` (
   KEY `idx_employee_type` (`employee_id`,`document_type`),
   CONSTRAINT `employee_documents_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE,
   CONSTRAINT `employee_documents_ibfk_2` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `employee_expense_claims`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -7222,6 +7413,9 @@ CREATE TABLE `employees` (
   `department_id` int(10) unsigned DEFAULT NULL,
   `designation_id` int(10) unsigned DEFAULT NULL,
   `joining_date` date DEFAULT NULL,
+  `contract_number` varchar(50) DEFAULT NULL,
+  `contract_start_date` date DEFAULT NULL,
+  `contract_end_date` date DEFAULT NULL,
   `employment_type` enum('full_time','part_time','contract','intern') DEFAULT 'full_time',
   `reporting_manager_id` int(10) unsigned DEFAULT NULL,
   `work_location` varchar(255) DEFAULT NULL,
@@ -7242,11 +7436,13 @@ CREATE TABLE `employees` (
   KEY `user_id` (`user_id`),
   KEY `idx_passport_number` (`passport_number`),
   KEY `idx_emirates_id_number` (`emirates_id_number`),
+  KEY `idx_employee_contract_number` (`contract_number`),
+  KEY `idx_employee_contract_end` (`contract_end_date`),
   CONSTRAINT `employees_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL,
   CONSTRAINT `employees_ibfk_2` FOREIGN KEY (`designation_id`) REFERENCES `designations` (`id`) ON DELETE SET NULL,
   CONSTRAINT `employees_ibfk_3` FOREIGN KEY (`reporting_manager_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL,
   CONSTRAINT `employees_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `exchange_rates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -8628,7 +8824,7 @@ CREATE TABLE `lookup_values` (
   UNIQUE KEY `uq_lookup` (`type_key`,`value_key`),
   KEY `idx_lookup_active` (`type_key`,`is_active`,`sort_order`),
   CONSTRAINT `fk_lookup_type` FOREIGN KEY (`type_key`) REFERENCES `lookup_types` (`type_key`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=392 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `milestones`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -8886,6 +9082,7 @@ CREATE TABLE `people` (
   `user_id` int(10) unsigned DEFAULT NULL,
   `employee_id` int(10) unsigned DEFAULT NULL,
   `customer_id` int(10) unsigned DEFAULT NULL,
+  `contractor_id` int(10) unsigned DEFAULT NULL,
   `notes` text DEFAULT NULL,
   `status` enum('active','inactive') DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -8899,10 +9096,12 @@ CREATE TABLE `people` (
   KEY `user_id` (`user_id`),
   KEY `employee_id` (`employee_id`),
   KEY `fk_people_customer` (`customer_id`),
+  KEY `idx_people_contractor` (`contractor_id`),
+  CONSTRAINT `fk_people_contractor` FOREIGN KEY (`contractor_id`) REFERENCES `contractors` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_people_customer` FOREIGN KEY (`customer_id`) REFERENCES `clients` (`id`) ON DELETE SET NULL,
   CONSTRAINT `people_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `people_ibfk_2` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `period_checklist_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -9007,7 +9206,7 @@ CREATE TABLE `permissions` (
   KEY `idx_name` (`name`),
   KEY `idx_module` (`module`),
   KEY `idx_perms_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=6562 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6567 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `petty_cash_funds`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -10762,7 +10961,7 @@ CREATE TABLE `users` (
   KEY `idx_email` (`email`),
   KEY `idx_status` (`status`),
   KEY `idx_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=193 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=232 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `vendor_bill_approvals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

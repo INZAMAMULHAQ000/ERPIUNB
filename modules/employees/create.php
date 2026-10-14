@@ -97,9 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 employee_code, first_name, last_name, gender, date_of_birth, marital_status,
                 nationality, passport_number, passport_expiry, visa_type, visa_number, visa_expiry,
                 emirates_id_number, emirates_id_expiry,
-                phone, email, address, department_id, designation_id, joining_date,
+                joining_date, contract_number, contract_start_date, contract_end_date,
+                phone, email, address, department_id, designation_id,
                 employment_type, reporting_manager_id, work_location, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             $stmt->execute([
                 $employeeCode,
@@ -116,12 +117,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['visa_expiry'] ?: null,
                 $data['emirates_id_number'] ?: null,
                 $data['emirates_id_expiry'] ?: null,
+                $data['joining_date'],
+                $data['contract_number'] ?: null,
+                $data['contract_start_date'] ?: null,
+                $data['contract_end_date'] ?: null,
                 $data['phone'],
                 $data['email'],
                 $data['address'],
                 $data['department_id'],
                 $data['designation_id'],
-                $data['joining_date'],
                 $data['employment_type'],
                 $data['reporting_manager_id'] ?: null,
                 $data['work_location'],
@@ -433,10 +437,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
         /*
+         * Contract Number
+         * Letters, numbers, dashes and slashes, stored uppercase
+         */
+        $("#contract_number").on("input", function() {
+            this.value = this.value.replace(/[^A-Za-z0-9\/-]/g, "").toUpperCase();
+        });
+
+
+        /*
          * Document scans
          * Client-side size gate so an oversized file is rejected before upload
          */
-        $("#passport_copy, #visa_copy, #emirates_id_copy").on("change", function() {
+        $("#passport_copy, #visa_copy, #emirates_id_copy, #employment_contract_copy").on("change", function() {
             if (this.files.length && this.files[0].size > 5 * 1024 * 1024) {
                 alert(this.files[0].name + " is larger than 5 MB.");
                 this.value = "";
@@ -548,6 +561,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     date: true
                 },
 
+                contract_number: {
+                    maxlength: 50
+                },
+
+                contract_start_date: {
+                    date: true
+                },
+
+                contract_end_date: {
+                    date: true
+                },
+
                 status: {
                     required: true
                 }
@@ -631,6 +656,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     });
 </script>
-<?php require __DIR__ . '/document_viewer.php'; ?>
+<?php require __DIR__ . '/../../templates/document_viewer.php'; ?>
 
 <?php require_once '../../includes/footer.php'; ?>

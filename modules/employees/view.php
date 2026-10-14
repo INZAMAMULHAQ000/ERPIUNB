@@ -149,6 +149,18 @@ $visaLabels = employeeVisaTypes();
                     <p class="text-gray-900"><?= $emp['joining_date'] ? date('M d, Y', strtotime($emp['joining_date'])) : '-' ?></p>
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-500">Contract Number</label>
+                    <p class="text-gray-900 font-medium"><?= sanitize($emp['contract_number'] ?? '') ?: '-' ?></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Contract Start Date</label>
+                    <p class="<?= employeeExpiryClass($emp['contract_start_date'] ?? '') ?>"><?= $emp['contract_start_date'] ? date('M d, Y', strtotime($emp['contract_start_date'])) : '-' ?></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Contract End Date</label>
+                    <p class="<?= employeeExpiryClass($emp['contract_end_date'] ?? '') ?>"><?= $emp['contract_end_date'] ? date('M d, Y', strtotime($emp['contract_end_date'])) : '-' ?></p>
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-500">Reporting Manager</label>
                     <p class="text-gray-900"><?= $manager ? sanitize($manager['first_name'] . ' ' . $manager['last_name']) : '-' ?></p>
                 </div>
@@ -176,21 +188,30 @@ $visaLabels = employeeVisaTypes();
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <?php foreach (employeeDocSlots() as $slot => $label): ?>
-                <?php $doc = $slotDocs[$slot] ?? null; ?>
+                <?php
+                    $doc = $slotDocs[$slot] ?? null;
+                    $expiryColumn = employeeSlotExpiryColumn($slot);
+                    $expiry = $expiryColumn ? ($emp[$expiryColumn] ?? '') : '';
+                ?>
                 <div class="border rounded-lg p-4">
-                    <p class="text-sm font-medium text-gray-700 mb-2"><?= $label ?></p>
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <p class="text-sm font-medium text-gray-700"><?= $label ?></p>
+                        <?php if ($expiry): ?>
+                        <span class="text-[11px] px-2 py-0.5 rounded-full shrink-0 <?= employeeExpiryChipClass($expiry) ?>"><?= date('M d, Y', strtotime($expiry)) ?></span>
+                        <?php endif; ?>
+                    </div>
                     <?php if ($doc): ?>
                         <?php if (strpos($doc['mime_type'] ?? '', 'image/') === 0): ?>
-                        <img src="<?= employeeFileUrl($doc['file_path']) ?>" alt="<?= sanitize($label) ?>"
+                        <img src="<?= attachmentFileUrl($doc['file_path']) ?>" alt="<?= sanitize($label) ?>"
                             class="w-full h-28 object-cover rounded border mb-2">
                         <?php else: ?>
                         <div class="w-full h-28 rounded border bg-gray-50 flex items-center justify-center text-gray-400 mb-2">
                             <i class="fas <?= strpos($doc['mime_type'] ?? '', 'pdf') !== false ? 'fa-file-pdf text-3xl' : 'fa-file-word text-3xl' ?>"></i>
                         </div>
                         <?php endif; ?>
-                        <?= employeeDocViewButton('View', $doc['file_path'], $doc['mime_type'] ?? '', $doc['document_name']) ?>
+                        <?= attachmentViewButton('View', $doc['file_path'], $doc['mime_type'] ?? '', $doc['document_name']) ?>
                         <p class="text-xs text-gray-500 mt-2">
-                            <?= employeeFileSizeLabel($doc['file_size']) ?> &middot; <?= date('M d, Y', strtotime($doc['created_at'])) ?>
+                            <?= attachmentSizeLabel($doc['file_size']) ?> &middot; <?= date('M d, Y', strtotime($doc['created_at'])) ?>
                         </p>
                     <?php else: ?>
                         <div class="w-full h-28 rounded border border-dashed flex items-center justify-center text-gray-300 mb-2">
@@ -207,11 +228,11 @@ $visaLabels = employeeVisaTypes();
     <div class="space-y-6">
         <div class="bg-white rounded-lg shadow p-6 text-center">
             <?php if ($photoPath): ?>
-            <button type="button" onclick="employeeDocViewerOpen(this)"
-                data-url="<?= employeeFileUrl($photoPath) ?>" data-mime="<?= employeeMimeFromPath($photoPath) ?>"
+            <button type="button" onclick="attachmentViewerOpen(this)"
+                data-url="<?= attachmentFileUrl($photoPath) ?>" data-mime="<?= attachmentMimeFromPath($photoPath) ?>"
                 data-name="Profile Photo — <?= sanitize($emp['first_name'] . ' ' . $emp['last_name']) ?>"
                 class="block mx-auto" title="View photo">
-                <img src="<?= employeeFileUrl($photoPath) ?>" alt="<?= sanitize($emp['first_name']) ?>"
+                <img src="<?= attachmentFileUrl($photoPath) ?>" alt="<?= sanitize($emp['first_name']) ?>"
                     class="h-24 w-24 mx-auto rounded-full object-cover border-2 border-white shadow">
             </button>
             <?php else: ?>
@@ -245,8 +266,8 @@ $visaLabels = employeeVisaTypes();
                         <span class="text-sm truncate"><?= sanitize($doc['document_name']) ?></span>
                     </div>
                     <span class="flex items-center space-x-3 ml-2 shrink-0">
-                        <?= employeeDocViewButton('View', $doc['file_path'], $doc['mime_type'] ?? '', $doc['document_name']) ?>
-                        <a href="<?= employeeFileUrl($doc['file_path']) ?>" class="text-blue-600 hover:text-blue-900" title="Download">
+                        <?= attachmentViewButton('View', $doc['file_path'], $doc['mime_type'] ?? '', $doc['document_name']) ?>
+                        <a href="<?= attachmentFileUrl($doc['file_path']) ?>" class="text-blue-600 hover:text-blue-900" title="Download">
                             <i class="fas fa-download"></i>
                         </a>
                     </span>
@@ -260,6 +281,6 @@ $visaLabels = employeeVisaTypes();
     </div>
 </div>
 
-<?php require __DIR__ . '/document_viewer.php'; ?>
+<?php require __DIR__ . '/../../templates/document_viewer.php'; ?>
 
 <?php require_once '../../includes/footer.php'; ?>
