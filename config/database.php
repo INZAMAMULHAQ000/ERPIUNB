@@ -78,22 +78,42 @@ class CompatPDO extends PDO
 }
 
 // ——— Environment Detection ———
+// Credentials come from config/db.local.php when that file exists. Deciding by
+// file rather than by host or SAPI is what makes this safe on a real server:
+// cron and CLI entry points used to satisfy php_sapi_name() === 'cli' and would
+// silently connect to the local development database instead of production.
 $isLocal = (php_sapi_name() === 'cli')
         || in_array($_SERVER['SERVER_NAME'] ?? '', ['localhost', '127.0.0.1', '::1'])
         || in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', '::1']);
 
-if ($isLocal) {
+$localConfig = __DIR__ . '/db.local.php';
+
+if (is_file($localConfig)) {
+    $config = require $localConfig;
+    foreach (['host' => 'DB_HOST', 'name' => 'DB_NAME', 'user' => 'DB_USER', 'pass' => 'DB_PASS'] as $key => $const) {
+        if (!array_key_exists($key, (array) $config)) {
+            die("Database configuration error: config/db.local.php is missing the '$key' entry.");
+        }
+    }
+    define('DB_HOST', $config['host']);
+    define('DB_NAME', $config['name']);
+    define('DB_USER', $config['user']);
+    define('DB_PASS', $config['pass']);
+    define('IS_PRODUCTION', !empty($config['production']));
+} elseif ($isLocal) {
+    // Development default. XAMPP's root account has no password; a production
+    // host must ship config/db.local.php and never rely on this branch.
     define('DB_HOST', 'localhost');
     define('DB_NAME', 'erp_db');
     define('DB_USER', 'root');
     define('DB_PASS', '');
     define('IS_PRODUCTION', false);
 } else {
-    define('DB_HOST', 'localhost');
-    define('DB_NAME', 'u690977936_application');
-    define('DB_USER', 'u690977936_application');
-    define('DB_PASS', '2025+2026Km');
-    define('IS_PRODUCTION', true);
+    // Refusing to start is the only safe response: guessing credentials here is
+    // how a deployment ends up writing into the wrong database.
+    http_response_code(500);
+    error_log('config/db.local.php is absent — cannot resolve production database credentials.');
+    die('Application is not configured. Copy config/db.local.example.php to config/db.local.php.');
 }
 
 // ——— Production Error Handling ———

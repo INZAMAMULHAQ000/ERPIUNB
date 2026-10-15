@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'View Person';
 require_once '../../includes/header.php';
+require_once '../../helpers/people_onboarding.php';
 require_once __DIR__ . '/../contractors/document_service.php';
 require_once __DIR__ . '/../contractors/contract_service.php';
 
@@ -11,19 +12,25 @@ if (!hasPermission('people_management.view')) {
 $db = getDB();
 $id = (int)($_GET['id'] ?? 0);
 
-$stmt = $db->prepare("
-    SELECT p.*, u.name as user_name, u.email as user_email, u.status as user_status
-    FROM people p
-    LEFT JOIN users u ON p.user_id = u.id
-    WHERE p.id = ?
-");
-$stmt->execute([$id]);
-$person = $stmt->fetch();
+// peopleLoad() gives the person, their role set, and repairs any role whose
+// module record no longer exists, so this page cannot advertise a link that
+// has been deleted behind its back.
+$person = peopleLoad($db, $id);
 
 if (!$person) {
     flash('error', 'Person not found', 'error');
     to('modules/people_management/index.php');
 }
+
+$loginUser = null;
+if (!empty($person['user_id'])) {
+    $userStmt = $db->prepare("SELECT name, email, status FROM users WHERE id = ? LIMIT 1");
+    $userStmt->execute([(int) $person['user_id']]);
+    $loginUser = $userStmt->fetch();
+}
+$person['user_name'] = $loginUser['name'] ?? null;
+$person['user_email'] = $loginUser['email'] ?? null;
+$person['user_status'] = $loginUser['status'] ?? null;
 
 // Load linked employee data if applicable
 $employee = null;
@@ -61,7 +68,22 @@ $catColors = ['employee' => 'bg-blue-100 text-blue-800', 'customer' => 'bg-purpl
         </a>
         <h1 class="text-2xl font-bold text-gray-800"><?= sanitize($person['first_name'] . ' ' . $person['last_name']) ?></h1>
         <p class="text-gray-600">
-            <span class="px-2 py-0.5 text-xs rounded <?= $catColors[$person['category']] ?? 'bg-gray-100' ?>"><?= $catLabels[$person['category']] ?? $person['category'] ?></span>
+            <?php
+            $displayRoles = $person['roles'];
+            if (!$displayRoles && !empty($person['category'])) {
+                $displayRoles = [$person['category'] => ['status' => 'complete', 'record_id' => null]];
+            }
+            foreach (peopleRoleDefinitions() as $roleKey => $def):
+                if (!isset($displayRoles[$roleKey])) continue;
+                $state = $displayRoles[$roleKey]['status'];
+                $chip = $state === 'complete'
+                    ? ($catColors[$roleKey] ?? 'bg-gray-100 text-gray-800')
+                    : ($state === 'declined' ? 'bg-gray-100 text-gray-400' : 'bg-amber-100 text-amber-800');
+            ?>
+            <span class="px-2 py-0.5 text-xs rounded <?= $chip ?>">
+                <?= $catLabels[$roleKey] ?? ucfirst($roleKey) ?><?php if ($state !== 'complete'): ?> &middot; <?= $state === 'declined' ? 'declined' : 'to complete' ?><?php endif; ?>
+            </span>
+            <?php endforeach; ?>
             <span class="ml-2 text-sm">Code: <?= sanitize($person['person_code']) ?></span>
         </p>
     </div>
@@ -130,6 +152,23 @@ $catColors = ['employee' => 'bg-blue-100 text-blue-800', 'customer' => 'bg-purpl
             <?php endif; ?>
         </div>
 
+        <!-- Onboarding still open -->
+        <?php $openRoles = peoplePendingRoles($person); ?>
+        <?php if ($openRoles): ?>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-semibold text-amber-900 mb-1">Onboarding incomplete</h3>
+            <p class="text-sm text-amber-800 mb-3">
+                <?= count($openRoles) ?> selected person type<?= count($openRoles) === 1 ? '' : 's' ?> still
+                <?= count($openRoles) === 1 ? 'needs' : 'need' ?> details in
+                <?= htmlspecialchars(implode(', ', array_map(fn($d) => $d['module'], $openRoles)), ENT_QUOTES) ?>.
+                The person record and every completed role are already saved.
+            </p>
+            <a href="onboarding.php?person_id=<?= $person['id'] ?>" class="inline-block px-4 py-2 bg-amber-600 text-white text-sm rounded hover:bg-amber-700">
+                <i class="fas fa-list-check mr-1"></i>Continue onboarding
+            </a>
+        </div>
+        <?php endif; ?>
+
         <!-- Linked Customer -->
         <?php
         $linkedCustomer = null;
@@ -180,16 +219,16 @@ $catColors = ['employee' => 'bg-blue-100 text-blue-800', 'customer' => 'bg-purpl
             $linkedContractor = $ctrStmt->fetch();
         }
         ?>
-        <?php if ($canSeeRegister && $person['category'] === 'contractor' && !$linkedContractor): ?>
+        <?php if ($canSeeRegister && ($person['roles']['contractor']['status'] ?? '') === 'pending' && !$linkedContractor): ?>
         <div class="bg-white rounded-lg shadow p-6 mb-6 border-l-4 border-orange-400">
             <h3 class="text-lg font-semibold text-gray-800 mb-2">Not on the contractor register</h3>
             <p class="text-sm text-gray-600 mb-3">
-                This person is classified as a contractor but has no register entry, so their right-to-work
+                This person was selected as a contractor but has no register entry, so their right-to-work
                 documents and engagement contracts have nowhere to live.
             </p>
             <?php if (hasPermission('contractors.create')): ?>
-            <a href="<?= url('modules/contractors/form.php') ?>" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">
-                <i class="fas fa-user-plus mr-1"></i>Register contractor
+            <a href="<?= url('modules/contractors/form.php?person_id=' . $person['id']) ?>" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">
+                <i class="fas fa-user-plus mr-1"></i>Complete the contractor step
             </a>
             <?php endif; ?>
         </div>

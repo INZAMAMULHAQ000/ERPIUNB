@@ -8,6 +8,7 @@ require_once __DIR__ . '/document_service.php';
 require_once __DIR__ . '/contract_service.php';
 require_once __DIR__ . '/form_helpers.php';
 require_once __DIR__ . '/engagement_fields.php';
+require_once '../../helpers/people_onboarding.php';
 
 if (!hasPermission($isEdit ? 'contractors.edit' : 'contractors.create')) {
     die('Access Denied');
@@ -17,6 +18,13 @@ $db = getDB();
 $errors = restoreFormErrors();
 if (empty($errors)) {
     clearOldInput();
+}
+
+// A hand-off from People Management: register this contractor against an
+// existing shared person record. Absent that, the form is unchanged.
+$wizardPerson = $isEdit ? null : peopleOnboardingSubject($db, 'contractor');
+if ($wizardPerson) {
+    peopleOnboardingPrefill($wizardPerson, 'contractor');
 }
 
 $categories = lookupOptions('contractor.category', [
@@ -203,14 +211,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($e->errorInfo[1] == 1062) {
             $errors['email'] = 'That email is already used by a contractor.';
             saveFormState($errors);
-            to('modules/contractors/form.php');
+            to('modules/contractors/form.php' . ($wizardPerson ? '?person_id=' . (int) $wizardPerson['id'] : ''));
         }
         flash('error', 'Could not save the contractor: ' . $e->getMessage(), 'error');
         to($isEdit ? 'modules/contractors/form.php?id=' . $contractorId : 'modules/contractors/form.php');
     } catch (RuntimeException $e) {
         // Numbering not configured for the active company.
         flash('error', $e->getMessage(), 'error');
-        to('modules/contractors/form.php');
+        to('modules/contractors/form.php' . ($wizardPerson ? '?person_id=' . (int) $wizardPerson['id'] : ''));
+    }
+
+    // Linked immediately after the register row exists: a declined scan or an
+    // unfinished engagement later on must not leave the person unlinked.
+    if ($wizardPerson) {
+        $linked = peopleOnboardingLink($db, $wizardPerson, 'contractor', $contractorId);
+        flash($linked['ok'] ? 'wiz_ok' : 'wiz_err', $linked['message'], $linked['ok'] ? 'success' : 'error');
+        if (!$linked['ok']) {
+            peopleOnboardingClearReturn();
+        }
     }
 
     if ($engInput !== null) {
@@ -247,6 +265,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         flash('saved', $isEdit ? 'Contractor updated.' : 'Contractor created.', 'success');
     }
+
+    if ($wizardPerson) {
+        to(peopleOnboardingUrl($wizardPerson['id']));
+    }
+
     to('modules/contractors/view.php?id=' . $contractorId);
 }
 
@@ -291,13 +314,16 @@ $sections = [
             <?php if ($isEdit): ?>
                 <span class="font-mono"><?= htmlspecialchars($contractor['contractor_code']) ?></span>
                 &middot; <?= htmlspecialchars(trim($contractor['first_name'] . ' ' . $contractor['last_name'])) ?>
+            <?php elseif ($wizardPerson): ?>
+                Person <span class="font-mono"><?= htmlspecialchars($wizardPerson['person_code']) ?></span>
+                &middot; identity is prefilled from the shared record and saving links this register entry to that one person
             <?php else: ?>
                 Register a contingent worker and their right-to-work documents
             <?php endif; ?>
         </p>
     </div>
-    <a href="<?= url($isEdit ? 'modules/contractors/view.php?id=' . $contractorId : 'modules/contractors/index.php') ?>"
-       class="text-sm text-slate-500 hover:text-slate-800"><i class="fas fa-arrow-left mr-1.5"></i>Back</a>
+    <a href="<?= url($wizardPerson ? peopleOnboardingUrl($wizardPerson['id']) : ($isEdit ? 'modules/contractors/view.php?id=' . $contractorId : 'modules/contractors/index.php')) ?>"
+       class="text-sm text-slate-500 hover:text-slate-800"><i class="fas fa-arrow-left mr-1.5"></i><?= $wizardPerson ? 'Back to onboarding' : 'Back' ?></a>
 </div>
 
 <form method="post" enctype="multipart/form-data" id="contractorForm">

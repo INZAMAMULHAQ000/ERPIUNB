@@ -1,14 +1,14 @@
 # ERP database structure — `erp_db`
 
-Full data dictionary generated **2026-10-14 11:09:05** from the live database by
+Full data dictionary generated **2026-10-15 04:55:19** from the live database by
 `php newdump/generate_structure.php`. Read straight from `information_schema` — this file is never
 hand-maintained, so it always reflects the real schema.
 
 | | |
 |---|---|
-| Tables | **468** |
-| Columns | **6,111** |
-| Total rows | **12,469** |
+| Tables | **469** |
+| Columns | **6,119** |
+| Total rows | **12,542** |
 | Engine | InnoDB |
 | Character set | utf8mb4 |
 
@@ -28,7 +28,7 @@ Legend for the Key column below: `PK` primary, `UQ` unique, `IDX` indexed, `FK` 
 | [Helpdesk](#helpdesk) | 9 | 35 ||
 | [AI module](#ai-module) | 217 | 2,988 ||
 | [Configuration & Lookups](#configuration-lookups) | 21 | 456 ||
-| [System & Security](#system-security) | 9 | 3,577 ||
+| [System & Security](#system-security) | 10 | 3,650 ||
 | [Other](#other) | 24 | 102 ||
 
 ## Table index
@@ -281,7 +281,7 @@ Legend for the Key column below: `PK` primary, `UQ` unique, `IDX` indexed, `FK` 
 | [`asset_transfers`](#asset-transfers) | 14 | 0 | Finance & General Ledger |
 | [`asset_transfer_history`](#asset-transfer-history) | 16 | 0 | Finance & General Ledger |
 | [`attendance`](#attendance) | 10 | 218 | Employee & HR |
-| [`audit_logs`](#audit-logs) | 6 | 2,079 | System & Security |
+| [`audit_logs`](#audit-logs) | 6 | 2,147 | System & Security |
 | [`bank_accounts`](#bank-accounts) | 13 | 1 | Finance & General Ledger |
 | [`bank_reconciliation`](#bank-reconciliation) | 10 | 0 | Finance & General Ledger |
 | [`bank_reconciliation_items`](#bank-reconciliation-items) | 7 | 0 | Finance & General Ledger |
@@ -405,6 +405,7 @@ Legend for the Key column below: `PK` primary, `UQ` unique, `IDX` indexed, `FK` 
 | [`period_close_settings`](#period-close-settings) | 9 | 1 | Finance & General Ledger |
 | [`period_opening_balances`](#period-opening-balances) | 8 | 0 | Finance & General Ledger |
 | [`permissions`](#permissions) | 5 | 517 | System & Security |
+| [`person_roles`](#person-roles) | 8 | 2 | System & Security |
 | [`petty_cash_funds`](#petty-cash-funds) | 9 | 0 | Finance & General Ledger |
 | [`petty_cash_transactions`](#petty-cash-transactions) | 10 | 0 | Finance & General Ledger |
 | [`po_receiving_summary`](#po-receiving-summary) | 11 | 0 | Other |
@@ -442,7 +443,7 @@ Legend for the Key column below: `PK` primary, `UQ` unique, `IDX` indexed, `FK` 
 | [`rfq_vendors`](#rfq-vendors) | 8 | 98 | Procurement & Vendors |
 | [`rfq_vendor_communications`](#rfq-vendor-communications) | 8 | 98 | Procurement & Vendors |
 | [`roles`](#roles) | 5 | 3 | System & Security |
-| [`role_permissions`](#role-permissions) | 2 | 747 | System & Security |
+| [`role_permissions`](#role-permissions) | 2 | 750 | System & Security |
 | [`saved_reports`](#saved-reports) | 6 | 1 | Other |
 | [`scheduled_reports`](#scheduled-reports) | 12 | 0 | Other |
 | [`service_receipts`](#service-receipts) | 31 | 0 | Finance & General Ledger |
@@ -1113,7 +1114,7 @@ Legend for the Key column below: `PK` primary, `UQ` unique, `IDX` indexed, `FK` 
 | 2 | `person_code` | `varchar(50)` | **no** | UQ | *NULL* | — |
 | 3 | `first_name` | `varchar(100)` | **no** | — | *NULL* | — |
 | 4 | `last_name` | `varchar(100)` | yes | — | `NULL` | — |
-| 5 | `email` | `varchar(255)` | yes | IDX | `NULL` | — |
+| 5 | `email` | `varchar(255)` | yes | UQ | `NULL` | — |
 | 6 | `phone` | `varchar(50)` | yes | — | `NULL` | — |
 | 7 | `address` | `text` | yes | — | `NULL` | — |
 | 8 | `gender` | `enum('male','female','other')` | yes | — | `NULL` | — |
@@ -9390,7 +9391,7 @@ Legend for the Key column below: `PK` primary, `UQ` unique, `IDX` indexed, `FK` 
 
 ### audit_logs
 
-6 columns · 2,079 rows
+6 columns · 2,147 rows
 
 | # | Column | Type | Null | Key | Default | Notes |
 |---:|---|---|---|---|---|---|
@@ -9429,6 +9430,21 @@ Legend for the Key column below: `PK` primary, `UQ` unique, `IDX` indexed, `FK` 
 | 4 | `created_at` | `timestamp` | **no** | — | current_timestamp() | — |
 | 5 | `deleted_at` | `timestamp` | yes | IDX | `NULL` | — |
 
+### person_roles
+
+8 columns · 2 rows
+
+| # | Column | Type | Null | Key | Default | Notes |
+|---:|---|---|---|---|---|---|
+| 1 | `id` | `int(10) unsigned` | **no** | PK | *NULL* | auto increment |
+| 2 | `person_id` | `int(10) unsigned` | **no** | IDX FK | *NULL* | people.id (on delete cascade) |
+| 3 | `role` | `enum('employee','customer','contractor')` | **no** | IDX | *NULL* | — |
+| 4 | `status` | `enum('pending','complete','declined')` | **no** | — | `'pending'` | — |
+| 5 | `record_id` | `int(10) unsigned` | yes | — | `NULL` | — |
+| 6 | `completed_at` | `timestamp` | yes | — | `NULL` | — |
+| 7 | `created_at` | `timestamp` | **no** | — | current_timestamp() | — |
+| 8 | `updated_at` | `timestamp` | **no** | — | current_timestamp() | on update current_timestamp() |
+
 ### report_audit_log
 
 9 columns · 19 rows
@@ -9459,7 +9475,7 @@ Legend for the Key column below: `PK` primary, `UQ` unique, `IDX` indexed, `FK` 
 
 ### role_permissions
 
-2 columns · 747 rows
+2 columns · 750 rows
 
 | # | Column | Type | Null | Key | Default | Notes |
 |---:|---|---|---|---|---|---|

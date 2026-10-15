@@ -3,6 +3,7 @@ $pageTitle = 'Edit Person';
 require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
 require_once '../../helpers/validation.php';
+require_once '../../helpers/people_onboarding.php';
 require_once __DIR__ . '/../contractors/document_service.php';
 require_once __DIR__ . '/../contractors/contract_service.php';
 
@@ -13,9 +14,9 @@ if (!hasPermission('people_management.edit')) {
 $db = getDB();
 $id = (int)($_GET['id'] ?? 0);
 
-$stmt = $db->prepare("SELECT * FROM people WHERE id = ?");
-$stmt->execute([$id]);
-$person = $stmt->fetch();
+// peopleLoad() also returns the person's role set and repairs any role whose
+// module record has gone away, which is what the checkboxes below reflect.
+$person = peopleLoad($db, $id);
 
 if (!$person) {
     flash('error', 'Person not found', 'error');
@@ -40,33 +41,87 @@ if ($person['employee_id']) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifyCsrf($_POST['csrf_token'] ?? '')) {
+        flash('error', 'Invalid security token. Please try again.');
+        to('modules/people_management/edit.php?id=' . $id);
+    }
+
+    $gender = $_POST['gender'] ?? '';
+    $status = $_POST['status'] ?? 'active';
+    $dob = trim((string) ($_POST['date_of_birth'] ?? ''));
+
     $data = [
-        'first_name' => $_POST['first_name'] ?? '',
-        'last_name' => $_POST['last_name'] ?? '',
-        'email' => $_POST['email'] ?? '',
-        'phone' => $_POST['phone'] ?? '',
-        'address' => $_POST['address'] ?? '',
-        'gender' => $_POST['gender'] ?? '',
-        'date_of_birth' => $_POST['date_of_birth'] ?? '',
-        'category' => $_POST['category'] ?? $person['category'],
-        'notes' => $_POST['notes'] ?? '',
-        'status' => $_POST['status'] ?? 'active',
+        'first_name' => trim($_POST['first_name'] ?? ''),
+        'last_name' => trim($_POST['last_name'] ?? ''),
+        'email' => trim($_POST['email'] ?? ''),
+        'phone' => trim($_POST['phone'] ?? ''),
+        'address' => trim($_POST['address'] ?? ''),
+        'gender' => in_array($gender, ['male', 'female', 'other'], true) ? $gender : '',
+        'date_of_birth' => $dob !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $dob) ? $dob : '',
+        'notes' => trim($_POST['notes'] ?? ''),
+        'status' => in_array($status, ['active', 'inactive'], true) ? $status : 'active',
     ];
 
-    $validationRules = [
+    $errors = validate($data, [
         'first_name' => 'required|min:2|max:100',
         'email' => 'required|email',
-    ];
-
-    // Don't require category change validation
-    $errors = validate($data, $validationRules);
+    ]);
+    if ($dob !== '' && $data['date_of_birth'] === '') {
+        $errors['date_of_birth'] = 'Date of Birth must be a valid date';
+    }
 
     // Check email uniqueness (exclude self)
     if (empty($errors['email'])) {
-        $check = $db->prepare("SELECT id FROM people WHERE email = ? AND id != ?");
+        $check = $db->prepare("SELECT id FROM people WHERE email = ? AND id != ? LIMIT 1");
         $check->execute([$data['email'], $id]);
         if ($check->fetch()) {
             $errors['email'] = 'A person with this email already exists';
+        }
+    }
+
+    /*
+     * Roles. A role that already has a record behind it cannot be dropped here:
+     * the link is what ties payroll, invoices and contracts to this person, and
+     * removing it silently would orphan real records. Adding a role only records
+     * the intention — the module form collects the details.
+     */
+    $selected = peopleNormaliseRoles($_POST['roles'] ?? []);
+    if (!$selected) {
+        $errors['roles'] = 'A person must have at least one person type';
+    }
+
+    // Roles recorded for this person right now, ignoring any that were
+    // declined on purpose.
+    $current = array_keys(array_filter(
+        $person['roles'],
+        fn($row) => $row['status'] !== 'declined'
+    ));
+
+    foreach ($current as $role) {
+        if (in_array($role, $selected, true)) {
+            continue;
+        }
+        $def = peopleRoleDefinition($role);
+        if (!empty($person[$def['link_column']])) {
+            $errors['roles'] = $def['label'] . ' cannot be removed here — this person is linked to a record in '
+                . $def['module'] . '.';
+        }
+    }
+
+    // The identity mirror below writes email into records whose email column is
+    // UNIQUE. Checking first turns a would-be rollback with a raw PDO message
+    // into a field error on this form.
+    if (!$errors) {
+        foreach (peopleRoleDefinitions() as $role => $def) {
+            if (empty($person[$def['link_column']])) {
+                continue;
+            }
+            $dupe = $db->prepare("SELECT id FROM `{$def['table']}` WHERE email = ? AND id <> ? LIMIT 1");
+            $dupe->execute([$data['email'], (int) $person[$def['link_column']]]);
+            if ($dupe->fetch()) {
+                $errors['email'] = 'That email already belongs to another ' . strtolower($def['label']) . ' record';
+                break;
+            }
         }
     }
 
@@ -92,20 +147,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data['address'] ?: null,
                 $data['gender'] ?: null,
                 $data['date_of_birth'] ?: null,
-                $data['category'],
+                peoplePrimaryRole($selected),
                 $data['notes'] ?: null,
                 $data['status'],
                 $id
             ]);
     
-            // Update linked employee record if exists
-            if ($person['employee_id'] && $person['category'] === 'employee') {
+            // Update linked employee record if one exists.
+            // Employment status is deliberately not mirrored: a directory edit
+            // must not silently demote a resigned or terminated employee.
+            if ($person['employee_id']) {
                 $empUpdate = $db->prepare("UPDATE employees SET
                     first_name = ?, last_name = ?, email = ?, phone = ?, address = ?,
                     gender = ?, date_of_birth = ?,
                     department_id = ?, designation_id = ?, joining_date = ?,
-                    employment_type = ?, reporting_manager_id = ?, work_location = ?,
-                    status = ?
+                    employment_type = ?, reporting_manager_id = ?, work_location = ?
                     WHERE id = ?");
     
                 $empUpdate->execute([
@@ -122,7 +178,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_POST['employment_type'] ?? 'full_time',
                     $_POST['reporting_manager_id'] ?: null,
                     $_POST['work_location'] ?: null,
-                    $data['status'] === 'active' ? 'active' : 'inactive',
                     $person['employee_id']
                 ]);
             }
@@ -130,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Update linked contractor register entry if exists.
             // Status is deliberately not mirrored: the contractor register owns
             // suspension and termination, and a directory edit must not undo it.
-            if ($person['contractor_id'] && $person['category'] === 'contractor') {
+            if ($person['contractor_id']) {
                 $ctrUpdate = $db->prepare("UPDATE contractors SET
                     first_name = ?, last_name = ?, email = ?, phone = ?, address = ?,
                     gender = ?, date_of_birth = ?, work_location = ?, notes = ?, updated_by = ?
@@ -150,9 +205,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
             }
 
+            // Keep the role set in step with the checkboxes, inside the same
+            // transaction so the person and their roles never disagree.
+            if ($person['customer_id']) {
+                $name = trim($data['first_name'] . ' ' . $data['last_name']);
+                $db->prepare("UPDATE clients SET company_name = ?, contact_person = ?, email = ?, phone = ? WHERE id = ?")
+                   ->execute([$name, $name, $data['email'] ?: null, $data['phone'] ?: null, (int) $person['customer_id']]);
+            }
+
+            foreach (peopleRoleDefinitions() as $role => $def) {
+                if (in_array($role, $selected, true) && !isset($person['roles'][$role])) {
+                    peopleRoleAdd($db, $person, $role);
+                }
+            }
+            foreach (array_keys($person['roles']) as $role) {
+                if (!in_array($role, $selected, true) && empty($person[peopleRoleDefinition($role)['link_column']])) {
+                    peopleRoleRemove($db, $person, $role);
+                }
+            }
+
             $db->commit();
     
             logAudit($_SESSION['user_id'], 'edit', 'people_management');
+
+            $newlyPending = array_values(array_diff($selected, $current));
+            if ($newlyPending) {
+                flash('success', 'Person updated. ' . count($newlyPending)
+                    . ' new person type(s) need their details completing in their own module.');
+                to(peopleOnboardingUrl($id));
+            }
+
             flash('success', 'Person updated successfully');
             to('modules/people_management/view.php?id=' . $id);
     
@@ -163,6 +245,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
 
 }
+
+// Reached only on an error path — every successful save redirects away.
+$pendingRoles = peoplePendingRoles($person);
+$roleIcons = [
+    'employee'   => 'fa-user-tie text-blue-500',
+    'customer'   => 'fa-handshake text-purple-500',
+    'contractor' => 'fa-file-signature text-orange-500',
+];
 ?>
 <div class="mb-6">
     <a href="view.php?id=<?= $id ?>" class="text-blue-600 hover:text-blue-900">
@@ -183,7 +273,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <?php endif; ?>
 
-    <form method="POST" class="space-y-6">
+    <form method="POST" id="personForm" class="space-y-6" autocomplete="off">
+        <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
         <!-- Identity -->
         <div>
             <h3 class="text-lg font-medium text-gray-800 mb-3 border-b pb-2">Identity Information</h3>
@@ -230,23 +321,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <!-- Category -->
+        <!-- Person types -->
         <div>
-            <h3 class="text-lg font-medium text-gray-800 mb-3 border-b pb-2">Category</h3>
-            <div>
-                <span class="px-3 py-1.5 text-sm rounded bg-gray-100 text-gray-700 inline-block">
-                    <i class="fas fa-info-circle mr-1"></i>
+            <h3 class="text-lg font-medium text-gray-800 mb-1 border-b pb-2">Person Types</h3>
+            <p class="text-xs text-gray-500 mt-2 mb-3">
+                Tick one or more. A newly ticked type only records the role — its details are collected in
+                that module, against this same person. Crossed-out types already have a record behind them
+                and can only be removed from that module.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <?php foreach (peopleRoleDefinitions() as $roleKey => $def): ?>
                     <?php
-                    $catLabels = ['employee' => 'Employee', 'customer' => 'Customer', 'contractor' => 'Contractor'];
+                    $row = $person['roles'][$roleKey] ?? null;
+                    $linked = !empty($person[$def['link_column']]);
+                    $checked = $row !== null && $row['status'] !== 'declined';
+                    $state = $linked ? 'completed' : ($row['status'] ?? 'not selected');
                     ?>
-                    <?= $catLabels[$person['category']] ?? $person['category'] ?>
-                </span>
-                <p class="text-xs text-gray-500 mt-1">Category cannot be changed after creation. Create a new record if the category needs to change.</p>
+                    <label class="relative border rounded-lg p-4 <?= $linked ? 'bg-gray-50' : 'cursor-pointer hover:border-blue-400 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50' ?>">
+                        <?php if ($linked): ?>
+                            <!-- A disabled control posts nothing, and this role must
+                                 survive the submit because its record exists. -->
+                            <input type="hidden" name="roles[]" value="<?= $roleKey ?>">
+                        <?php endif; ?>
+                        <input type="checkbox" name="roles[]" value="<?= $roleKey ?>" class="sr-only"
+                            <?= $checked ? 'checked' : '' ?> <?= $linked ? 'disabled' : '' ?>>
+                        <div>
+                            <div class="font-medium"><i class="fas <?= $roleIcons[$roleKey] ?> mr-2"></i><?= $def['label'] ?></div>
+                            <div class="text-xs mt-1 <?= $linked ? 'text-gray-500' : 'text-gray-500' ?>">
+                                <?php if ($linked): ?>
+                                    <i class="fas fa-circle-check text-green-600 mr-1"></i>Record exists in <?= $def['module'] ?>
+                                <?php elseif ($row === null): ?>
+                                    Not selected
+                                <?php elseif ($row['status'] === 'pending'): ?>
+                                    <i class="fas fa-clock text-amber-500 mr-1"></i>Awaiting details
+                                <?php else: ?>
+                                    <i class="fas fa-circle-minus text-gray-400 mr-1"></i>Declined
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </label>
+                <?php endforeach; ?>
             </div>
+            <?php if ($pendingRoles): ?>
+                <a href="onboarding.php?person_id=<?= $id ?>" class="inline-block mt-3 text-sm text-amber-700 hover:text-amber-900">
+                    <i class="fas fa-arrow-right mr-1"></i>Continue onboarding (<?= count($pendingRoles) ?> type<?= count($pendingRoles) === 1 ? '' : 's' ?> still open)
+                </a>
+            <?php endif; ?>
         </div>
 
         <!-- Employee-only fields -->
-        <?php if ($person['category'] === 'employee'): ?>
+        <?php if (!empty($person['employee_id'])): ?>
         <div id="employeeFields">
             <h3 class="text-lg font-medium text-gray-800 mb-3 border-b pb-2">Employment Information</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -360,10 +484,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     maxlength: 100
                 },
 
-                category: {
-                    required: true
-                },
-
                 email: {
                     required: true,
                     email: true
@@ -375,19 +495,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 department_id: {
                     required: function() {
-                        return $('input[name="category"]:checked').val() === 'employee';
+                        return $('#employeeFields').length > 0;
                     }
                 },
 
                 designation_id: {
                     required: function() {
-                        return $('input[name="category"]:checked').val() === 'employee';
+                        return $('#employeeFields').length > 0;
                     }
                 },
 
                 joining_date: {
                     required: function() {
-                        return $('input[name="category"]:checked').val() === 'employee';
+                        return $('#employeeFields').length > 0;
                     }
                 },
 
@@ -406,10 +526,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     required: "First Name is required",
                     minlength: "First Name must be at least 2 characters",
                     maxlength: "First Name must not exceed 100 characters"
-                },
-
-                category: {
-                    required: "Please select a category"
                 },
 
                 email: {

@@ -4,6 +4,7 @@ require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
 require_once '../../helpers/validation.php';
 require_once __DIR__ . '/document_service.php';
+require_once '../../helpers/people_onboarding.php';
 
 if (!hasPermission('employees.create')) {
     die('Access Denied');
@@ -13,6 +14,13 @@ $db = getDB();
 $errors = restoreFormErrors();
 if (empty($errors)) {
     clearOldInput();
+}
+
+// People Management hands this form over to finish one role of a person's
+// onboarding. With no valid hand-off this page behaves exactly as before.
+$wizardPerson = peopleOnboardingSubject($db, 'employee');
+if ($wizardPerson) {
+    peopleOnboardingPrefill($wizardPerson, 'employee');
 }
 
 $departments = $db->query("SELECT * FROM departments WHERE status = 'active' ORDER BY department_name")->fetchAll();
@@ -149,6 +157,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($employeeId > 0) {
         logAudit($_SESSION['user_id'], 'create', 'employees');
 
+        // The relationship is recorded as soon as the row exists, so a scan
+        // rejected further down cannot leave an employee unlinked.
+        if ($wizardPerson) {
+            $linked = peopleOnboardingLink($db, $wizardPerson, 'employee', $employeeId);
+            flash($linked['ok'] ? 'wiz_ok' : 'wiz_err', $linked['message'], $linked['ok'] ? 'success' : 'error');
+            if (!$linked['ok']) {
+                peopleOnboardingClearReturn();
+            }
+        }
+
         // The record now exists, so the scans can be filed against it. Anything
         // that fails here is reported on the edit form rather than rolled back.
         $uploadErrors = [];
@@ -168,20 +186,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             to('modules/employees/edit.php?id=' . $employeeId);
         }
 
+        if ($wizardPerson) {
+            to(peopleOnboardingUrl($wizardPerson['id']));
+        }
+
         flash('success', 'Employee created successfully');
         to('modules/employees/index.php');
     }
 }
 ?>
 
-<div class="mb-6">
-    <a href="index.php" class="text-blue-600 hover:text-blue-900">
-        <i class="fas fa-arrow-left mr-1"></i>Back to Employees
-    </a>
+<div class="mb-6 flex justify-between items-center">
+    <?php if ($wizardPerson): ?>
+        <a href="<?= url(peopleOnboardingUrl($wizardPerson['id'])) ?>" class="text-blue-600 hover:text-blue-900">
+            <i class="fas fa-arrow-left mr-1"></i>Back to onboarding for <?= sanitize(trim($wizardPerson['first_name'] . ' ' . $wizardPerson['last_name'])) ?>
+        </a>
+        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+            <i class="fas fa-user-plus mr-1"></i>Person <?= sanitize($wizardPerson['person_code']) ?> &middot; Employee step
+        </span>
+    <?php else: ?>
+        <a href="index.php" class="text-blue-600 hover:text-blue-900">
+            <i class="fas fa-arrow-left mr-1"></i>Back to Employees
+        </a>
+    <?php endif; ?>
 </div>
 
 <div class="bg-white rounded-lg shadow p-6">
-    <h2 class="text-xl font-semibold mb-6">Create New Employee</h2>
+    <h2 class="text-xl font-semibold mb <?= $wizardPerson ? '1' : '6' ?>">Create New Employee</h2>
+    <?php if ($wizardPerson): ?>
+    <p class="text-sm text-gray-500 mb-6">
+        Identity is prefilled from the shared person record and stays the same across every role.
+        Saving links this employee to that one person.
+    </p>
+    <?php endif; ?>
 
     <?php if ($errors): ?>
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">

@@ -41,3 +41,17 @@ tmp/
 # Uploads
 uploads/*
 !uploads/.gitkeep
+
+# ============================================================================
+# Production database artefacts — these hold live personal data (passport and
+# Emirates ID numbers, bcrypt hashes, journal and invoice rows, encrypted AI
+# provider keys). They are backups for import, not source, and must never be
+# committed. See newdump/README.md, which is safe to track.
+# ============================================================================
+newdump/*.sql
+newdump/*.sql.gz
+newdump/*.err
+
+# Real production database credentials. config/db.local.php is read by
+# config/database.php; only the template belongs in git.
+config/db.local.php

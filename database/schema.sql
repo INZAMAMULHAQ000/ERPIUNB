@@ -5838,7 +5838,7 @@ CREATE TABLE `audit_logs` (
   KEY `idx_module` (`module`),
   KEY `idx_created_at` (`created_at`),
   CONSTRAINT `audit_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2432 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2561 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `bank_accounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -6379,7 +6379,7 @@ CREATE TABLE `clients` (
   CONSTRAINT `fk_clients_parent` FOREIGN KEY (`parent_client_id`) REFERENCES `clients` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_clients_receivable_acct` FOREIGN KEY (`default_receivable_account_id`) REFERENCES `chart_of_accounts` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_clients_sales_rep` FOREIGN KEY (`sales_representative_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `clients_pre_customer_master_20261012`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -6992,7 +6992,7 @@ CREATE TABLE `contractors` (
   CONSTRAINT `fk_contractor_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_contractor_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_contractor_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cost_centers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -7324,7 +7324,7 @@ CREATE TABLE `document_sequences` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_docseq_period` (`company_id`,`doc_type`,`period_key`),
   CONSTRAINT `fk_docseq_company` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=370 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=392 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `employee_documents`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -7442,7 +7442,7 @@ CREATE TABLE `employees` (
   CONSTRAINT `employees_ibfk_2` FOREIGN KEY (`designation_id`) REFERENCES `designations` (`id`) ON DELETE SET NULL,
   CONSTRAINT `employees_ibfk_3` FOREIGN KEY (`reporting_manager_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL,
   CONSTRAINT `employees_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `exchange_rates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -9089,6 +9089,7 @@ CREATE TABLE `people` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `person_code` (`person_code`),
+  UNIQUE KEY `uq_people_email` (`email`),
   KEY `idx_person_code` (`person_code`),
   KEY `idx_category` (`category`),
   KEY `idx_status` (`status`),
@@ -9101,7 +9102,7 @@ CREATE TABLE `people` (
   CONSTRAINT `fk_people_customer` FOREIGN KEY (`customer_id`) REFERENCES `clients` (`id`) ON DELETE SET NULL,
   CONSTRAINT `people_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `people_ibfk_2` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `period_checklist_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -9207,6 +9208,26 @@ CREATE TABLE `permissions` (
   KEY `idx_module` (`module`),
   KEY `idx_perms_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6567 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `person_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `person_roles` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `person_id` int(10) unsigned NOT NULL,
+  `role` enum('employee','customer','contractor') NOT NULL,
+  `status` enum('pending','complete','declined') NOT NULL DEFAULT 'pending',
+  `record_id` int(10) unsigned DEFAULT NULL,
+  `completed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_person_role` (`person_id`,`role`),
+  KEY `idx_person_roles_progress` (`person_id`,`status`),
+  KEY `idx_person_roles_role` (`role`),
+  KEY `fk_pr_person` (`person_id`),
+  CONSTRAINT `fk_person_roles_person` FOREIGN KEY (`person_id`) REFERENCES `people` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `petty_cash_funds`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -10016,7 +10037,7 @@ CREATE TABLE `roles` (
   UNIQUE KEY `name` (`name`),
   KEY `idx_name` (`name`),
   KEY `idx_roles_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `saved_reports`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -10961,7 +10982,7 @@ CREATE TABLE `users` (
   KEY `idx_email` (`email`),
   KEY `idx_status` (`status`),
   KEY `idx_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=232 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=237 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `vendor_bill_approvals`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

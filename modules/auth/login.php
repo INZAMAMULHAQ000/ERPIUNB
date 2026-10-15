@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Please enter email and password';
     } else {
         $db = getDB();
-        $stmt = $db->prepare("SELECT id, name, email, password, status FROM users WHERE email = ?");
+        $stmt = $db->prepare("SELECT id, name, email, password, status FROM users WHERE email = ? AND deleted_at IS NULL");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
@@ -259,6 +259,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <h1 class="ms-h1">Sign in</h1>
         <p class="ms-sub">to continue to <strong>ERP System</strong></p>
+
+        <?php
+        // middleware/auth.php leaves this behind when a session outlived the
+        // account using it, so the redirect explains itself instead of looking
+        // like a broken login form.
+        $notice = getFlash('expired');
+        ?>
+        <?php if (!empty($notice['message'])): ?>
+        <div class="ms-err" role="alert" style="background:#FFF4E5;border-left-color:#B26A00;color:#8A5300">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span><?= htmlspecialchars($notice['message']) ?></span>
+        </div>
+        <?php endif; ?>
 
         <?php if ($error): ?>
         <div class="ms-err" role="alert">

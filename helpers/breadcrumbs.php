@@ -168,6 +168,11 @@ function generateBreadcrumbs($customPath = null)
         'view.php' => 'View',
         'delete.php' => 'Delete',
         'documents.php' => 'Documents',
+        // The customer and contractor masters use one form.php for both create and
+        // edit; without this they read "Customers › Form" in the trail.
+        'form.php' => 'Record Details',
+        'onboarding.php' => 'Onboarding',
+        'people_management' => 'People Management',
         'print.php' => 'Print',
         'approve.php' => 'Approve',
         'cancel.php' => 'Cancel',

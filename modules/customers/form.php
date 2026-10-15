@@ -3,11 +3,25 @@ $isEdit = isset($_GET['id']) && (int) $_GET['id'] > 0;
 $pageTitle = $isEdit ? 'Edit Customer' : 'New Customer';
 require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
+require_once '../../helpers/people_onboarding.php';
 
 if (!hasPermission($isEdit ? 'customers.edit' : 'customers.create')) { die('Access Denied'); }
 
 $db = getDB();
 $errors = restoreFormErrors();
+// This form is the only one in the app that never released its slot, so a
+// person handed over from People Management could leak into the next unrelated
+// form. Clearing here keeps the shared old-input session per form visit.
+if (empty($errors)) {
+    clearOldInput();
+}
+
+// A hand-off from People Management: this customer record is one role of an
+// existing shared person. Without it the form behaves exactly as before.
+$wizardPerson = $isEdit ? null : peopleOnboardingSubject($db, 'customer');
+if ($wizardPerson) {
+    peopleOnboardingPrefill($wizardPerson, 'customer');
+}
 
 // ————— Reference data —————
 $currencies = getCurrencies();
@@ -229,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($errors) {
         saveFormState($errors);
         flash('validation', 'Please correct the highlighted fields.', 'error');
-        to('modules/customers/' . ($isEdit ? 'form.php?id=' . (int) $_GET['id'] : 'form.php'));
+        to('modules/customers/form.php' . ($isEdit ? '?id=' . (int) $_GET['id'] : ($wizardPerson ? '?person_id=' . (int) $wizardPerson['id'] : '')));
     }
 
     // Build the column set with correct typing. Numeric columns that are NOT NULL
@@ -293,6 +307,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash('db', 'Could not save customer: ' . $e->getMessage(), 'error');
         to('modules/customers/index.php');
     }
+
+    if ($wizardPerson) {
+        $linked = peopleOnboardingLink($db, $wizardPerson, 'customer', $savedId);
+        flash($linked['ok'] ? 'wiz_ok' : 'wiz_err', $linked['message'], $linked['ok'] ? 'success' : 'error');
+        if (!$linked['ok']) {
+            peopleOnboardingClearReturn();
+        }
+        to(peopleOnboardingUrl($wizardPerson['id']));
+    }
+
     to('modules/customers/view.php?id=' . $savedId);
 }
 
@@ -308,12 +332,19 @@ $spanCls = [1 => 'lg:col-span-1', 2 => 'lg:col-span-2', 3 => 'lg:col-span-3', 4 
         <p class="text-gray-500 text-sm mt-1">
             <?php if ($isEdit): ?>
                 <span class="font-mono"><?= htmlspecialchars($customer['client_code']) ?></span> &middot; <?= htmlspecialchars($customer['company_name']) ?>
+            <?php elseif ($wizardPerson): ?>
+                Person <span class="font-mono"><?= htmlspecialchars($wizardPerson['person_code']) ?></span>
+                &middot; opening as an <strong>individual</strong> customer named after the shared record; saving links it to that one person
             <?php else: ?>
                 Create a customer record for AR, sales and service
             <?php endif; ?>
         </p>
     </div>
-    <a href="<?= url('modules/customers/index.php') ?>" class="text-sm text-slate-500 hover:text-slate-800"><i class="fas fa-arrow-left mr-1.5"></i>Back to list</a>
+    <?php if ($wizardPerson): ?>
+        <a href="<?= url(peopleOnboardingUrl($wizardPerson['id'])) ?>" class="text-sm text-slate-500 hover:text-slate-800"><i class="fas fa-arrow-left mr-1.5"></i>Back to onboarding</a>
+    <?php else: ?>
+        <a href="<?= url('modules/customers/index.php') ?>" class="text-sm text-slate-500 hover:text-slate-800"><i class="fas fa-arrow-left mr-1.5"></i>Back to list</a>
+    <?php endif; ?>
 </div>
 
 <?php if ($isEdit && hasPermission('customers.view')): ?>

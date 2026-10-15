@@ -4,6 +4,7 @@ $pageTitle = 'People Management';
 require_once '../../includes/header.php';
 require_once '../../helpers/redirect.php';
 require_once '../../helpers/pagination.php';
+require_once '../../helpers/people_onboarding.php';
 
 if (!hasPermission('people_management.view')) {
     die('Access Denied');
@@ -206,7 +207,10 @@ if ($search !== '') {
 }
 
 if ($category !== '') {
-    $where .= " AND p.category = ?";
+    // A person can hold several roles, so filtering is on the role set rather
+    // than on the single primary category.
+    $where .= " AND EXISTS (SELECT 1 FROM person_roles pr
+                            WHERE pr.person_id = p.id AND pr.role = ?)";
     $params[] = $category;
 }
 
@@ -268,6 +272,9 @@ $people = $stmt->fetchAll();
 |--------------------------------------------------------------------------
 | Stats
 |--------------------------------------------------------------------------
+| Every tile describes the whole directory. `$total` is the filtered count that
+| drives pagination, so using it for "Total People" made that figure change
+| whenever somebody searched or filtered.
 */
 $totalActive = (int)$db->query("
     SELECT COUNT(*) AS c
@@ -275,25 +282,32 @@ $totalActive = (int)$db->query("
     WHERE status = 'active'
 ")->fetch()['c'];
 
-$totalInactive = (int)$db->query("
+$totalAll = (int)$db->query("
     SELECT COUNT(*) AS c
     FROM people
-    WHERE status = 'inactive'
 ")->fetch()['c'];
 
+$roleSummary = peopleRoleSummary($db, array_column($people, 'id'));
+
+// One person can now hold several roles, so per-type counts come from the role
+// set. Only completed roles are counted, so each figure reconciles with the
+// records that actually exist in its module.
 $categoryCounts = $db->query("
     SELECT
-        category,
+        role,
         COUNT(*) AS cnt
-    FROM people
-    GROUP BY category
+    FROM person_roles
+    WHERE status = 'complete'
+    GROUP BY role
 ")->fetchAll();
 
 $catMap = [];
 
 foreach ($categoryCounts as $row) {
-    $catMap[$row['category']] = (int)$row['cnt'];
+    $catMap[$row['role']] = (int)$row['cnt'];
 }
+
+$highlight = (int) ($_GET['highlight'] ?? 0);
 
 $csrf = csrfToken();
 
@@ -403,7 +417,7 @@ $catColors = [
         </h1>
 
         <p class="text-gray-600">
-            Central directory — Employees, Customers &amp; Contractors
+            Central directory — one person can be an Employee, a Customer and a Contractor at the same time
         </p>
     </div>
 
@@ -440,8 +454,15 @@ $catColors = [
         </div>
 
         <div class="text-2xl font-bold text-gray-800">
-            <?= $total ?>
+            <?= $totalAll ?>
         </div>
+
+        <?php if ($search !== '' || $category !== '' || $status !== ''): ?>
+            <div class="text-xs text-gray-500 mt-1">
+                <?= $total ?> matching this search
+                <a href="index.php" class="text-blue-600 hover:text-blue-900 ml-1">clear</a>
+            </div>
+        <?php endif; ?>
 
     </div>
 
@@ -503,6 +524,11 @@ $catColors = [
 
 </div>
 
+<p class="text-xs text-gray-500 -mt-2 mb-6">
+    Person-type tiles count directory entries whose record is completed in that module. One person can
+    appear in several of them, and unfinished steps are shown on the row itself.
+</p>
+
 
 <!-- ============================================================
      FILTER
@@ -550,7 +576,7 @@ $catColors = [
                 <label
                     for="category"
                     class="block text-sm font-medium text-gray-700 mb-1">
-                    Category
+                    Person Type
                 </label>
 
                 <div class="relative">
@@ -736,7 +762,7 @@ $catColors = [
                     </th>
 
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Category
+                        Person Types
                     </th>
 
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -780,15 +806,30 @@ $catColors = [
 
                     $personName = trim($firstName . ' ' . $lastName);
 
-                    $categoryKey = $person['category'] ?? '';
+                    $roleId = (int) $person['id'];
 
-                    $categoryLabel =
-                        $catLabels[$categoryKey]
-                        ?? ucfirst($categoryKey);
+                    /*
+                     * Roles come from the role set. A person with no rows there
+                     * predates it, so their single category is shown instead —
+                     * historical records stay readable either way.
+                     */
+                    $personRoles = $roleSummary[$roleId] ?? [];
 
-                    $categoryColor =
-                        $catColors[$categoryKey]
-                        ?? 'bg-gray-100 text-gray-800';
+                    if (!$personRoles && !empty($person['category'])) {
+                        $personRoles = [$person['category'] => 'complete'];
+                    }
+
+                    $orderedRoles = [];
+                    foreach (array_keys(peopleRoleDefinitions()) as $roleKey) {
+                        if (isset($personRoles[$roleKey])) {
+                            $orderedRoles[$roleKey] = $personRoles[$roleKey];
+                        }
+                    }
+
+                    $pendingCount = count(array_filter(
+                        $personRoles,
+                        fn($state) => $state === 'pending'
+                    ));
 
                     $personStatus = $person['status'] ?? 'inactive';
 
@@ -796,7 +837,7 @@ $catColors = [
 
                     ?>
 
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50 <?= $highlight && $highlight === $roleId ? 'bg-amber-50' : '' ?>">
 
                         <!-- Person -->
                         <td class="px-6 py-4">
@@ -837,16 +878,34 @@ $catColors = [
                         </td>
 
 
-                        <!-- Category -->
+                        <!-- Person types -->
                         <td class="px-6 py-4">
 
-                            <span
-                                class="px-2 py-1
-                                       text-xs
-                                       rounded
-                                       <?= $categoryColor ?>">
-                                <?= htmlspecialchars($categoryLabel, ENT_QUOTES, 'UTF-8') ?>
-                            </span>
+                            <div class="flex flex-wrap gap-1">
+                            <?php foreach ($orderedRoles as $roleKey => $state): ?>
+                                <?php
+                                $badge = $state === 'complete'
+                                    ? ($catColors[$roleKey] ?? 'bg-gray-100 text-gray-800')
+                                    : ($state === 'declined'
+                                        ? 'bg-gray-100 text-gray-400'
+                                        : 'bg-amber-100 text-amber-800');
+                                $glyph = $state === 'complete' ? 'fa-circle-check'
+                                    : ($state === 'declined' ? 'fa-circle-minus' : 'fa-clock');
+                                ?>
+                                <span class="px-2 py-1 text-xs rounded <?= $badge ?>"
+                                      title="<?= $state === 'pending' ? 'Details still to be completed in ' . htmlspecialchars(peopleRoleDefinition($roleKey)['module'], ENT_QUOTES) : ucfirst($state) ?>">
+                                    <i class="fas <?= $glyph ?> mr-1"></i><?= htmlspecialchars($catLabels[$roleKey] ?? ucfirst($roleKey), ENT_QUOTES, 'UTF-8') ?>
+                                </span>
+                            <?php endforeach; ?>
+                            </div>
+
+                            <?php if ($pendingCount && hasPermission('people_management.view')): ?>
+                                <a href="onboarding.php?person_id=<?= $roleId ?>"
+                                   class="inline-block mt-1 text-xs text-amber-700 hover:text-amber-900">
+                                    <i class="fas fa-arrow-right mr-1"></i>Continue onboarding
+                                    (<?= $pendingCount ?> left)
+                                </a>
+                            <?php endif; ?>
 
                         </td>
 
